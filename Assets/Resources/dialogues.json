@@ -1,0 +1,99 @@
+{
+  "groups": [
+    {
+      "groupName": "Quest1",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Guard",
+          "nameTag": "성문 경비병",
+          "sprite": "neutral",
+          "text": "퀘스트 1, 인삿말입니다.",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Eto",
+          "nameTag": "Eto",
+          "sprite": "neutral",
+          "text": "퀘스트 1, 내용 전달입니다.",
+          "next": "3",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "3",
+          "speaker": "Guard",
+          "nameTag": "성문 경비병",
+          "sprite": "neutral",
+          "text": "퀘스트 1, 인삿말",
+          "next": "4",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "4",
+          "speaker": "Eto",
+          "nameTag": "Eto",
+          "sprite": "neutral",
+          "text": "퀘스트 1, 인삿말",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+    },
+    {
+      "groupName": "QuestMinimalize1",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Guard",
+          "nameTag": "성문 경비병",
+          "sprite": "neutral",
+          "text": "퀘스트 1, 퀘스트 받은 후 대화입니다.",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Eto",
+          "nameTag": "Eto",
+          "sprite": "neutral",
+          "text": "퀘스트 1, 여기서는 해야할 일을 간략히 말합니다.",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+    },
+    {
+      "groupName": "Quest2",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Guard",
+          "nameTag": "성문 경비병",
+          "sprite": "neutral",
+          "text": "퀘스트 2, 첫 대사입니다.",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Eto",
+          "nameTag": "Eto",
+          "sprite": "neutral",
+          "text": "퀘스트 2, 두 번째 대사입니다.",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+    }
+  ]
+}
