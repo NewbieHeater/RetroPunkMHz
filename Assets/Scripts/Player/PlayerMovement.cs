@@ -4,6 +4,24 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+
+
+
+
+
+
+
+
+    //NotInUse
+
+
+
+
+
+
+
+
+
     [Header("Player Stats")]
     [SerializeField] private int moveSpeed;
     [SerializeField] private int jumpPower;
