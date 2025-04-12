@@ -1209,9 +1209,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
-  m_Height: 1
+  m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &712982521
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1246,7 +1246,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712982517}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9cbe0e2e55c9b984fb9491d4b32f3a30, type: 3}
   m_Name: 
@@ -1263,6 +1263,48 @@ MonoBehaviour:
   movement: {x: 0, y: 0, z: 0}
   isJumping: 0
   isGrounded: 1
+--- !u!114 &712982523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712982517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45ad7004744adeb47955a8f72974d076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSpeed: 5
+  accelerationTime: 0.1
+  decelerationTime: 0.2
+  airAccelerationTime: 0.2
+  airControl: 0.5
+  maxJumpHeight: 4
+  timeToJumpApex: 0.304
+  allowDoubleJump: 0
+  maxAirJumps: 0
+  upwardMovementMultiplier: 1
+  downwardMovementMultiplier: 6.17
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  jumpCutOff: 1
+  groundCheck: {fileID: 712982525}
+  groundCheckRadius: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  isGrounded: 0
+  jumpSpeed: 4
+  gravMultiplier: -1
+  variablejumpHeight: 1
+  speedLimit: 4
+  velocity: {x: 0, y: 0}
+--- !u!4 &712982525 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
+  m_PrefabInstance: {fileID: 1679043529}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &960131392
 GameObject:
   m_ObjectHideFlags: 0
@@ -2056,6 +2098,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 007b85f2732ddc541b43f3a624978f0a, type: 2}
+    - target: {fileID: 5866666021909216657, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7603786706384944740, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -2064,6 +2110,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 712982523}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
       insertIndex: -1
       addedObject: {fileID: 712982522}

@@ -19,7 +19,7 @@ public class VendingMachine : InteractableNPCBase
     protected override void Start()
     {
         base.Start();
-        ConditionManager.Instance.SetCondition(condition.conditionName, false);
+        //ConditionManager.Instance.SetCondition(condition.conditionName, false);
 
         // 초기에는 상호작용 힌트 UI 비활성화
         if (interactionHintUI != null)
