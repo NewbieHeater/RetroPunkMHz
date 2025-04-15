@@ -646,7 +646,7 @@ MonoBehaviour:
   maxDistance: 0.4
   groundLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   drawGizmo: 1
 --- !u!114 &1269470726
 MonoBehaviour:
