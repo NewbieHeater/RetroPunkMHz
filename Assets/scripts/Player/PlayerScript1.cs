@@ -2,15 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PlayerState
+public class PlayerScript1 : playerAbility
 {
-    Idle,
-    Ground,
-    MidAir
-}
-public class PlayerScript : playerAbility
-{
-    public bool doubleJump = true;
+    public bool isAttacked;
+    public bool doubleJump;
 
     public PlayerState currentState;
     [Header("Transform References")]
@@ -46,8 +41,8 @@ public class PlayerScript : playerAbility
     private Vector3 nextFixedPosition;
     private Quaternion nextFixedRotation;
     
-    private static PlayerScript player;
-    public static PlayerScript GetInstance()
+    private static PlayerScript1 player;
+    public static PlayerScript1 GetInstance()
     {
         return player;
     }
@@ -114,25 +109,20 @@ public class PlayerScript : playerAbility
 
     // Update is called once per frame
     void Update()
-    {//####################### 이 부분 집중 ####################################
+    {
         switch (currentState)
         {
             case PlayerState.Idle:
-                attack();
-                jump();
                 move();
-                if (Input.anyKey && isGround)
+                jump();
+                if (Input.anyKey)
                 {
                     changeState(PlayerState.Ground);
                     break;
                 }
-                if(!isGround)
-                {
-                    changeState(PlayerState.MidAir);
-                }
                 break;
             case PlayerState.Ground:
-                if (!Input.anyKey)
+                if(isAttacked == true)
                 {
                     changeState(PlayerState.Idle);
                     break;
@@ -142,28 +132,29 @@ public class PlayerScript : playerAbility
                     changeState(PlayerState.MidAir);
                     break;
                 }
-                attack();
-                jump();
                 move();
+                jump();
                 doubleJump = true;
                 break;
             case PlayerState.MidAir:
+                if (isAttacked)
+                {
+                    changeState(PlayerState.Idle);
+                    break;
+                }
                 if (isGround)
                 {
                     changeState(PlayerState.Ground);
                     break;
                 }
-                if (Input.GetKeyDown(KeyCode.Space) && doubleJump == true)
+                if (doubleJump == true)
                 {
                     jump();
                     doubleJump = false;
                 }
-                attack();
-                move();
                 break;
         }
-    //##########################################################################
-    
+
         isGround = m_groundChecker.IsGrounded();
         //animator.SetBool("isGrounded", isGround);
 

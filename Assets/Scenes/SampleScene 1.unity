@@ -620,7 +620,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1269470727}
-  - component: {fileID: 1269470726}
+  - component: {fileID: 1269470729}
   - component: {fileID: 1269470725}
   - component: {fileID: 1269470728}
   m_Layer: 0
@@ -648,39 +648,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   drawGizmo: 1
---- !u!114 &1269470726
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1269470724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3489ce9d3b9e2d742831f11c69b04948, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHp: 100
-  hp: 0
-  maxSp: 10
-  sp: 0
-  hpSlider: {fileID: 374624769}
-  spSlider: {fileID: 1290210352}
-  doubleJump: 1
-  currentState: 0
-  movementOrientation: {fileID: 1269470727}
-  characterMesh: {fileID: 1718275903}
-  speed: 10
-  gravitationalAcceleration: 10
-  jumpForce: 10
-  lookForwardThreshold: 0.095
-  lookForwardSpeed: 10
-  steppingObj: {fileID: 0}
-  isGround: 0
-  jumpFlag: 0
-  flyFlag: 0
-  attackFlag: 0
-  staCoolDown: 0
 --- !u!4 &1269470727
 Transform:
   m_ObjectHideFlags: 0
@@ -724,6 +691,40 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1269470729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1269470724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be11e97795900a549877c3c4485dfacf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHp: 100
+  hp: 0
+  maxSp: 10
+  sp: 0
+  hpSlider: {fileID: 374624769}
+  spSlider: {fileID: 1290210352}
+  isAttacked: 0
+  doubleJump: 0
+  currentState: 0
+  movementOrientation: {fileID: 1269470727}
+  characterMesh: {fileID: 1718275903}
+  speed: 10
+  gravitationalAcceleration: 10
+  jumpForce: 10
+  lookForwardThreshold: 0.09
+  lookForwardSpeed: 10
+  steppingObj: {fileID: 0}
+  isGround: 0
+  jumpFlag: 0
+  flyFlag: 0
+  attackFlag: 0
+  staCoolDown: 0
 --- !u!1 &1290210350
 GameObject:
   m_ObjectHideFlags: 0
@@ -949,7 +950,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c2f1a5684567d04a9ad7696d5260c43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerScript: {fileID: 1269470726}
+  _playerScript: {fileID: 1269470729}
 --- !u!1 &1470724283
 GameObject:
   m_ObjectHideFlags: 0
@@ -1189,7 +1190,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 86192c9edb5889c4c95fb509c337419d, type: 2}
+  - {fileID: 2100000, guid: de038713d683ce946aff46a58b88f0c5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
