@@ -724,7 +724,7 @@ Transform:
   m_GameObject: {fileID: 500050554}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.5, z: 0}
+  m_LocalPosition: {x: 0, y: 2.27, z: 0}
   m_LocalScale: {x: 5, y: 0.3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1196,7 +1196,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 712982517}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 4a9855884e986144eb5a1cd57d36b1d4, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1234,9 +1234,9 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!114 &712982522
@@ -1276,30 +1276,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpeed: 5
-  accelerationTime: 0.1
+  accelerationTime: 0.2
   decelerationTime: 0.2
-  airAccelerationTime: 0.2
-  airControl: 0.5
-  maxJumpHeight: 4
-  timeToJumpApex: 0.304
+  airControl: 1
+  maxJumpHeight: 10
+  timeToJumpApex: 0.2
   allowDoubleJump: 0
   maxAirJumps: 0
-  upwardMovementMultiplier: 1
-  downwardMovementMultiplier: 6.17
-  coyoteTime: 0.1
+  upwardMovementMultiplier: 1.6
+  downwardMovementMultiplier: 1.72
+  coyoteTime: 0.3
   jumpBufferTime: 0.1
   jumpCutOff: 1
-  groundCheck: {fileID: 712982525}
-  groundCheckRadius: 0.2
+  groundCheck: {fileID: 987702749}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   isGrounded: 0
   jumpSpeed: 4
-  gravMultiplier: -1
+  defaultGravityScale: 1
+  gravityMultiplier: 0
   variablejumpHeight: 1
-  speedLimit: 4
-  velocity: {x: 0, y: 0}
+  speedLimit: 15
+  desiredJump: 0
+  velocity: {x: 0, y: 0, z: 0}
+  horVelocity: {x: 0, y: 0, z: 0}
 --- !u!4 &712982525 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
@@ -1472,6 +1473,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &987702748
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 987702749}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &987702749
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 987702748}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 712982525}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1038993157
 GameObject:
@@ -2036,7 +2068,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.38
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2108,7 +2140,10 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 980f0328365fe7043b5fba60bef368ee, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 987702749}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c7ee8be37c0a6dc47b63a32df5b4ee12, type: 3}
       insertIndex: -1
