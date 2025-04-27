@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public Character player;
+    public CharacterController player;
 
     void Start()
     {

@@ -10,9 +10,15 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
     // 각 NPC마다 다른 동작을 위해 추상 메서드로 둡니다.
     public abstract void Interact();
 
+    private void Awake()
+    {
+        //interactionHintUI.SetActive(false);
+        //interactionHintUI.SetActive(false);
+    }
+
     protected virtual void Start()
     {
-        interactionHintUI.SetActive(false);
+        
     }
 
     // 기본 상호작용 힌트 문구 (필요시 파생 클래스에서 override 가능)
@@ -45,6 +51,14 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
                 interactionHintUI.SetActive(false);
             // 플레이어 현재 상호작용 대상 해제
 
+        }
+    }
+
+    protected void Update()
+    {
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
+        {
+            Interact();
         }
     }
 }

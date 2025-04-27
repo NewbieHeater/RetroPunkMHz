@@ -1,5 +1,7 @@
-using Unity.VisualScripting;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CharacterController : MonoBehaviour
 {
@@ -13,7 +15,8 @@ public class CharacterController : MonoBehaviour
     public float decelerationTime = 0.2f;
     [Range(0f, 1f), Tooltip("공중 조작 정도 (0 = 공중 조작 불가, 1 = 지면 조작과 동일)")]
     public float airControl = 0.5f;
-
+    [Tooltip("회전 속도")]
+    public float rotationSpeed = 0.2f;
     // ============ 점프 설정 ============
     [Header("Jump Settings")]
     [Tooltip("최대 점프 높이")]
@@ -21,6 +24,8 @@ public class CharacterController : MonoBehaviour
     [SerializeField, Range(0.2f, 1.25f)]
     [Tooltip("최대 높이까지 걸리는 시간")]
     public float timeToJumpApex;
+    [Tooltip("이중 점프 활성화 여부")]
+    public bool doubleJumpActive = false;
     [Tooltip("이중 점프 허용 여부")]
     public bool allowDoubleJump = false;
     [Tooltip("이중 점프 허용 횟수")]
@@ -68,20 +73,28 @@ public class CharacterController : MonoBehaviour
     public Vector3 velocity;
     public Vector3 horVelocity;
     private float coyoteTimer;
-    Vector3 customGravity;
+    float hitTimer = 0;
+    public GameObject playerMesh;
+
+    Animator animator;
     // 초기화
     void Start()
     {
+        allowDoubleJump = false;
+        doubleJumpActive = false;
         rb = GetComponent<Rigidbody>();
-        //defaultGravityScale = 9.81f;
+        animator = GetComponentInChildren<Animator>();
+        hitTimer = 0;
     }
 
     void Update()
     {
-        
+        if (Mathf.Abs(inputX) > 0.01f) playerMesh.transform.rotation = Quaternion.Slerp(playerMesh.transform.rotation, Quaternion.LookRotation(Vector3.right * inputX), rotationSpeed);
+
+
         ProcessInput();
         GroundCheck();
-        
+
         if (jumpBufferTime > 0)
         {
             //Instead of immediately turning off "desireJump", start counting up...
@@ -98,34 +111,40 @@ public class CharacterController : MonoBehaviour
                 }
             }
         }
+        if (hitTimer <= 0) return;
+        hitTimer -= Time.deltaTime;
     }
 
     // 물리 연산 관련 업데이트: 지면 상태, 점프, 이동 처리
     void FixedUpdate()
     {
+        ApplyPhysics();
         velocity = rb.velocity;
-        GroundCheck();
+
+
+
         if (isGrounded)
             coyoteTimer = coyoteTime;
         else
             coyoteTimer -= Time.fixedDeltaTime;
 
-        
+
 
         ProcessMovement();
         if (desiredJump)
         {
             ProcessJump();
-            //rb.velocity = velocity;
-            //return;
+            rb.velocity = velocity;
+            return;
         }
 
         // 적용한 물리적 계산을 반영
         rb.velocity = velocity;
         CalculateGravity();
-        ApplyPhysics();
+
     }
 
+    #region 움직임
 
     void ProcessInput()
     {
@@ -166,8 +185,8 @@ public class CharacterController : MonoBehaviour
         float newSpeed = 0f;
         if (Mathf.Abs(targetVelocity) > 0.01f)
         {
-            // Time.fixedDeltaTime을 곱해서 매 프레임 변화량을 제한합니다.
             newSpeed = Mathf.MoveTowards(velocity.x, targetVelocity, accelRate * Time.fixedDeltaTime);
+
         }
         else
         {
@@ -178,7 +197,6 @@ public class CharacterController : MonoBehaviour
         velocity.x = newSpeed;
     }
 
-
     private void ProcessJump()
     {
         if (isGrounded || (coyoteTimer > 0.03f && coyoteTimer < coyoteTime) || allowDoubleJump)
@@ -188,10 +206,10 @@ public class CharacterController : MonoBehaviour
             coyoteTimer = 0;
 
             //If we have double jump on, allow us to jump again (but only once)
-            allowDoubleJump = (maxAirJumps == 1 && allowDoubleJump == false);
+            allowDoubleJump = (maxAirJumps >= 1 && allowDoubleJump == false && doubleJumpActive);
 
             //Determine the power of the jump, based on our gravity and stats
-            jumpSpeed = Mathf.Sqrt(-2f * Physics.gravity.y * gravityMultiplier * maxJumpHeight / (timeToJumpApex * 5));
+            jumpSpeed = Mathf.Sqrt(-1f * 9.81f * newGravity.y * maxJumpHeight);
 
             //If Kit is moving up or down when she jumps (such as when doing a double jump), change the jumpSpeed;
             //This will ensure the jump is the exact same strength, no matter your velocity.
@@ -201,12 +219,13 @@ public class CharacterController : MonoBehaviour
             }
             else if (velocity.y < 0f)
             {
-                jumpSpeed += Mathf.Abs(rb.velocity.y);
+                velocity.y = 0f;
+                //jumpSpeed += Mathf.Abs(rb.velocity.y);
             }
 
             //Apply the new jumpSpeed to the velocity. It will be sent to the Rigidbody in FixedUpdate;
             velocity.y += jumpSpeed;
-            Debug.Log(allowDoubleJump);
+
             currentlyJumping = true;
         }
         if (jumpBufferTime == 0)
@@ -215,6 +234,7 @@ public class CharacterController : MonoBehaviour
             desiredJump = false;
         }
     }
+
     void ProcessVariableJump()
     {
         if (rb.velocity.y > 0f)
@@ -247,6 +267,7 @@ public class CharacterController : MonoBehaviour
         {
             if (isGrounded)
             {
+                allowDoubleJump = false;
                 gravityMultiplier = defaultGravityScale;
             }
             else
@@ -268,19 +289,19 @@ public class CharacterController : MonoBehaviour
 
             gravityMultiplier = defaultGravityScale;
         }
-        rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, 100) , 0);
+        rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, 100), 0);
     }
 
     public void GroundCheck()
     {
-
+        //allowDoubleJump = false;
         isGrounded = Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance, groundLayer);
     }
-    //((2 * maxJumpHeight) * gravityMultiplier) / ((timeToJumpApex * timeToJumpApex) * Physics.gravity.y)
+    Vector3 newGravity;
     private void ApplyPhysics()
     {
-        Vector3 newGravity = new Vector3(0, 2f * maxJumpHeight * gravityMultiplier / (timeToJumpApex * timeToJumpApex * Physics.gravity.y), 0);
-        rb.AddForce(newGravity, ForceMode.Acceleration);
+        newGravity = new Vector3(0, (((-2 * maxJumpHeight) / (timeToJumpApex * timeToJumpApex)) / 9.81f), 0);
+        rb.AddForce(newGravity * gravityMultiplier, ForceMode.Acceleration);
         Debug.Log(newGravity);
         //rb.velocity = horVelocity;
     }
@@ -295,4 +316,14 @@ public class CharacterController : MonoBehaviour
             Gizmos.DrawLine(groundCheck.position, rayEnd);
         }
     }
+
+    public void EnableDoubleJump()
+    {
+        doubleJumpActive = true;
+    }
+    #endregion
+
+
 }
+
+

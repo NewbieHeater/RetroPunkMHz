@@ -20,12 +20,6 @@ public class DialogueUI : MonoBehaviour
     private Coroutine typingCoroutine;      // 진행 중인 타이핑 코루틴
     private string currentTypedContent;     // 현재 타이핑 효과로 출력할 전체 문자열
 
-    private void Start()
-    {
-        dialoguePanel.SetActive(false);
-        leftPortrait.gameObject.SetActive(false);
-        rightPortrait.gameObject.SetActive(false);
-    }
 
     // 대화 패널 활성/비활성화
     public void ShowDialoguePanel(bool show)
@@ -37,28 +31,19 @@ public class DialogueUI : MonoBehaviour
     }
 
     // 대화 시작 시 호출: 좌/우 캐릭터 초상화 영역을 초기화
-    public void InitCharacters(CharacterProfile profileA, CharacterProfile profileB)
+    public void InitCharacters()
     {
-        leftProfile = profileA;
-        rightProfile = profileB;
-        // 좌우 초상화 초기 이미지 세팅
-        if (leftPortrait != null)
-        {
-            if (leftProfile != null && leftProfile.expressions.Count > 0)
-                leftPortrait.sprite = leftProfile.expressions[0].sprite;
-            leftPortrait.color = Color.gray; // 초기엔 비활성 (화자가 나올 때 업데이트)
-            leftPortrait.gameObject.SetActive(false);
-        }
-        if (rightPortrait != null)
-        {
-            if (rightProfile != null && rightProfile.expressions.Count > 0)
-                rightPortrait.sprite = rightProfile.expressions[0].sprite;
-            // 우측 캐릭터가 없는 경우 이미지 숨김
-            rightPortrait.gameObject.SetActive(rightProfile != null);
-            if (rightProfile != null)
-                rightPortrait.color = Color.gray;
-            rightPortrait.gameObject.SetActive(false);
-        }
+
+        leftPortrait.sprite = null;
+        leftPortrait.color = Color.gray; // 초기엔 비활성 (화자가 나올 때 업데이트)
+        leftPortrait.gameObject.SetActive(false);
+
+        rightPortrait.sprite = null;
+        // 우측 캐릭터가 없는 경우 이미지 숨김
+        rightPortrait.gameObject.SetActive(rightProfile != null);
+        if (rightProfile != null)
+            rightPortrait.color = Color.gray;
+        rightPortrait.gameObject.SetActive(false);
         // 이름 텍스트 초기화
         if (leftNameText != null)
             leftNameText.text = "";

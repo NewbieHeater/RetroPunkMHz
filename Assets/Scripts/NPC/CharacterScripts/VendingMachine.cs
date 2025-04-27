@@ -20,21 +20,10 @@ public class VendingMachine : InteractableNPCBase
     {
         base.Start();
         //ConditionManager.Instance.SetCondition(condition.conditionName, false);
-
-        // 초기에는 상호작용 힌트 UI 비활성화
-        if (interactionHintUI != null)
-            interactionHintUI.SetActive(false);
-
-
+            
     }
 
-    private void Update()
-    {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
-        {
-            Interact();
-        }
-    }
+    
 
     public override string GetInteractPrompt()
     {
