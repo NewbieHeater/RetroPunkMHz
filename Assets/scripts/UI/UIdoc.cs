@@ -9,6 +9,8 @@ public class UIdoc : MonoBehaviour
     private Button hpUp;
     private Button hpDown;
 
+    Enemy enemy;
+
     private ProgressBar hpBar;
     private ProgressBar spBar;
 
