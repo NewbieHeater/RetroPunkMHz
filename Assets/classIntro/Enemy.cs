@@ -13,5 +13,10 @@ public abstract class Enemy : MonoBehaviour
         Debug.Log("basic attack");
     }
 
+    protected void smash()
+    {
+        Debug.Log("³¯¾Æ°¨");
+    }
+
     protected abstract void move();
 }
