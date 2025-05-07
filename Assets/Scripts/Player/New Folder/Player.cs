@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using nickmaltbie.OpenKCC.Animation;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -91,24 +94,34 @@ public class Player : MonoBehaviour
     private float newGravity;
     #endregion
 
+    public Image HpBar;
+    public GameObject HpBarParent;
+    public TextMeshProUGUI ChargedValue;
     #region Unity Callbacks
     void Start()
     {
+        HpBarParent.SetActive(false);
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
         animator = GetComponentInChildren<Animator>();
-
+        lastPosition = transform.position;
         allowDoubleJump = false;
         desiredJump = false;
         jumpHeld = false;
     }
-
+    public HumanoidFootIK footIK;
+    private Vector3 lastPosition;
     void Update()
     {
         HandleRotation();
         ProcessInput();
         GroundCheck();
         HandleJumpBuffer();
+        
+        Vector3 delta = transform.position - lastPosition;
+        //footIK.UpdateFeetPositions(delta);
+
+        lastPosition = transform.position;
     }
 
     void FixedUpdate()
@@ -155,28 +168,25 @@ public class Player : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
+            HpBarParent.SetActive(true);
             isCharging = true;
             chargeTimer = 0f;
         }
         if (isCharging && Input.GetMouseButton(1))
+        {
+            if (chargeTimer >= maxChargeTime) return;
             chargeTimer += Time.deltaTime;
+            float damage = Mathf.FloorToInt((chargeTimer * 30f) / 10f) * 10;
+            ChargedValue.text = damage.ToString();
+            HpBar.fillAmount = chargeTimer / maxChargeTime;
+        }
+            
         if (isCharging && Input.GetMouseButtonUp(1))
         {
             ChargedAttack(chargeTimer);
+            HpBarParent.SetActive(false);
+            HpBar.fillAmount = 0f;
             isCharging = false;
-        }
-    }
-
-    private void HandleJumpBuffer()
-    {
-        if (!jumpBufferTime.Equals(0) && desiredJump)
-        {
-            jumpBufferCounter += Time.deltaTime;
-            if (jumpBufferCounter > jumpBufferTime)
-            {
-                desiredJump = false;
-                jumpBufferCounter = 0f;
-            }
         }
     }
     #endregion
@@ -218,7 +228,18 @@ public class Player : MonoBehaviour
             desiredJump = false;
         }
     }
-    
+    private void HandleJumpBuffer()
+    {
+        if (!jumpBufferTime.Equals(0) && desiredJump)
+        {
+            jumpBufferCounter += Time.deltaTime;
+            if (jumpBufferCounter > jumpBufferTime)
+            {
+                desiredJump = false;
+                jumpBufferCounter = 0f;
+            }
+        }
+    }
     private bool CanJump()
     {
         return isGrounded || coyoteTimer > 0f || (allowDoubleJump && maxAirJumps > 0);
@@ -308,12 +329,14 @@ public class Player : MonoBehaviour
 
     public void ChargedAttack(float chargeTime)
     {
-        float damage = (chargeTime >= minChargeTime) ? maxChargeDamage : normalDamage;
+        float damage = Mathf.FloorToInt((chargeTime * 30f) / 10f) * 10;
+        
         bool knockback = (chargeTime >= minChargeTime);
         ProcessAttack(damage, knockback);
     }
     private void ProcessAttack(float damage, bool knockback)
     {
+        
         Vector3 dir = GetAttackDirection();
         RaycastHit[] hits = Physics.SphereCastAll(transform.position, attackRadius, dir, attackRange, LayerMask.GetMask("Enemy"));
         foreach (var hit in hits)

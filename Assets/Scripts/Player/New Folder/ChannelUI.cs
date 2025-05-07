@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,9 @@ public class ChannelUI : MonoBehaviour
 
     public Text channelPointText;
 
+    public TextMeshProUGUI a;
+    public TextMeshProUGUI b;
+    public TextMeshProUGUI c;
 
     public int minPts;
     public int maxPts;
@@ -49,6 +53,9 @@ public class ChannelUI : MonoBehaviour
         curPoint = maxPoint - Mathf.RoundToInt(Mathf.Abs(amplitudeSlider.value) + Mathf.Abs(periodSlider.value) + Mathf.Abs(waveformSlider.value));
         channelPointText.text = $"남은 채널 포인트 : {curPoint}";
 
+        a.text = $"{amplitudeSlider.value}";
+        b.text = $"{periodSlider.value}";
+        c.text = $"{waveformSlider.value}";
     }
 
     public void OnSaveButtonClicked()

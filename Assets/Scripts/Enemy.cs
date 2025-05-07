@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
+using TMPro;
 
 public interface IExplosionInteract
 {
@@ -9,6 +11,8 @@ public interface IExplosionInteract
 
 public class Enemy : MonoBehaviour, IExplosionInteract
 {
+    public TextMeshProUGUI HpBar;
+
     [SerializeField]
     float Hp = 100;
     protected bool dead = false;
@@ -20,6 +24,7 @@ public class Enemy : MonoBehaviour, IExplosionInteract
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        HpBar.text = $"Hp : {Hp}";
     }
 
     // Update is called once per frame
@@ -31,7 +36,7 @@ public class Enemy : MonoBehaviour, IExplosionInteract
             Hp = 0;
             dead = true;
         }
-
+        HpBar.text = $"Hp : {Hp}";
     }
 
     public bool isDead()
