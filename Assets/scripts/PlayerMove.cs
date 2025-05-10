@@ -100,12 +100,13 @@ public class PlayerMove : MonoBehaviour
         //LookAt말고 직접 마우스쪽으로 각도 돌려주기
         transform.LookAt(transform.position + moveVec);
     }
-
+    private float maxChargeTime;
+    
     void Jump()
     {
         if (jDown && count < 2)
         {
-            //AddForce쓰기
+            //addforce쓰기
             rigid.velocity = new Vector3(0, 15, 0); 
             anim.SetBool("isJump", true);
             anim.SetTrigger("doJump");
@@ -114,8 +115,28 @@ public class PlayerMove : MonoBehaviour
         
 
     }
-    private float maxChargeTime;
-    v거
+
+    void Attack()
+    {
+        if(fDown)
+        {
+            isCharging = true;
+            chargeTime = 0f;
+        }
+        if(isCharging)
+        {
+            chargeTime += Time.deltaTime;
+        }
+        if(fUp)
+        {
+            if(chargeTime >= chargeminTime)
+            {
+                if(chargeTime >5f)
+                {
+                    chargeTime = 5f;
+                    isCharging = false;
+                    equipWeapon.ChargeSwing(chargeTime);
+                    //이런식으로 애니메이션으로 콜라이더를 움직이지 말고 직접 코드로 마우스를 따라 콜라이더 방향이 움직이게 만들어주세요(콜라이더 켰다 껏다는 애니메이션 이벤트)
                 }
                 else
                 {
