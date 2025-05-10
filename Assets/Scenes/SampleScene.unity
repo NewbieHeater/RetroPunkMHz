@@ -1625,6 +1625,7 @@ GameObject:
   - component: {fileID: 2116707544}
   - component: {fileID: 2116707549}
   - component: {fileID: 2116707548}
+  - component: {fileID: 2116707550}
   m_Layer: 0
   m_Name: hand
   m_TagString: weapon
@@ -1748,6 +1749,27 @@ MonoBehaviour:
   damage: 4
   rate: 3
   meleeArea: {fileID: 2116707544}
+--- !u!135 &2116707550
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116707543}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.50000024
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
