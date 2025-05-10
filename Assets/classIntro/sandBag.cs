@@ -28,6 +28,6 @@ public class sandBag : Enemy
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("공격당함");
+        smash();
     }
 }
