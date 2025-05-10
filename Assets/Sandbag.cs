@@ -5,13 +5,14 @@ using UnityEngine;
 public class Sandbag : Enemy
 {
     // Start is called before the first frame update
-    void Start()
+    public override void Start()
     {
         Maxhp = 100;
         Currenthp = Maxhp;
+        base.Start();
     }
 
-    override public void TakeDamage(int damage)
+    protected override void TakeDamage(int damage)
     {
         Currenthp -= damage;
 
@@ -39,6 +40,9 @@ public class Sandbag : Enemy
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            Knockback(1, Vector3.forward);
+        }
     }
 }
