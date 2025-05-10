@@ -11,8 +11,8 @@ public class PlayerMove : MonoBehaviour
     public int Waveform;
     public GameObject[] weapon;
 
-    //Á¢±Ù ÇÑÁ¤ÀÚ ºÙ¿©µÎ±â(ÇÔ¼ö¿¡µµ)
-    //ÃÖ´ëÇÑ private¸¦ ¾²ÀÚ!!!
+    //ì ‘ê·¼ í•œì •ì ë¶™ì—¬ë‘ê¸°(í•¨ìˆ˜ì—ë„)
+    //ìµœëŒ€í•œ privateë¥¼ ì“°ì!!!
     private float hAxis;
     private float vAxis;
     private float chargeTime = 0;
@@ -31,7 +31,7 @@ public class PlayerMove : MonoBehaviour
 
     private GameObject nearObject;
 
-    //ÀÌ°Å´Â publicÀÌ ¾Æ´Ï¿©µµ ÀÎ½ºÆåÅÍÃ¢¿¡¼­ ¹Ù²Ü¼öÀÖ°Ô(´Ù¸¥ ½ºÅ©¸³Æ®¿¡¼­´Â ¸ø¹Ù²ÙÁö¸¸ ÀÎ½ºÆåÅÍ¿¡¼­´Â ¹Ù²î°Ô)
+    //ì´ê±°ëŠ” publicì´ ì•„ë‹ˆì—¬ë„ ì¸ìŠ¤í™í„°ì°½ì—ì„œ ë°”ê¿€ìˆ˜ìˆê²Œ(ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì—ì„œëŠ” ëª»ë°”ê¾¸ì§€ë§Œ ì¸ìŠ¤í™í„°ì—ì„œëŠ” ë°”ë€Œê²Œ)
     [SerializeField]
     private weapon equipWeapon;
 
@@ -40,13 +40,13 @@ public class PlayerMove : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
 
-        //Find»ç¿ëÀ» ÁÙÀÌÀÚ ÀÏ´Ü ÀÌ°Å ÇÏ³ªÁ¤µµ´Â ±¦Âú½À´Ï´Ù.
+        //Findì‚¬ìš©ì„ ì¤„ì´ì ì¼ë‹¨ ì´ê±° í•˜ë‚˜ì •ë„ëŠ” ê´œì°®ìŠµë‹ˆë‹¤.
         equipWeapon = GameObject.Find("hand").GetComponent<weapon>();
     }
 
     void Update()
     {
-        //ÁÁ¾Æ¿ä ÀÌ°Å Ä¸½¶È­
+        //ì¢‹ì•„ìš” ì´ê±° ìº¡ìŠí™”
         GetInput();
         Move();
         Turn();
@@ -57,9 +57,9 @@ public class PlayerMove : MonoBehaviour
     
     void GetInput()
     {
-        //ÀÌ¸§ ¹Ù²ãÁà¿ä hAxisÁ¦¿ÜÇÏ°í
+        //ì´ë¦„ ë°”ê¿”ì¤˜ìš” hAxisì œì™¸í•˜ê³ 
         hAxis = Input.GetAxisRaw("Horizontal");
-        //zÃà ¾È½á¿ä 
+        //zì¶• ì•ˆì¨ìš” 
         vAxis = Input.GetAxisRaw("Vertical");
 
         wDown = Input.GetButton("Walk");
@@ -71,15 +71,15 @@ public class PlayerMove : MonoBehaviour
     private float onDashing = 0.3f;
     void Move()
     {
-        moveVec = new Vector3(hAxis, 0, vAxis).normalized; // zÃàÀ» ¾È¾¸ 
-        //Ã£¾Æº¸±â
+        moveVec = new Vector3(hAxis, 0, vAxis).normalized; // zì¶•ì„ ì•ˆì”€ 
+        //ì°¾ì•„ë³´ê¸°
         //rigid.AddForce(moveVec, ForceMode.Impulse);
 
         //rigid.velocity = moveVec;
 
         transform.position += moveVec * speed * onDashing * Time.deltaTime;
 
-        //À§ 3°¡Áö ¹æ¹ıÁß Àû´çÇÑ ¹æ¹ı Ã£¾Æ¾²¼¼¿ä
+        //ìœ„ 3ê°€ì§€ ë°©ë²•ì¤‘ ì ë‹¹í•œ ë°©ë²• ì°¾ì•„ì“°ì„¸ìš”
 
         if (wDown)
         {
@@ -92,12 +92,12 @@ public class PlayerMove : MonoBehaviour
 
         anim.SetBool("isRun", wDown);
 
-        //Á¶°Ç¹®¾È¿¡ ³Ö¾îÁÖ¼¼¿ä ±×³É ½áµµ »ó°ü ¾ø´Âµ¥ °¡µ¶¼º
+        //ì¡°ê±´ë¬¸ì•ˆì— ë„£ì–´ì£¼ì„¸ìš” ê·¸ëƒ¥ ì¨ë„ ìƒê´€ ì—†ëŠ”ë° ê°€ë…ì„±
         anim.SetBool("isWalk", moveVec != Vector3.zero);
     }
     void Turn()
     {
-        //LookAt¸»°í Á÷Á¢ ¸¶¿ì½ºÂÊÀ¸·Î °¢µµ µ¹·ÁÁÖ±â
+        //LookAtë§ê³  ì§ì ‘ ë§ˆìš°ìŠ¤ìª½ìœ¼ë¡œ ê°ë„ ëŒë ¤ì£¼ê¸°
         transform.LookAt(transform.position + moveVec);
     }
 
@@ -105,7 +105,7 @@ public class PlayerMove : MonoBehaviour
     {
         if (jDown && count < 2)
         {
-            //AddForce¾²±â
+            //AddForceì“°ê¸°
             rigid.velocity = new Vector3(0, 15, 0); 
             anim.SetBool("isJump", true);
             anim.SetTrigger("doJump");
@@ -115,27 +115,7 @@ public class PlayerMove : MonoBehaviour
 
     }
     private float maxChargeTime;
-    void Attack()
-    {
-        if(fDown)
-        {
-            isCharging = true;
-            chargeTime = 0f;
-        }
-        if(isCharging)
-        {
-            chargeTime += Time.deltaTime;
-        }
-        if(fUp)
-        {
-            if(chargeTime >= chargeminTime)
-            {
-                if(chargeTime > maxChargeTime)
-                {
-                    chargeTime = maxChargeTime;
-                    isCharging = false;
-                    equipWeapon.ChargeSwing(chargeTime);
-                    
+    vê±°
                 }
                 else
                 {
@@ -162,5 +142,5 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    //Raycast³ª Äİ¶óÀÌ´õ¸¦ ÇÏ³ª Ãß°¡ÇØº¸¼¼¿ä
+    //Raycastë‚˜ ì½œë¼ì´ë”ë¥¼ í•˜ë‚˜ ì¶”ê°€í•´ë³´ì„¸ìš”
 }
