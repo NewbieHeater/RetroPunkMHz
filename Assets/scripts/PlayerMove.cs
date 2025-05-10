@@ -1,29 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerMove : MonoBehaviour
 {
     public float speed;
+    public int Amlitude;
+    public int Period;
+    public int Waveform;
+    public GameObject[] weapon;
     float hAxis;
     float vAxis;
+    float chargeTime = 0;
+    float chargeminTime = 1f;
     bool wDown;
     bool jDown;
     int count = 0;
     bool isJump;
+    bool fDown;
+    bool fUp;
+    bool isCharging;
     Vector3 moveVec;
 
     Rigidbody rigid;
     Animator anim;
 
+    GameObject nearObject;
+    weapon equipWeapon;
     void Awake()
     {
-        rigid = GetComponent<Rigidbody>();
-        anim = GetComponentInChildren<Animator>();   
+        
     }
     void Start()
     {
-        
+        rigid = GetComponent<Rigidbody>();
+        anim = GetComponent<Animator>();
+        equipWeapon = GameObject.Find("hand").GetComponent<weapon>();
     }
 
     // Update is called once per frame
@@ -34,7 +47,7 @@ public class PlayerMove : MonoBehaviour
         Move();
         Turn();
         Jump();
-
+        Attack();
 
     }
     
@@ -44,6 +57,8 @@ public class PlayerMove : MonoBehaviour
         vAxis = Input.GetAxisRaw("Vertical");
         wDown = Input.GetButton("Walk");
         jDown = Input.GetButtonDown("Jump");
+        fDown = Input.GetButtonDown("Fire1");
+        fUp = Input.GetButtonUp("Fire1");
     }
 
     void Move()
@@ -79,6 +94,43 @@ public class PlayerMove : MonoBehaviour
         }
         
 
+    }
+    void Attack()
+    {
+        if(fDown)
+        {
+            isCharging = true;
+            chargeTime = 0f;
+        }
+        if(isCharging)
+        {
+            chargeTime += Time.deltaTime;
+        }
+        if(fUp)
+        {
+            if(chargeTime >= chargeminTime)
+            {
+                if(chargeTime >5f)
+                {
+                    chargeTime = 5f;
+                    isCharging = false;
+                    equipWeapon.ChargeSwing(chargeTime);
+                    
+                }
+                else
+                {
+                    isCharging = false;
+                    equipWeapon.ChargeSwing(chargeTime);
+
+                }
+            }
+            else
+            {
+                isCharging = false;
+                equipWeapon.Swing();
+
+            }
+        }
     }
 
     void OnCollisionEnter(Collision collision)
