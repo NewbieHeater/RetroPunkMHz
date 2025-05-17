@@ -17,13 +17,14 @@ public class PlayerMove : MonoBehaviour
     private float vAxis;
     private float chargeTime = 0;
     private float chargeminTime = 1f;
-    private bool wDown;
-    private bool jDown;
+    private bool WalkDown;
+    private bool JumpDown;
     private int count = 0;
     private bool isJump;
-    private bool fDown;
-    private bool fUp;
+    private bool mouseDown;
+    private bool mouseUp;
     private bool isCharging;
+    private bool isFloor = false;
     private Vector3 moveVec;
 
     private Rigidbody rigid;
@@ -52,7 +53,7 @@ public class PlayerMove : MonoBehaviour
         Turn();
         Jump();
         Attack();
-
+        FixedUpdate();
     }
     
     void GetInput()
@@ -60,37 +61,28 @@ public class PlayerMove : MonoBehaviour
         //이름 바꿔줘요 hAxis제외하고
         hAxis = Input.GetAxisRaw("Horizontal");
         //z축 안써요 
-        vAxis = Input.GetAxisRaw("Vertical");
-
-        wDown = Input.GetButton("Walk");
-        jDown = Input.GetButtonDown("Jump");
-        fDown = Input.GetButtonDown("Fire1");
+        //vAxis = Input.GetAxisRaw("Vertical");
+    
+        JumpDown = Input.GetButtonDown("Jump");
+        mouseDown = Input.GetButtonDown("Fire1");
         //mouseDown
-        fUp = Input.GetButtonUp("Fire1");
+        mouseUp = Input.GetButtonUp("Fire1");
     }
-    private float onDashing = 0.3f;
+    
     void Move()
     {
-        moveVec = new Vector3(hAxis, 0, vAxis).normalized; // z축을 안씀 
+        moveVec = new Vector3(hAxis, 0, 0).normalized; // z축을 안씀 
         //찾아보기
         //rigid.AddForce(moveVec, ForceMode.Impulse);
 
         //rigid.velocity = moveVec;
+    
+        
+        rigid.velocity = moveVec * speed * Time.deltaTime;
+    
+       
 
-        transform.position += moveVec * speed * onDashing * Time.deltaTime;
-
-        //위 3가지 방법중 적당한 방법 찾아쓰세요
-
-        if (wDown)
-        {
-            transform.position += moveVec * speed * Time.deltaTime;
-        }
-        else
-        {
-            transform.position += moveVec * speed * onDashing * Time.deltaTime;
-        }
-
-        anim.SetBool("isRun", wDown);
+        anim.SetBool("isRun", WalkDown);
 
         //조건문안에 넣어주세요 그냥 써도 상관 없는데 가독성
         anim.SetBool("isWalk", moveVec != Vector3.zero);
@@ -103,21 +95,22 @@ public class PlayerMove : MonoBehaviour
 
     void Jump()
     {
-        if (jDown && count < 2)
+        if (JumpDown && count < 2)
         {
-            //AddForce쓰기
-            rigid.velocity = new Vector3(0, 15, 0); 
+            
+            rigid.AddForce(new Vector3(0, 15, 0), ForceMode.Impulse); 
             anim.SetBool("isJump", true);
             anim.SetTrigger("doJump");
             count++;
+            JumpDown = false;
         }
         
 
     }
-    private float maxChargeTime;
+    private float maxChargeTime = 5f;
     void Attack()
     {
-        if(fDown)
+        if(mouseDown)
         {
             isCharging = true;
             chargeTime = 0f;
@@ -126,7 +119,7 @@ public class PlayerMove : MonoBehaviour
         {
             chargeTime += Time.deltaTime;
         }
-        if(fUp)
+        if(mouseUp)
         {
             if(chargeTime >= chargeminTime)
             {
@@ -153,14 +146,16 @@ public class PlayerMove : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void FixedUpdate()
     {
-        if(collision.gameObject.tag == "Floor")
+        isFloor = Physics.Raycast(transform.position, Vector3.down, 0.1f, LayerMask.GetMask("Ground"));
+
+        if (isFloor)
         {
-            count = 0;
+            count= 0;
             anim.SetBool("isJump", false);
         }
     }
 
-    //Raycast나 콜라이더를 하나 추가해보세요
+    
 }
