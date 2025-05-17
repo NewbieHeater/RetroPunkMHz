@@ -10,6 +10,7 @@ public class PlayerMove : MonoBehaviour
     public int Period;
     public int Waveform;
     public GameObject[] weapon;
+    public Transform playerMesh;
     private float maxChargeTime = 5f;
     private float hAxis;
     private float vAxis;
@@ -29,7 +30,7 @@ public class PlayerMove : MonoBehaviour
     private Animator anim;
 
     private GameObject nearObject;
-
+   
 
     [SerializeField]
     private weapon equipWeapon;
@@ -37,9 +38,7 @@ public class PlayerMove : MonoBehaviour
     void Start()
     {
         rigid = GetComponent<Rigidbody>();
-        anim = GetComponent<Animator>();
-
-
+        anim = GetComponentInChildren<Animator>();
         equipWeapon = GameObject.Find("hand").GetComponent<weapon>();
     }
 
@@ -47,15 +46,14 @@ public class PlayerMove : MonoBehaviour
     {
         GetInput();
         Move();
-        Turn();
         Jump();
         Attack();
+        HandleRotation();
     }
 
     void GetInput()
     {
         hAxis = Input.GetAxisRaw("Horizontal");
-
         JumpDown = Input.GetButtonDown("Jump");
         mouseDown = Input.GetButtonDown("Fire1");
         mouseUp = Input.GetButtonUp("Fire1");
@@ -63,23 +61,25 @@ public class PlayerMove : MonoBehaviour
 
     void Move()
     {
-        moveVec = new Vector3(hAxis, 0, 0).normalized;
+        moveVec = new Vector3(hAxis*speed, rigid.velocity.y, 0);
 
-        rigid.velocity = moveVec * speed * Time.deltaTime;
+        rigid.velocity = moveVec;
 
         anim.SetBool("isWalk", moveVec != Vector3.zero);
     }
-    void Turn()
+    private void HandleRotation()
     {
-        transform.LookAt(transform.position + moveVec);
+        if (Mathf.Abs(rigid.velocity.x) > 0.01f)
+            playerMesh.rotation = Quaternion.Slerp(playerMesh.rotation,
+                Quaternion.LookRotation(Vector3.right * rigid.velocity.x), 0.1f);
     }
 
     void Jump()
     {
-        if (JumpDown && count < 2)
+        if (JumpDown && count < 1)
         {
-
-            rigid.AddForce(new Vector3(0, 15, 0), ForceMode.Impulse);
+            //rigid.velocity = new Vector3(0, 15, 0);
+            rigid.AddForce(Vector3.up*20f, ForceMode.Impulse);
             anim.SetBool("isJump", true);
             anim.SetTrigger("doJump");
             count++;
@@ -130,7 +130,16 @@ public class PlayerMove : MonoBehaviour
 
     void FixedUpdate()
     {
-        isFloor = Physics.Raycast(transform.position + Vector3.up*0.5f, Vector3.down, 0.6f, LayerMask.GetMask("Ground"));
+        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 dir = Vector3.down;
+        float length = 0.7f;
+        int mask = LayerMask.GetMask("Ground");
+
+        // 실제 레이캐스트
+        isFloor = Physics.Raycast(origin, dir, length, mask);
+
+        // 디버그용 레이 그리기 (Scene 뷰에서만 보입니다)
+        Debug.DrawRay(origin, dir * length, isFloor ? Color.green : Color.red);
 
         if (isFloor)
         {
