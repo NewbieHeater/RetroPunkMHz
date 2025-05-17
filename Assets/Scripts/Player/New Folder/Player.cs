@@ -1,7 +1,8 @@
-﻿using nickmaltbie.OpenKCC.Animation;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Burst.CompilerServices;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -65,7 +66,7 @@ public class Player : MonoBehaviour
     private bool isCharging = false;
     private float chargeTimer = 0f;
     #endregion
-
+    [SerializeField] protected CharacterMotorConfig Config;
     #region Ground Detection
     [Header("Ground Detection")]
     [Tooltip("바닥 체크 시작점")]
@@ -74,7 +75,7 @@ public class Player : MonoBehaviour
     public float groundCheckDistance = 0.5f;
     [Tooltip("바닥 레이어 마스크")]
     public LayerMask groundLayer;
-    public bool isGrounded { get; private set; } = false;
+    public bool IsGrounded = false;
     #endregion
 
     #region Physics & Calculations
@@ -104,34 +105,31 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
         animator = GetComponentInChildren<Animator>();
-        lastPosition = transform.position;
+
         allowDoubleJump = false;
         desiredJump = false;
         jumpHeld = false;
     }
-    public HumanoidFootIK footIK;
-    private Vector3 lastPosition;
+
+
     void Update()
     {
         HandleRotation();
         ProcessInput();
-        GroundCheck();
+        
         HandleJumpBuffer();
         
-        Vector3 delta = transform.position - lastPosition;
-        //footIK.UpdateFeetPositions(delta);
-
-        lastPosition = transform.position;
     }
 
     void FixedUpdate()
     {
-        ApplyGravity();
-        
+        RaycastHit groundCheckResult = UpdateIsGrounded();
+
+
         velocity = rb.velocity;
-        ApplyPhysics();
+        ApplyGravity();
         UpdateCoyoteTimer();
-        ProcessMovement();
+        ProcessMovement(groundCheckResult);
 
         if (desiredJump)
         {
@@ -140,17 +138,18 @@ public class Player : MonoBehaviour
             return;
         }
 
-        rb.velocity = velocity;
+        //rb.velocity = velocity;
+        ApplyPhysics();
         CalculateGravity();
     }
     #endregion
-
+    float inputX;
     #region Input Handling
     private void ProcessInput()
     {
         velocity.x = rb.velocity.x;
-        float inputX = Input.GetAxisRaw("Horizontal");
-        velocity.x = inputX * maxSpeed;
+        inputX = Input.GetAxisRaw("Horizontal");
+        //velocity.x = inputX * maxSpeed;
 
         if (Input.GetButtonDown("Jump"))
         {
@@ -192,18 +191,106 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Movement & Jump
-    private void ProcessMovement()
+
+    protected Vector3 AdjustDirectionToSlope(Vector3 direction, RaycastHit groundCheckResult)
     {
-        float targetX = velocity.x;
-        float currentX = rb.velocity.x;
-        bool grounded = isGrounded;
-
-        float accel = grounded ? maxSpeed / accelerationTime : maxSpeed / accelerationTime * airControl;
-        float decel = grounded ? maxSpeed / decelerationTime : maxSpeed / decelerationTime * airControl;
-
-        velocity.x = Mathf.MoveTowards(currentX, targetX, (Mathf.Abs(targetX) > 0.01f ? accel : decel) * Time.fixedDeltaTime);
+        return Vector3.ProjectOnPlane(direction, groundCheckResult.normal).normalized;
     }
     
+
+    bool isOnSlope;
+    public bool IsOnSlope(RaycastHit groundCheckResult)
+    {
+        var angle = Vector3.Angle(Vector3.up, groundCheckResult.normal);
+        return angle != 0f && angle < 35;
+    }
+    private void ProcessMovement(RaycastHit groundCheckResult)
+    {
+        float dt = Time.fixedDeltaTime;
+        // 1) 목표 수평 속도 계산
+        float targetVx = inputX * maxSpeed;
+        float accel = IsGrounded
+            ? maxSpeed / accelerationTime
+            : (maxSpeed / accelerationTime) * airControl;
+        float decel = IsGrounded
+            ? maxSpeed / decelerationTime
+            : (maxSpeed / decelerationTime) * airControl;
+        Vector3 forward = Vector3.ProjectOnPlane(transform.right, groundCheckResult.normal).normalized;
+        //Quaternion footRot = Quaternion.LookRotation(forward, groundCheckResult.normal);
+
+        float newVx = Mathf.Abs(inputX) > 0.01f
+            ? Mathf.MoveTowards(velocity.x, targetVx, accel * dt)
+            : Mathf.MoveTowards(velocity.x, 0f, decel * dt);
+
+        Vector3 intended = transform.right * inputX;
+
+        isOnSlope = IsOnSlope(groundCheckResult);
+
+        Vector3 finalVel;
+        if (isOnSlope)
+        {
+            Vector3 slopeDir = Vector3.ProjectOnPlane(intended, groundCheckResult.normal).normalized;
+
+            float speedMag = Mathf.Abs(newVx);
+            finalVel = slopeDir * speedMag;
+        }
+        else
+        {
+            // 평지나 공중일 때는 X축 수평 이동
+            finalVel = new Vector3(intended.x * maxSpeed, rb.velocity.y, 0f);
+        }
+
+        // 4) 평소 이동: velocity에 적용
+        velocity = finalVel;
+        ApplyPhysics();   // rb.velocity = new Vector3(velocity.x, rb.velocity.y, 0)
+    }
+
+
+    /// <summary>
+    /// 수평 이동 방향으로 작은 계단이 있으면 그 높이를 stepOffset으로 리턴.
+    /// </summary>
+    private bool TryStepOffset(Vector3 horizontalMove, out float stepOffset)
+    {
+        stepOffset = 0f;
+
+        Vector3 dir = horizontalMove.normalized;
+        float halfH = Config.StepCheck_MaxStepHeight * 0.5f;
+        float fullH = Config.StepCheck_MaxStepHeight;
+        float lookD = Config.Radius + Config.StepCheck_LookAheadRange;
+        int mask = Config.GroundedLayerMask;
+
+        // 1) 앞에 장애물 있는지
+        Vector3 origin1 = transform.position + Vector3.up * halfH;
+        if (!Physics.Raycast(origin1, dir, lookD, mask))
+            return false;
+
+        // 2) 장애물 위 공간이 비어있는지
+        Vector3 origin2 = transform.position + Vector3.up * fullH;
+        if (Physics.Raycast(origin2, dir, lookD, mask))
+            return false;
+
+        // 3) 계단 표면 높이 검사
+        Vector3 rayOrigin = origin2 + dir * lookD;
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, fullH * 2f, mask))
+        {
+            // 너무 가파르면 무시
+            if (Vector3.Angle(hit.normal, Vector3.up) > Config.SlopeLimit)
+                return false;
+
+            // 계단 높이만큼 보정
+            float diffY = hit.point.y - transform.position.y;
+            if (diffY > 0f && diffY <= Config.StepCheck_MaxStepHeight)
+            {
+                stepOffset = diffY + 0.01f;  // 소폭 여유 추가
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
     private void ExecuteJump()
     {
         if (CanJump())
@@ -219,7 +306,7 @@ public class Player : MonoBehaviour
 
             velocity += Vector3.up * (targetVerticalSpeed + currentVerticalSpeed);
 
-            if (!isGrounded && maxAirJumps > 0)
+            if (!IsGrounded && maxAirJumps > 0)
                 maxAirJumps--;
             currentlyJumping = true;
         }
@@ -242,7 +329,7 @@ public class Player : MonoBehaviour
     }
     private bool CanJump()
     {
-        return isGrounded || coyoteTimer > 0f || (allowDoubleJump && maxAirJumps > 0);
+        return IsGrounded || coyoteTimer > 0f || (allowDoubleJump && maxAirJumps > 0);
     }
 
     private void ApplyJumpCutOff()
@@ -253,7 +340,7 @@ public class Player : MonoBehaviour
 
     private void UpdateCoyoteTimer()
     {
-        if (isGrounded)
+        if (IsGrounded)
             coyoteTimer = coyoteTime;
         else
             coyoteTimer -= Time.fixedDeltaTime;
@@ -265,7 +352,7 @@ public class Player : MonoBehaviour
     {
         if (rb.velocity.y > 0.01f)
         {
-            if (isGrounded)
+            if (IsGrounded)
             {
                 gravityMultiplier = defaultGravityScale;
             }
@@ -283,7 +370,7 @@ public class Player : MonoBehaviour
         }
         else if (rb.velocity.y < 0.01f)
         {
-            if (isGrounded)
+            if (IsGrounded)
             {
                 allowDoubleJump = false;
                 gravityMultiplier = defaultGravityScale;
@@ -293,13 +380,13 @@ public class Player : MonoBehaviour
                 gravityMultiplier = downwardMovementMultiplier;
             }
         }
-        else if (!jumpHeld && isGrounded)
+        else if (!jumpHeld && IsGrounded)
         {
             gravityMultiplier = defaultGravityScale;
         }
         else
         {
-            if (isGrounded)
+            if (IsGrounded)
             {
                 currentlyJumping = false;
             }
@@ -309,17 +396,21 @@ public class Player : MonoBehaviour
         rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, 100), 0);
     }
     
-    private void ApplyPhysics()
+    private void ApplyGravity()
     {
-        newGravity = (((-2 * maxJumpHeight) / (timeToJumpApex * timeToJumpApex)) / 9.81f);
-
+        //newGravity = (((-2 * maxJumpHeight) / (timeToJumpApex * timeToJumpApex)) / 9.81f);
+        if (IsGrounded || isOnSlope)
+        {
+            return;
+        }
+        newGravity = (((-2) / (timeToJumpApex * timeToJumpApex)));
         rb.AddForce(Vector3.up * newGravity * gravityMultiplier, ForceMode.Acceleration);
     }
 
-    private void ApplyGravity()
+    private void ApplyPhysics()
     {
         //float mul = rb.velocity.y > 0 ? upwardMovementMultiplier : downwardMovementMultiplier;
-        rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, float.MaxValue), 0f);
+        rb.velocity = new Vector3(velocity.x, Mathf.Clamp(velocity.y, -speedLimit, float.MaxValue), 0f);
     }
     #endregion
 
@@ -336,17 +427,26 @@ public class Player : MonoBehaviour
     }
     private void ProcessAttack(float damage, bool knockback)
     {
-        
         Vector3 dir = GetAttackDirection();
-        RaycastHit[] hits = Physics.SphereCastAll(transform.position, attackRadius, dir, attackRange, LayerMask.GetMask("Enemy"));
+        var hits = Physics.SphereCastAll(
+            transform.position,
+            attackRadius,
+            dir,
+            attackRange,
+            LayerMask.GetMask("Enemy", "Destructible")
+        );
+
         foreach (var hit in hits)
         {
-            Enemy enemy = hit.collider.GetComponent<Enemy>();
-            if (enemy == null) continue;
+            var go = hit.collider.gameObject;
 
-            enemy.TakeDamage(damage);
-            if (enemy.isDead() && knockback)
-                enemy.ApplyKnockback(dir * 20f);
+            // 데미지 주기 (IDamageable이든 아니든 상관없이)
+            if (go.TryGetComponent<IAttackable>(out var atkable))
+                atkable.TakeDamage(damage);
+
+            // 넉백 호출은 무조건
+            if (knockback && go.TryGetComponent<IKnockbackable>(out var kb))
+                kb.ApplyKnockback(dir, damage/10f);
         }
     }
 
@@ -360,11 +460,38 @@ public class Player : MonoBehaviour
         return dir.normalized;
     }
     #endregion
-
+    
+    float Radius;
+    float GroundedCheckRadiusBuffer;
     #region Ground Check
-    private void GroundCheck()
+    protected RaycastHit UpdateIsGrounded()
     {
-        isGrounded = Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance, groundLayer);
+        RaycastHit hitResult;
+
+        // currently performing a jump
+        if (jumpBufferCounter > 0)
+        {
+            IsGrounded = false;
+            return new RaycastHit();
+        }
+
+        Vector3 startPos = transform.position + Vector3.up * 0.5f;
+        float groundCheckRadius = Radius + GroundedCheckRadiusBuffer;
+        float groundCheckDistance = 0.6f;
+
+        // perform our spherecast
+        if (Physics.SphereCast(startPos, groundCheckRadius, Vector3.down, out hitResult,
+                               groundCheckDistance, groundLayer, QueryTriggerInteraction.Ignore))
+        {
+
+            IsGrounded = true;
+
+            // add auto parenting here
+        }
+        else
+            IsGrounded = false;
+
+        return hitResult;
     }
     #endregion
 

@@ -1,0 +1,33 @@
+using System;
+using System.Collections.Generic;
+using Unity.IO.LowLevel.Unsafe;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UI;
+using UnityEngine.VFX;
+
+public abstract class EnemyBase : MonoBehaviour
+{
+
+    public Dictionary<string, IState<EnemyBase>> dicState = new Dictionary<string, IState<EnemyBase>>();
+    public StateMachine<EnemyBase> sm;
+
+
+    #region ÃÊ±âÈ­ ¹× ÄÄÆ÷³ÍÆ® Ä³½Ì
+    protected virtual void OnEnable()
+    {
+
+
+        dicState.Clear();
+        dicState.Add("Attack", new EnemyAttackState());
+        dicState.Add("Patroll", new EnemyPatrollState());
+        dicState.Add("Move", new EnemyMoveState());
+        dicState.Add("Idle", new EnemyIdleState());
+        sm = new StateMachine<EnemyBase>(this, dicState["Patroll"]);
+
+    }
+    #endregion
+
+    
+}

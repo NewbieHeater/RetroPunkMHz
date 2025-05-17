@@ -53,7 +53,6 @@ public class StateMachine<T>
             return;
         }
         CurState.OperateUpdate(m_sender);
-        CurState.HandleInput(m_sender);
     }
     public void DoOperateFixedUpdate()
     {

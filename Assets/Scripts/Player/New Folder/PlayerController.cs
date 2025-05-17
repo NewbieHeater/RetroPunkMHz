@@ -1,61 +1,98 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
-[RequireComponent(typeof(MovementController))]
-[RequireComponent(typeof(PlayerInput))]
-[RequireComponent(typeof(GroundChecker))]
+// ======================================================
+// PlayerController.cs (single entry point for Unity callbacks)
+// ======================================================
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    private PlayerInput input;
-    [SerializeField]
-    private MovementController movement;
-    private JumpController jump;
-    //private AttackController attack;
-    private GroundChecker ground;
-    private GravityController gravity;
-    private Rigidbody rb;
-    private Animator animator;
-    [SerializeField]
-    private Vector3 velocity;
+    [Header("Movement Settings")]
+    public float maxSpeed = 5f;
+    public float accelerationTime = 0.1f;
+    public float decelerationTime = 0.2f;
+    [Range(0f, 1f)] public float airControl = 0.5f;
+    [Tooltip("회전 속도")] public float rotationSpeed = 0.2f;
 
+    [Header("Jump Settings")]
+    public float maxJumpHeight = 4f;
+    [Range(0.2f, 1.25f)] public float timeToJumpApex = 0.4f;
+    public float coyoteTime = 0.2f;
+    public float jumpBufferTime = 0.2f;
+    public bool allowDoubleJump = false;
+    public int maxAirJumps = 1;
+
+    [Header("Gravity Multipliers")]
+    [Range(0f, 5f)] public float upwardMovementMultiplier = 1f;
+    [Range(1f, 10f)] public float downwardMovementMultiplier = 6.17f;
+    [Range(2f, 8f)] public float jumpCutOff = 2f;
+    public float speedLimit = 15f;
+
+    [Header("Attack Settings")]
+    public float normalDamage = 10f;
+    public float minChargeTime = 0.2f;
+    public float maxChargeTime = 1f;
+    public float attackRange = 2f;
+    public float attackRadius = 0.5f;
+    public Image hpBar;
+    public GameObject hpBarParent;
+    public TextMeshProUGUI chargedValue;
+
+    [Header("Ground Check")]
+    public Transform groundCheckPoint;
+    public float groundCheckDistance = 0.5f;
+    public LayerMask groundLayer;
+
+    // Internal references & handlers
+    private Rigidbody rb;
+    private MovementHandler movement;
+    private JumpHandler jump;
+    private GravityHandler gravity;
+    private AttackHandler attack;
+    private GroundCheckHandler groundCheck;
+    private float inputX;
+
+    public Transform mesh;
     void Awake()
     {
-        input = GetComponent<PlayerInput>();
-        if (input == null)
-            Debug.LogError("PlayerInput 컴포넌트를 찾을 수 없습니다!");
-        movement = GetComponent<MovementController>();
-        if (movement == null)
-            Debug.LogError("MovementController 컴포넌트를 찾을 수 없습니다!");
-        jump = GetComponent<JumpController>();
-        //attack = GetComponent<AttackController>();
-        ground = GetComponent<GroundChecker>();
-        if (ground == null)
-            Debug.LogError("GroundChecker 컴포넌트를 찾을 수 없습니다!");
-        gravity = GetComponent<GravityController>();
         rb = GetComponent<Rigidbody>();
-        animator = GetComponentInChildren<Animator>();
-
-        gravity.Init(jump.maxJumpHeight, jump.timeToJumpApex);
-        //velocity = new Vector3(0,0,0);
+        groundCheck = new GroundCheckHandler(groundCheckPoint, groundCheckDistance, groundLayer);
+        movement = new MovementHandler(rb, maxSpeed, accelerationTime, decelerationTime, airControl, rotationSpeed, mesh);
+        jump = new JumpHandler(rb, maxJumpHeight, timeToJumpApex, coyoteTime, jumpBufferTime, allowDoubleJump, maxAirJumps);
+        gravity = new GravityHandler(rb, timeToJumpApex, upwardMovementMultiplier, downwardMovementMultiplier, jumpCutOff, speedLimit);
+        attack = new AttackHandler(transform, Camera.main, hpBarParent, hpBar, chargedValue, normalDamage, minChargeTime, maxChargeTime, attackRange, attackRadius);
     }
 
     void Update()
     {
-        input.HandleInput();
-        ground.CheckGround();
-        movement.HandleRotation(input.Horizontal);
-        //attack.HandleAttack(input.PrimaryAttack, input.SecondaryAttackHeld, input.ChargeTimer);
+        // Ground check once per frame for input decisions
+        groundCheck.Tick();
+        bool isGrounded = groundCheck.IsGrounded;
+
+        // Movement input
+        inputX = Input.GetAxisRaw("Horizontal");
+
+        // Jump input
+        bool jumpDown = Input.GetButtonDown("Jump");
+        bool jumpUp = Input.GetButtonUp("Jump");
+        jump.ProcessInput(jumpDown, jumpUp);
+
+        // Attack input
+        attack.ProcessInput();
     }
 
     void FixedUpdate()
     {
-        gravity.ApplyGravity(rb, ground.IsGrounded);
-        velocity = rb.velocity;
-        movement.ProcessMovement(input.Horizontal, ground.IsGrounded, ref velocity);
+        bool isGrounded = groundCheck.IsGrounded;
 
-        if (jump.TryJump(input.JumpPressed, ground.IsGrounded, ref velocity))
-            input.ConsumeJump();
-        rb.velocity = velocity;
-        gravity.ClampFallVelocity(rb);
-        
+        // Movement physics
+        movement.HandleMovement(inputX, isGrounded);
+
+        // Jump physics
+        jump.FixedTick(isGrounded);
+
+        // Gravity physics
+        gravity.FixedTick(jump.IsJumping, jump.IsHoldingJump, isGrounded);
     }
 }

@@ -14,11 +14,9 @@ public class PlayerInput : MonoBehaviour
     {
         Horizontal = Input.GetAxisRaw("Horizontal");
 
-        if (Input.GetButtonDown("Jump"))
-            JumpPressed = true;
+        JumpPressed = Input.GetButtonDown("Jump");
 
-        if (Input.GetMouseButtonDown(0))
-            PrimaryAttack = true;
+        PrimaryAttack = Input.GetMouseButtonDown(0);
 
         if (Input.GetMouseButtonDown(1))
         {
