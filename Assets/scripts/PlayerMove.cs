@@ -19,7 +19,7 @@ public class PlayerMove : MonoBehaviour
     private bool WalkDown;
     private bool JumpDown;
     private int count = 0;
-    private bool isJump;
+    private bool isJump = false;
     private bool mouseDown;
     private bool mouseUp;
     private bool isCharging;
@@ -65,7 +65,7 @@ public class PlayerMove : MonoBehaviour
 
         rigid.velocity = moveVec;
 
-        anim.SetBool("isWalk", moveVec != Vector3.zero);
+        anim.SetBool("isRun", moveVec != Vector3.zero);
     }
     private void HandleRotation()
     {
@@ -74,20 +74,7 @@ public class PlayerMove : MonoBehaviour
                 Quaternion.LookRotation(Vector3.right * rigid.velocity.x), 0.1f);
     }
 
-    void Jump()
-    {
-        if (JumpDown && count < 1)
-        {
-            //rigid.velocity = new Vector3(0, 15, 0);
-            rigid.AddForce(Vector3.up*20f, ForceMode.Impulse);
-            anim.SetBool("isJump", true);
-            anim.SetTrigger("doJump");
-            count++;
-            JumpDown = false;
-        }
-
-
-    }
+    
   
 
 
@@ -104,16 +91,19 @@ public class PlayerMove : MonoBehaviour
         }
         if (mouseUp)
         {
+            
             if (chargeTime >= chargeminTime)
             {
                 if (chargeTime > maxChargeTime)
                 {
+                    anim.SetTrigger("doSwing");
                     chargeTime = maxChargeTime;
                     isCharging = false;
                     equipWeapon.ChargeSwing(chargeTime);
                 }
                 else
                 {
+                    anim.SetTrigger("doSwing");
                     isCharging = false;
                     equipWeapon.ChargeSwing(chargeTime);
 
@@ -121,18 +111,34 @@ public class PlayerMove : MonoBehaviour
             }
             else
             {
+                anim.SetTrigger("doSwing");
                 isCharging = false;
                 equipWeapon.Swing();
+                
 
             }
         }
+    }
+    void Jump()
+    {
+        if (JumpDown && count < 2)
+        {
+
+            rigid.AddForce(Vector3.up * 20f, ForceMode.Impulse);
+            anim.SetBool("isJump", true);
+            anim.SetTrigger("doJump");
+            count++;
+            JumpDown = false;
+        }
+
+
     }
 
     void FixedUpdate()
     {
         Vector3 origin = transform.position + Vector3.up * 0.5f;
         Vector3 dir = Vector3.down;
-        float length = 0.7f;
+        float length = 0.8f;
         int mask = LayerMask.GetMask("Ground");
 
         // 실제 레이캐스트
@@ -141,12 +147,18 @@ public class PlayerMove : MonoBehaviour
         // 디버그용 레이 그리기 (Scene 뷰에서만 보입니다)
         Debug.DrawRay(origin, dir * length, isFloor ? Color.green : Color.red);
 
-        if (isFloor)
+        
+        anim.SetFloat("velocityY", rigid.velocity.y);
+        if (!isJump && isFloor)
         {
+            
+            anim.SetTrigger("Land");
             count = 0;
-            anim.SetBool("isJump", false);
+            
         }
+        isJump = isFloor;
     }
+    
 }
 
 

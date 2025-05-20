@@ -204,7 +204,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 9c18580b97512ed43885caa0955ca4fb,
         type: 3}
       propertyPath: m_ApplyRootMotion
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -542,7 +542,7 @@ GameObject:
   - component: {fileID: 545737838}
   m_Layer: 0
   m_Name: GameObject
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -559,12 +559,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55d6d78afcdafa443b0fbdd72b09c190, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 5
   Amlitude: 1
   Period: 2
   Waveform: 2
   weapon:
   - {fileID: 0}
+  playerMesh: {fileID: 291698245}
   equipWeapon: {fileID: 0}
 --- !u!54 &545737839
 Rigidbody:
