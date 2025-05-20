@@ -109,7 +109,7 @@ public class IKFootPlacement : MonoBehaviour
                     {
                         hipOffset = Mathf.SmoothDamp(hipOffset, goal + (hit.point.y - footPos.y), ref vel, 0.35f, Mathf.Infinity);
                         transform.localPosition = Vector3.up * hipOffset;
-                        Debug.Log(Mathf.Abs(hit.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y));
+                        //Debug.Log(Mathf.Abs(hit.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y));
                     }
 
                     Vector3 footPosition = hit.point;

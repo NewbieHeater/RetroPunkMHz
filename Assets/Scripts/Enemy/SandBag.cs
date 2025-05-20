@@ -1,12 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SandBag : Enemy
+public class SandBag : EnemyBase
 {
-    
-    
-
     private bool isBroken = false;
+
+    public override void Patrol()
+    {
+        throw new System.NotImplementedException();
+    }
+    public override void Attack()
+    {
+        throw new System.NotImplementedException();
+    }
 
     public override void OnExplosionInteract(Channel channel)
     {
@@ -36,12 +42,5 @@ public class SandBag : Enemy
 
 
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (dead && collision.collider.CompareTag("Ground"))
-        {
-            Debug.Log("explod");
-            Explode();
-        }
-    }
+    
 }

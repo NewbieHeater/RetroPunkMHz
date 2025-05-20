@@ -4,8 +4,6 @@ using UnityEngine;
 
 public interface IAttackable
 {
-    public void TakeDamage(float damage)
-    {
-
-    }
+    // 기존 TakeDamage(float) 대신
+    void TakeDamage(in DamageInfo info);
 }

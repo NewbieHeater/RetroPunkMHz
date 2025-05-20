@@ -17,7 +17,7 @@ public class EnemyPatrollState : IState<EnemyBase>
 
     public void OperateUpdate(EnemyBase sender)
     {
-
+        sender.PatrolerManual();
     }
 
     public void OperateFixedUpdate(EnemyBase sender)

@@ -1,11 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.Burst.CompilerServices;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
+public struct DamageInfo
+{
+    public int Amount;          // 입힐 피해량
+    public Vector3 SourceDir;     // 공격 원점→목표 방향
+    public bool IsCharge;       // 차지 공격 여부
+    public float KnockbackForce; // 넉백 세기 (차지 공격일 때만 의미)
+}
+
 
 public class Player : MonoBehaviour
 {
@@ -54,7 +61,7 @@ public class Player : MonoBehaviour
     #region Attack Settings
     [Header("Attack Settings")]
     [Tooltip("일반 공격 데미지")]
-    [SerializeField] private float normalDamage = 10f;
+    [SerializeField] private int normalDamage = 10;
     [Tooltip("차지 최소/최대 시간")]
     [SerializeField] private float minChargeTime = 0.2f, maxChargeTime = 1f;
     [Tooltip("차지 최대 데미지")]
@@ -131,6 +138,16 @@ public class Player : MonoBehaviour
         UpdateCoyoteTimer();
         ProcessMovement(groundCheckResult);
 
+        // FixedUpdate() 안, ProcessMovement(groundCheckResult) 호출 이후에 추가
+        if (IsGrounded && !desiredJump)
+        {
+            // Y 속도만 0으로 설정해서 잠시 떠오르는 걸 막음
+            Vector3 v = rb.velocity;
+            rb.velocity = new Vector3(v.x, 0f, v.z);
+            currentlyJumping = false;
+        }
+
+
         if (desiredJump)
         {
             ExecuteJump();
@@ -202,7 +219,7 @@ public class Player : MonoBehaviour
     public bool IsOnSlope(RaycastHit groundCheckResult)
     {
         var angle = Vector3.Angle(Vector3.up, groundCheckResult.normal);
-        return angle != 0f && angle < 35;
+        return angle != 0f && angle < 55;
     }
     private void ProcessMovement(RaycastHit groundCheckResult)
     {
@@ -222,26 +239,21 @@ public class Player : MonoBehaviour
             ? Mathf.MoveTowards(velocity.x, targetVx, accel * dt)
             : Mathf.MoveTowards(velocity.x, 0f, decel * dt);
 
-        Vector3 intended = transform.right * inputX;
-
         isOnSlope = IsOnSlope(groundCheckResult);
 
-        Vector3 finalVel;
         if (isOnSlope)
         {
-            Vector3 slopeDir = Vector3.ProjectOnPlane(intended, groundCheckResult.normal).normalized;
-
+            Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundCheckResult.normal).normalized;
+            Debug.Log(slopeDir);
             float speedMag = Mathf.Abs(newVx);
-            finalVel = slopeDir * speedMag;
+            velocity = slopeDir * newVx;
         }
         else
         {
             // 평지나 공중일 때는 X축 수평 이동
-            finalVel = new Vector3(intended.x * maxSpeed, rb.velocity.y, 0f);
+            velocity = new Vector3(newVx, rb.velocity.y, 0f);
         }
 
-        // 4) 평소 이동: velocity에 적용
-        velocity = finalVel;
         ApplyPhysics();   // rb.velocity = new Vector3(velocity.x, rb.velocity.y, 0)
     }
 
@@ -416,18 +428,36 @@ public class Player : MonoBehaviour
 
     #region Attack
     public void PrimaryAttack()
-        => ProcessAttack(normalDamage, false);
+    {
+        var info = new DamageInfo
+        {
+            Amount = normalDamage,
+            SourceDir = GetAttackDirection(),
+            IsCharge = false,
+            KnockbackForce = 0
+        };
+        ExecuteAttack(info);
+    }
+        
 
     public void ChargedAttack(float chargeTime)
     {
-        float damage = Mathf.FloorToInt((chargeTime * 30f) / 10f) * 10;
-        
-        bool knockback = (chargeTime >= minChargeTime);
-        ProcessAttack(damage, knockback);
+        float t = Mathf.Clamp(chargeTimer, minChargeTime, maxChargeTime);
+        int dmg = (int)Mathf.Lerp(normalDamage, maxChargeDamage, (t - minChargeTime) / (maxChargeTime - minChargeTime));
+
+        var info = new DamageInfo
+        {
+            Amount = dmg,
+            SourceDir = GetAttackDirection(),
+            IsCharge = t >= minChargeTime,
+            KnockbackForce = dmg / 3f
+        };
+        ExecuteAttack(info);
+
     }
-    private void ProcessAttack(float damage, bool knockback)
+    private void ExecuteAttack(in DamageInfo info)
     {
-        Vector3 dir = GetAttackDirection();
+        var dir = info.SourceDir;
         var hits = Physics.SphereCastAll(
             transform.position,
             attackRadius,
@@ -438,17 +468,11 @@ public class Player : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            var go = hit.collider.gameObject;
-
-            // 데미지 주기 (IDamageable이든 아니든 상관없이)
-            if (go.TryGetComponent<IAttackable>(out var atkable))
-                atkable.TakeDamage(damage);
-
-            // 넉백 호출은 무조건
-            if (knockback && go.TryGetComponent<IKnockbackable>(out var kb))
-                kb.ApplyKnockback(dir, damage/10f);
+            if (hit.collider.TryGetComponent<IAttackable>(out var atk))
+                atk.TakeDamage(info);
         }
     }
+
 
     private Vector3 GetAttackDirection()
     {
@@ -477,7 +501,7 @@ public class Player : MonoBehaviour
 
         Vector3 startPos = transform.position + Vector3.up * 0.5f;
         float groundCheckRadius = Radius + GroundedCheckRadiusBuffer;
-        float groundCheckDistance = 0.6f;
+        float groundCheckDistance = 0.8f;
 
         // perform our spherecast
         if (Physics.SphereCast(startPos, groundCheckRadius, Vector3.down, out hitResult,

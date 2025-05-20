@@ -26,9 +26,9 @@ public class Enemy : MonoBehaviour, IExplosionInteract, IKnockbackable, IAttacka
     }
 
     #region 피해
-    public virtual void TakeDamage(float damage)
+    public virtual void TakeDamage(in DamageInfo info)
     {
-        Hp -= damage;
+        Hp -= info.Amount;
         if (Hp <= 0)
         {
             Hp = 0;
@@ -53,7 +53,7 @@ public class Enemy : MonoBehaviour, IExplosionInteract, IKnockbackable, IAttacka
     #endregion
 
     #region 폭팔
-    protected void Explode()
+    public void Explode()
     {
         // 주변 오브젝트 상호작용 예시
         Collider[] hits = Physics.OverlapSphere(transform.position, 3f);
