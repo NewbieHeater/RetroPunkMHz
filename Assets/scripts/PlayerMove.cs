@@ -96,14 +96,14 @@ public class PlayerMove : MonoBehaviour
             {
                 if (chargeTime > maxChargeTime)
                 {
-                    anim.SetTrigger("doSwing");
+                    anim.SetTrigger("dochargeSwing");
                     chargeTime = maxChargeTime;
                     isCharging = false;
                     equipWeapon.ChargeSwing(chargeTime);
                 }
                 else
                 {
-                    anim.SetTrigger("doSwing");
+                    anim.SetTrigger("dochargeSwing");
                     isCharging = false;
                     equipWeapon.ChargeSwing(chargeTime);
 
