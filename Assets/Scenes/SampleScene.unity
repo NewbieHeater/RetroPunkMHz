@@ -204,7 +204,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 9c18580b97512ed43885caa0955ca4fb,
         type: 3}
       propertyPath: m_ApplyRootMotion
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -309,7 +309,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.039061237, y: 0.037261806, z: 0.012153154, w: 0.9984679}
-  m_LocalPosition: {x: 3.93, y: 2.21, z: -14.43}
+  m_LocalPosition: {x: 4.07, y: 2.07, z: -12.63}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -373,7 +373,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chaseSpeed: 12
   target: {fileID: 291698245}
-  offset: {x: 0, y: 2, z: -10}
+  offset: {x: 0, y: 2, z: -8}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -566,7 +566,7 @@ MonoBehaviour:
   weapon:
   - {fileID: 0}
   playerMesh: {fileID: 291698245}
-  equipWeapon: {fileID: 0}
+  equipWeapon: {fileID: 2116707549}
 --- !u!54 &545737839
 Rigidbody:
   m_ObjectHideFlags: 0
