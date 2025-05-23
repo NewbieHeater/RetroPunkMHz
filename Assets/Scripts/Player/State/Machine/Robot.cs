@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Robot : EnemyBase
+public class Robot : EnemyFSMBase
 {
     public override int RequiredAmpPts => 0;
     public override int RequiredPerPts => 0;

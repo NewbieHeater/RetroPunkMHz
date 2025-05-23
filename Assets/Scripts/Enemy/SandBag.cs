@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SandBag : EnemyBase
+public class SandBag : EnemyFSMBase
 {
     private bool isBroken = false;
 

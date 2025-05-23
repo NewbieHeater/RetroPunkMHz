@@ -3,37 +3,15 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using UnityEditor;
+using System.Collections;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
-[System.Serializable]
-public struct PatrolPoint
-{
-    [Tooltip("순찰할 위치")]
-    public Transform point;
 
-    [Tooltip("이 위치에서 기다릴 시간(초)")]
-    public float dwellTime;
 
-    [Tooltip("이 위치로 이동할 때 점프가 필요한가?")]
-    public bool needJump;
 
-    [Tooltip("점프 높이 (needJump == true 일 때만)")]
-    public float jumpPower;
-}
-
-public enum State
-{
-    Patrol,
-    Idle,
-    Move,
-    Attack,
-}
 
 public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IKnockbackable, IAttackable
 {
-    
-
-    State _curState;
-
     #region 변수
     [Header("스텟 설정")]
     [SerializeField] protected TextMeshProUGUI  HpBar;
@@ -47,10 +25,20 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IKnockbacka
     [SerializeField] protected float  collisionDetectionSpeedThreshold = 5f;
     [SerializeField] protected float  explosionRadius = 3f;
 
+    [Header("점프 설정")]
+    [Tooltip("포물선 최고점까지 높이 (웨이포인트별 jumpPower를 apex로 사용)")]
+    public float defaultApexHeight = 2f;
+    [Tooltip("왕복여부(False시 순환)")]
+    public bool getBackAvailable = false;
+
     [Header("순찰 경로 설정")]
     [Tooltip("순찰할 지점들을 Inspector에서 드래그하세요.")]
-    [SerializeField] public PatrolPoint[] patrolPoints;
     [SerializeField] protected float patrolSpeed = 5f;
+    [SerializeField] public PatrolPoint[] patrolPoints;
+    
+
+    
+
     protected bool isWaiting;
     protected float waitStartTime;
 
@@ -64,26 +52,33 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IKnockbacka
     public NavMeshAgent agent { get; private set; }
     public Animator     anime { get; private set; }
 
-    public Dictionary<string, IState<EnemyBase>> dicState = new Dictionary<string, IState<EnemyBase>>();
+    public Dictionary<State, IState<EnemyBase>> dicState = new Dictionary<State, IState<EnemyBase>>();
     public StateMachine<EnemyBase> sm;
+    public State CurrentStateEnum { get; private set; }
 
+    public CapsuleCollider cap;
     protected virtual void Awake()
     {
+
         rigid = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         anime = GetComponent<Animator>();
-
+        cap = GetComponent<CapsuleCollider>();
+        agent.updateRotation = false;
         //rigid.useGravity = false;
+        cap.enabled = false;
+        dicState.Add(State.Attack, new EnemyAttackState());
+        dicState.Add(State.Chase, new EnemyMoveState());
+        dicState.Add(State.Idle, new EnemyIdleState());
+        dicState.Add(State.Patrol, new EnemyPatrollState());
+        sm = new StateMachine<EnemyBase>(this, dicState[State.Patrol]);
+        CurrentStateEnum = State.Patrol;
 
-        dicState.Add("Attack", new EnemyAttackState());
-        dicState.Add("Move", new EnemyMoveState());
-        dicState.Add("Idle", new EnemyIdleState());
-        dicState.Add("Patrol", new EnemyPatrollState());
-        sm = new StateMachine<EnemyBase>(this, dicState["Patrol"]);
-        
         currentHp = maxHp;
         patrolIndex = 0;
         isGoingForward = true;
+        UpdateHpBarText();
+        agent.SetDestination(patrolPoints[0].point.position);
     }
 
     private void Update()
@@ -100,63 +95,156 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IKnockbacka
     private int patrolIndex;
     private bool isGoingForward = true;
 
+
+    
     #region Patrol
     public void PatrolerManual()
     {
-        if (patrolPoints == null || patrolPoints.Length == 0) return;
+        if (patrolPoints == null || patrolPoints.Length == 0)
+            return;
 
+        var pt = patrolPoints[patrolIndex];
+
+        // 1) 대기 중 처리
         if (isWaiting)
         {
-            if (Time.time - waitStartTime >= patrolPoints[patrolIndex].dwellTime)
+            if (Time.time - waitStartTime >= pt.dwellTime)
             {
                 isWaiting = false;
-                SetNextDestination();
-                Debug.Log("next");
+                AdvancePatrolIndex();
+                agent.SetDestination(patrolPoints[patrolIndex].point.position);
             }
             return;
         }
 
-        Vector3 target = patrolPoints[patrolIndex].point.position;
+        // 2) 아직 경로가 없으면 목적지 설정
+        //if (!agent.hasPath && !agent.pathPending)
+        //{
+        //    agent.SetDestination(pt.point.position);
+        //}
 
-        if (patrolPoints[patrolIndex].needJump)
+        // 3) 도착 판정 (X 축 가까워지면)
+        if (!agent.pathPending
+            && Mathf.Abs(pt.point.position.x - transform.position.x) < 0.05f && agent.enabled)
         {
+            // 이동 완전 정지
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
 
-            return;
+            // --- 점프 로직 ---
+            if (pt.needJump && isGoingForward)
+            {
+                agent.updatePosition = false;
+                agent.enabled = false;
+                cap.enabled = true;
+                // 2) 다음 인덱스 미리 계산
+                AdvancePatrolIndex();
+                var nextPos = patrolPoints[patrolIndex].point.position;
+
+                // 3) 초기 속도 계산
+                float apexH = pt.jumpPower > 0 ? pt.jumpPower : defaultApexHeight;
+                Vector3 launch = CalculateLaunchVelocity(transform.position, nextPos, apexH);
+
+                // 4) 점프 실행
+                rigid.useGravity = true;
+                rigid.velocity = launch;
+
+                // 5) 재점프 방지
+                pt.needJump = false;
+                //patrolPoints[patrolIndex] = pt;
+
+                // 6) 착지 후 복귀
+                StartCoroutine(WaitForLandingAndResume(nextPos));
+                Debug.Log(patrolIndex);
+                return;
+            }
+
+            // --- 대기 또는 바로 다음 지점 ---
+            if (pt.dwellTime > 0f)
+            {
+                isWaiting = true;
+                waitStartTime = Time.time;
+            }
+            else
+            {
+                AdvancePatrolIndex();
+                agent.SetDestination(patrolPoints[patrolIndex].point.position);
+            }
         }
+        Debug.Log(patrolIndex);
+    }
+    private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
+    {
+        float g = Physics.gravity.y;
+        // 상승 속도
+        float vUp = Mathf.Sqrt(-2f * g * apexHeight);
+        float tUp = vUp / -g;
+        // 내려올 때 걸리는 시간
+        float deltaH = apexHeight - (end.y - start.y);
+        float tDown = Mathf.Sqrt(2f * deltaH / -g);
+        float totalT = tUp + tDown;
 
-        agent.SetDestination(target);
+        // 수평 벡터 (3D)
+        Vector3 horiz = end - start;
+        horiz.y = 0f;
+        Vector3 vHoriz = horiz / totalT;
 
-        if (Mathf.Abs(transform.position.x - target.x) <= 0.1f)
-        {
-            isWaiting = true;
-            waitStartTime = Time.time;
-            Debug.Log(transform.position.x - target.x);
-        }
+        return vHoriz + Vector3.up * vUp;
     }
 
-    private void SetNextDestination()
+    private IEnumerator WaitForLandingAndResume(Vector3 resumeTarget)
     {
-        // ping-pong 인덱스 계산
-        if (isGoingForward)
+        
+        yield return new WaitForSeconds(2);
+
+        rigid.velocity = Vector3.zero;
+        cap.enabled = false;
+        // Agent 다시 켜 주기
+        agent.enabled = true;
+        agent.updatePosition = true;
+        agent.isStopped = false;
+        
+        agent.SetDestination(patrolPoints[patrolIndex].point.position);
+        Debug.Log(patrolIndex + "waitdafsssssssssssssssss");
+        // Rigidbody 중력은 계속 유지하거나, 필요 시 다시 꺼주세요
+        // rigid.useGravity = false; // if 원상 복구 필요하면
+    }
+
+    // ping-pong 인덱스 계산
+    private void AdvancePatrolIndex()
+    {
+        if (getBackAvailable)
         {
-            patrolIndex++;
-            if (patrolIndex >= patrolPoints.Length)
+            if (isGoingForward)
             {
-                patrolIndex = patrolPoints.Length - 2;
-                isGoingForward = false;
+                patrolIndex++;
+                if (patrolIndex >= patrolPoints.Length)
+                {
+                    patrolIndex = patrolPoints.Length - 2;
+                    isGoingForward = false;
+                }
+            }
+            else
+            {
+                patrolIndex--;
+                if (patrolIndex < 0)
+                {
+                    patrolIndex = 1;
+                    isGoingForward = true;
+                }
             }
         }
         else
         {
-            patrolIndex--;
-            if (patrolIndex < 0)
+            patrolIndex++;
+            if (patrolIndex >= patrolPoints.Length)
             {
-                patrolIndex = 1;
-                isGoingForward = true;
+                patrolIndex = 0;
             }
         }
-        
     }
+
+
     #endregion
 
     // 추상메서드
@@ -237,6 +325,7 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IKnockbacka
 
     public void ApplyKnockback(Vector3 direction, float force)
     {
+        cap.enabled = true;
         rigid.velocity = Vector3.zero;
         rigid.isKinematic = false;
         rigid.useGravity = true;

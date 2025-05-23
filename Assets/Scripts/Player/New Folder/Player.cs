@@ -125,7 +125,10 @@ public class Player : MonoBehaviour
         ProcessInput();
         
         HandleJumpBuffer();
-        
+        if(rb.velocity.y < -1f && !IsGrounded)
+        {
+            animator.Play("Unarmed-Fall");
+        }
     }
 
     void FixedUpdate()
@@ -138,21 +141,11 @@ public class Player : MonoBehaviour
         UpdateCoyoteTimer();
         ProcessMovement(groundCheckResult);
 
-        // FixedUpdate() 안, ProcessMovement(groundCheckResult) 호출 이후에 추가
-        if (IsGrounded && !desiredJump)
-        {
-            // Y 속도만 0으로 설정해서 잠시 떠오르는 걸 막음
-            Vector3 v = rb.velocity;
-            rb.velocity = new Vector3(v.x, 0f, v.z);
-            currentlyJumping = false;
-        }
-
 
         if (desiredJump)
         {
             ExecuteJump();
-            rb.velocity = velocity;
-            return;
+
         }
 
         //rb.velocity = velocity;
@@ -238,25 +231,33 @@ public class Player : MonoBehaviour
         float newVx = Mathf.Abs(inputX) > 0.01f
             ? Mathf.MoveTowards(velocity.x, targetVx, accel * dt)
             : Mathf.MoveTowards(velocity.x, 0f, decel * dt);
-
+       
         isOnSlope = IsOnSlope(groundCheckResult);
 
         if (isOnSlope)
         {
             Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundCheckResult.normal).normalized;
-            Debug.Log(slopeDir);
+
             float speedMag = Mathf.Abs(newVx);
             velocity = slopeDir * newVx;
         }
         else
         {
-            // 평지나 공중일 때는 X축 수평 이동
-            velocity = new Vector3(newVx, rb.velocity.y, 0f);
+            if (wasSlop)
+            {
+                rb.velocity = new Vector3(newVx, -5f, 0f);
+                
+            }
+            else
+            {
+                velocity = new Vector3(newVx, rb.velocity.y, 0f);
+            }
+            
         }
-
+        wasSlop = isOnSlope;
         ApplyPhysics();   // rb.velocity = new Vector3(velocity.x, rb.velocity.y, 0)
     }
-
+    bool wasSlop = false;
 
     /// <summary>
     /// 수평 이동 방향으로 작은 계단이 있으면 그 높이를 stepOffset으로 리턴.
@@ -301,12 +302,14 @@ public class Player : MonoBehaviour
         return false;
     }
 
-
+    bool jumped = false;
 
     private void ExecuteJump()
     {
         if (CanJump())
         {
+            animator.Play("Unarmed-Jump");
+            jumped = true;
             desiredJump = false;
             jumpBufferCounter = 0f;
             coyoteTimer = 0f;
@@ -429,6 +432,7 @@ public class Player : MonoBehaviour
     #region Attack
     public void PrimaryAttack()
     {
+        animator.SetTrigger("Attack");
         var info = new DamageInfo
         {
             Amount = normalDamage,
@@ -442,6 +446,7 @@ public class Player : MonoBehaviour
 
     public void ChargedAttack(float chargeTime)
     {
+        animator.Play("Attack_5Combo_4_Inplace");
         float t = Mathf.Clamp(chargeTimer, minChargeTime, maxChargeTime);
         int dmg = (int)Mathf.Lerp(normalDamage, maxChargeDamage, (t - minChargeTime) / (maxChargeTime - minChargeTime));
 
@@ -509,7 +514,11 @@ public class Player : MonoBehaviour
         {
 
             IsGrounded = true;
-
+            if (jumped && IsGrounded)
+            {
+                animator.Play("Unarmed-Land");
+                jumped = false;
+            }
             // add auto parenting here
         }
         else
@@ -518,13 +527,30 @@ public class Player : MonoBehaviour
         return hitResult;
     }
     #endregion
-
+    
     #region Utilities
     private void HandleRotation()
     {
         if (Mathf.Abs(velocity.x) > 0.01f)
+        {
             playerMesh.rotation = Quaternion.Slerp(playerMesh.rotation,
                 Quaternion.LookRotation(Vector3.right * velocity.x), rotationSpeed);
+            if(!jumped && IsGrounded)
+            {
+                animator.SetBool("Move", true);
+                animator.SetBool("Idle", false);
+            }
+            
+        }
+        else
+        {
+            if (!jumped && IsGrounded)
+            {
+                animator.SetBool("Move", false);
+                animator.SetBool("Idle", true);
+            }
+            
+        }
     }
     #endregion
 }
