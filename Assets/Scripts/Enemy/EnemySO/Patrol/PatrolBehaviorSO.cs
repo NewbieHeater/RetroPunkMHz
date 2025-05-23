@@ -1,17 +1,45 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 [CreateAssetMenu(menuName = "Enemy/PatrolBehavior/Base")]
 public abstract class PatrolBehaviorSO : ScriptableObject
 {
-    [Header("순찰 지점들 (EnemyFSMBase에서 설정하지 않아도 됨)")]
+    protected EnemyFSMBase enemy;
+    protected Transform transform;
+    protected Transform playerTransform;
+    protected NavMeshAgent agent;
+    protected GameObject gameObject;
+
+    [Header("순찰 데이터")]
+    [Tooltip("순찰 속도")]
+    public float patrolSpeed = 5f;
+
+    [Tooltip("순찰할 지점 배열")]
     public PatrolPoint[] patrolPoints;
 
-    [Header("순찰 모드 설정")]
-    public float dwellDelayThreshold = 0.1f;
+    [HideInInspector] public int patrolIndex;
+    [HideInInspector] public bool isWaiting;
+    [HideInInspector] public float waitStartTime;
+    [HideInInspector] public bool isGoingForward;
 
-    /// <summary>
-    /// 순찰 로직을 실행
-    /// </summary>
-    /// <param name="enemy">행동 수행할 Enemy 인스턴스</param>
-    public abstract void Patrol(EnemyFSMBase enemy);
+    public virtual void Initialize(GameObject gameObject, EnemyFSMBase enemy)
+    {
+        this.gameObject     = gameObject;
+        transform           = gameObject.transform;
+        this.enemy          = enemy;
+        playerTransform     = enemy.player.transform;
+        this.patrolPoints   = enemy.patrolPoints;
+        this.agent          = enemy.agent;
+        Debug.Log("adsf");
+        patrolIndex = 0;
+        isWaiting = false;
+        waitStartTime = 0f;
+        isGoingForward = true;
+    }
+
+    public abstract void DoEnterLogic();
+    public abstract void DoExitLogic();
+
+    public abstract void DoUpdateLogic();
+    public abstract void DoFixedUpdateLogic();
 }

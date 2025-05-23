@@ -7,20 +7,11 @@ namespace EnemyRobotState
     public class PatrolState : IState<EnemyFSMBase>
     {
         public void OperateEnter(EnemyFSMBase e) 
-        { 
-            e.agent.speed = e.patrolSpeed;
-
-            if (e.patrolPoints != null && e.patrolPoints.Length > 0)
-            {
-                Debug.Log(e.patrolPoints[e.patrolIndex].point.position);
-                Debug.Log("PatrolStart");
-                e.agent.SetDestination(
-                    e.patrolPoints[e.patrolIndex].point.position
-                );
-            }
+        {
+            e.patrolBehavior.DoEnterLogic();
         }
         public void OperateExit(EnemyFSMBase e) { /* Á¤¸® */ }
-        public void OperateUpdate(EnemyFSMBase e) { e.PatrolerManual(); }
+        public void OperateUpdate(EnemyFSMBase e) { e.patrolBehavior.DoUpdateLogic(); }
         public void OperateFixedUpdate(EnemyFSMBase e) { }
     }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using System.Collections;
 using Unity.VisualScripting;
+using static UnityEngine.UI.Image;
 
 public enum State { Patrol, Chase, Idle, Attack, Death, ANY }
 
@@ -25,13 +26,18 @@ public struct PatrolPoint
     public float jumpPower;
 }
 
-public abstract class EnemyFSMBase : MonoBehaviour, IExplosionInteract, IKnockbackable, IAttackable
+public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnockbackable, IAttackable
 {
-    [Header("스텟 설정")]
-    [SerializeField] protected TextMeshProUGUI  HpBar;
-    [SerializeField] protected int              maxHp = 100;
+    [Header("순찰 전략 (ScriptableObject)")]
+    [Tooltip("에디터에서 PatrolBehaviorSO 할당")]
+    public PatrolBehaviorSO patrolBehavior;
+
+    [Header("스탯 설정")]
+    [SerializeField] protected TextMeshProUGUI HpBar;
+    [SerializeField] protected int maxHp = 100;
     protected int currentHp;
     protected bool isDead;
+
     [Header("점프 설정")]
     [Tooltip("포물선 최고점까지 높이 (웨이포인트별 jumpPower를 apex로 사용)")]
     public float defaultApexHeight = 2f;
@@ -39,33 +45,29 @@ public abstract class EnemyFSMBase : MonoBehaviour, IExplosionInteract, IKnockba
     public bool getBackAvailable = false;
 
     [Header("넉백/폭발 설정")]
-    [SerializeField] protected bool     explodeOnWall;
-    [SerializeField] protected float    collisionDetectionSpeedThreshold = 5f;
-    [SerializeField] protected float    explosionRadius = 3f;
-
-    [Header("순찰 경로 설정")]
-    [Tooltip("순찰할 지점들을 Inspector에서 드래그하세요.")]
-    [SerializeField] public float patrolSpeed = 5f;
-    [SerializeField] public PatrolPoint[] patrolPoints;
+    [SerializeField] protected bool explodeOnWall;
+    [SerializeField] protected float collisionDetectionSpeedThreshold = 5f;
+    [SerializeField] protected float explosionRadius = 3f;
 
     [Header("시야 설정")]
     [Tooltip("에너미가 플레이어를 볼 수 있는 최대 각도(도)")]
-    public float viewAngle = 30f;  // ±30° 안에서만 플레이어 인식
+    public float viewAngle = 30f;
 
-    protected bool  isWaiting;
-    protected float waitStartTime;
-    public int     patrolIndex;
-    private bool    isGoingForward = true;
+    // --- SO 상태 관리용 변수 (각 몬스터마다 별도 저장) ---
+    [HideInInspector] public int so_patrolIndex = 0;
+    [HideInInspector] public bool so_isWaiting = false;
+    [HideInInspector] public float so_waitStartTime = 0f;
+    [HideInInspector] public bool so_isGoingForward = true;
+
+    // 컴포넌트 참조
+    public CapsuleCollider cap;
+    public Rigidbody rigid { get; private set; }
+    public NavMeshAgent agent { get; private set; }
+    public Animator anime { get; private set; }
 
     public virtual int RequiredAmpPts => 0;
     public virtual int RequiredPerPts => 0;
     public virtual int RequiredWavPts => 0;
-
-
-    protected CapsuleCollider   cap;
-    protected Rigidbody         rigid { get; private set; }
-    public NavMeshAgent      agent { get; private set; }
-    protected Animator          anime { get; private set; }
 
     public abstract void Patrol();
     public abstract void Attack();
@@ -79,9 +81,13 @@ public abstract class EnemyFSMBase : MonoBehaviour, IExplosionInteract, IKnockba
     [Header("Ranges")]
     public float attackRange = 2f;
     public float aggroRange = 5f;
+    float maxDist = 0;
+    public PatrolPoint[] patrolPoints;
 
     protected virtual void Awake()
     {
+        maxDist = aggroRange + 1f;
+
         rigid = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         anime = GetComponent<Animator>();
@@ -101,23 +107,34 @@ public abstract class EnemyFSMBase : MonoBehaviour, IExplosionInteract, IKnockba
         };
 
         // 테이블 드리븐 전이 정의
+        
+    }
+
+    private void Start()
+    {
+        patrolBehavior = Instantiate(patrolBehavior);
+        patrolBehavior.Initialize(gameObject, this);
+
         transitions = new List<StateTransition<EnemyFSMBase>>() {
             // Patrol -> Chase
-            new StateTransition<EnemyFSMBase>(State.Patrol, State.Chase, e =>
-                IsPlayerChaseAble()),
-            // Chase -> Attack
-            new StateTransition<EnemyFSMBase>(State.Chase, State.Attack, e =>
-                Vector3.Distance(e.transform.position, e.player.position) <= e.attackRange),
-            // Attack -> Chase
-            new StateTransition<EnemyFSMBase>(State.Attack, State.Chase, e =>
-            {
-                float d = Vector3.Distance(e.transform.position, e.player.position);
-                return d > e.attackRange && d <= e.aggroRange;
-            }),
-            // Chase -> Patrol
-            new StateTransition<EnemyFSMBase>(State.Chase, State.Patrol, e =>
-                Vector3.Distance(e.transform.position, e.player.position) > e.aggroRange),
-
+            //new StateTransition<EnemyFSMBase>(State.Patrol, State.Chase, e =>
+            //    IsPlayerChaseAble()),
+            //// Chase -> Attack
+            //new StateTransition<EnemyFSMBase>(State.Chase, State.Attack, e =>
+            //    Vector3.Distance(e.transform.position, e.player.position) <= e.attackRange),
+            //// Attack -> Chase
+            //new StateTransition<EnemyFSMBase>(State.Attack, State.Chase, e =>
+            //{
+            //    float d = Vector3.Distance(e.transform.position, e.player.position);
+            //    return d > e.attackRange && d <= e.aggroRange;
+            //}),
+            //// Chase -> Patrol
+            //new StateTransition<EnemyFSMBase>(State.Chase, State.Patrol, e =>
+            //    Vector3.Distance(e.transform.position, e.player.position) > e.aggroRange),
+            new StateTransition<EnemyFSMBase>(State.Patrol, State.Attack, e =>
+                IsPlayerInSight(attackRange)),
+            new StateTransition<EnemyFSMBase>(State.Attack, State.Idle, e =>
+                !IsPlayerInSight(attackRange)),
             new StateTransition<EnemyFSMBase>(State.ANY, State.Death, e =>
                 currentHp <= 0)
         };
@@ -141,44 +158,68 @@ public abstract class EnemyFSMBase : MonoBehaviour, IExplosionInteract, IKnockba
         CurrentState = State.Patrol;
         sm = new DataStateMachine<EnemyFSMBase>(this, stateMap[CurrentState]);
     }
-    RaycastHit hit;
-    public LayerMask playerLayer;
-    public bool IsPlayerChaseAble()
-    {
-        float dist = Vector3.Distance(transform.position, player.position);
-        if (dist > aggroRange) return false;
 
-        // 2) 시야(FOV) 체크
+    RaycastHit hit;
+    public LayerMask obstacleMask;
+
+    /// <summary>
+    /// 플레이어가 주어진 range 안에 있고, 시야각 안에 있으며,
+    /// Raycast 로 막히지 않는지(장애물 없이 보이는지)까지 모두 검사합니다.
+    /// </summary>
+    private bool IsPlayerInSight(float range)
+    {
+        // 1) 거리 체크
+        float dist = Vector3.Distance(transform.position, player.position);
+        if (dist > range)
+            return false;
+
+        // 2) FOV 체크
         Vector3 toPlayer = (player.position + Vector3.up - transform.position).normalized;
         float angle = Vector3.Angle(transform.forward, toPlayer);
         Debug.DrawRay(transform.position, toPlayer * dist, Color.green, 0.1f);
         if (angle > viewAngle)
         {
-            // Debug.DrawRay로 시야 밖임을 시각화
             Debug.DrawRay(transform.position, toPlayer * dist, Color.gray, 0.1f);
             return false;
         }
 
+        // 3) Raycast 체크
         Vector3 origin = transform.position;
         Vector3 target = player.position + Vector3.up;
         Vector3 dir = target - origin;
-        float maxDist = aggroRange + 1f;
+        Debug.DrawRay(origin, dir.normalized * range, Color.red, 0.1f);
 
-        // 1) 씬 뷰에 빨간 레이(Debug.DrawRay)
+        return IsRayHitOnPlayer(origin, dir);
+    }
+
+
+    public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir)
+    {
+
+        // 1) 씬 뷰에 빨간 레이
         Debug.DrawRay(origin, dir.normalized * maxDist, Color.red, 0.1f);
 
         // 2) 실제 Raycast
-        if (Physics.Raycast(origin, dir, out RaycastHit hit, maxDist, playerLayer))
+        if (Physics.Raycast(origin, dir, out var hit, maxDist, obstacleMask))
         {
-            // 3) 히트된 콜라이더 이름과 태그 로깅
-            Debug.Log($"[IsPlayerChaseAble] Hit: {hit.collider.name}, Tag: {hit.collider.tag}");
-            return hit.collider.CompareTag("Player");
+            Debug.Log($"[Raycast] Hit: {hit.collider.name}, Tag: {hit.collider.tag}");
+            return hit;    // RaycastHit 반환
         }
 
-        // 4) 히트 못 했을 때 로깅
-        Debug.Log("[IsPlayerChaseAble] Raycast did not hit anything within range.");
+        // 히트가 없으면 null
+        return null;
+    }
+
+    public bool IsRayHitOnPlayer(Vector3 origin, Vector3 dir)
+    {
+        // RaycastHit?이 RaycastHit hit으로 언랩핑되면 내부 블록 실행
+        if (GetRaycastHit(origin, dir) is RaycastHit hit)
+        {
+            return hit.collider.CompareTag("Player");
+        }
         return false;
     }
+
 
 
     public void ChasePlayer()
@@ -304,151 +345,5 @@ public abstract class EnemyFSMBase : MonoBehaviour, IExplosionInteract, IKnockba
     }
     #endregion
 
-    #region Patrol
-    public void PatrolerManual()
-    {
-        Debug.Log("isPatrol");
-        if (patrolPoints == null || patrolPoints.Length == 0)
-            return;
-
-        var pt = patrolPoints[patrolIndex];
-
-        // 1) 대기 중 처리
-        if (isWaiting)
-        {
-            if (Time.time - waitStartTime >= pt.dwellTime)
-            {
-                isWaiting = false;
-                AdvancePatrolIndex();
-                agent.SetDestination(patrolPoints[patrolIndex].point.position);
-            }
-            return;
-        }
-
-        // 2) 아직 경로가 없으면 목적지 설정
-        //if (!agent.hasPath && !agent.pathPending)
-        //{
-        //    agent.SetDestination(pt.point.position);
-        //}
-
-        // 3) 도착 판정 (X 축 가까워지면)
-        if (!agent.pathPending
-            && Mathf.Abs(pt.point.position.x - transform.position.x) < 0.05f && agent.enabled)
-        {
-            // 이동 완전 정지
-            agent.ResetPath();
-            agent.velocity = Vector3.zero;
-
-            // --- 점프 로직 ---
-            if (pt.needJump && isGoingForward)
-            {
-                agent.updatePosition = false;
-                agent.enabled = false;
-                cap.enabled = true;
-                // 2) 다음 인덱스 미리 계산
-                AdvancePatrolIndex();
-                var nextPos = patrolPoints[patrolIndex].point.position;
-
-                // 3) 초기 속도 계산
-                float apexH = pt.jumpPower > 0 ? pt.jumpPower : defaultApexHeight;
-                Vector3 launch = CalculateLaunchVelocity(transform.position, nextPos, apexH);
-
-                // 4) 점프 실행
-                rigid.useGravity = true;
-                rigid.velocity = launch;
-
-                // 5) 재점프 방지
-                pt.needJump = false;
-                //patrolPoints[patrolIndex] = pt;
-
-                // 6) 착지 후 복귀
-                StartCoroutine(WaitForLandingAndResume(nextPos));
-                Debug.Log(patrolIndex);
-                return;
-            }
-
-            // --- 대기 또는 바로 다음 지점 ---
-            if (pt.dwellTime > 0f)
-            {
-                isWaiting = true;
-                waitStartTime = Time.time;
-            }
-            else
-            {
-                AdvancePatrolIndex();
-                agent.SetDestination(patrolPoints[patrolIndex].point.position);
-            }
-        }
-
-    }
-    private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
-    {
-        float g = Physics.gravity.y;
-        // 상승 속도
-        float vUp = Mathf.Sqrt(-2f * g * apexHeight);
-        float tUp = vUp / -g;
-        // 내려올 때 걸리는 시간
-        float deltaH = apexHeight - (end.y - start.y);
-        float tDown = Mathf.Sqrt(2f * deltaH / -g);
-        float totalT = tUp + tDown;
-
-        // 수평 벡터 (3D)
-        Vector3 horiz = end - start;
-        horiz.y = 0f;
-        Vector3 vHoriz = horiz / totalT;
-
-        return vHoriz + Vector3.up * vUp;
-    }
-
-    private IEnumerator WaitForLandingAndResume(Vector3 resumeTarget)
-    {
-
-        yield return new WaitForSeconds(2);
-
-        rigid.velocity = Vector3.zero;
-        cap.enabled = false;
-        // Agent 다시 켜 주기
-        agent.enabled = true;
-        agent.updatePosition = true;
-        agent.isStopped = false;
-
-        agent.SetDestination(patrolPoints[patrolIndex].point.position);
-    }
-
-    // ping-pong 인덱스 계산
-    private void AdvancePatrolIndex()
-    {
-        if (getBackAvailable)
-        {
-            if (isGoingForward)
-            {
-                patrolIndex++;
-                if (patrolIndex >= patrolPoints.Length)
-                {
-                    patrolIndex = patrolPoints.Length - 2;
-                    isGoingForward = false;
-                }
-            }
-            else
-            {
-                patrolIndex--;
-                if (patrolIndex < 0)
-                {
-                    patrolIndex = 1;
-                    isGoingForward = true;
-                }
-            }
-        }
-        else
-        {
-            patrolIndex++;
-            if (patrolIndex >= patrolPoints.Length)
-            {
-                patrolIndex = 0;
-            }
-        }
-    }
-
-
-    #endregion
+    
 }
