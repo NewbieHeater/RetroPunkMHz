@@ -10,14 +10,17 @@ public abstract class AttackBehaviorSO : ScriptableObject
     protected NavMeshAgent agent;
     protected GameObject gameObject;
 
+    protected int atkPower = 0;
+
 
     public virtual void Initialize(GameObject gameObject, EnemyFSMBase enemy)
     {
         this.gameObject = gameObject;
-        transform = gameObject.transform;
+        this.transform = gameObject.transform;
         this.enemy = enemy;
-        playerTransform = enemy.player.transform;
+        this.playerTransform = enemy.player.transform;
         this.agent = enemy.agent;
+        this.atkPower = enemy.atkPower
     }
 
     public abstract void DoEnterLogic();
