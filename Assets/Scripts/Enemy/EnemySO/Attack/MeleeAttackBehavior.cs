@@ -7,14 +7,13 @@ public class MeleeAttackBehavior : AttackBehaviorSO
 {
     enum Phase { Windup, Strike, Cooldown }
 
-    [Tooltip("°ø°İ ÁØºñ ½Ã°£")]
+    [Tooltip("ê³µê²© ì¤€ë¹„ ì‹œê°„")]
     public float windupTime = 0.5f;
-    [Tooltip("°ø°İ µ¿ÀÛ ½Ã°£")]
+    [Tooltip("ê³µê²© ë™ì‘ ì‹œê°„")]
     public float strikeTime = 0.3f;
-    [Tooltip("Äğ´Ù¿î ½Ã°£")]
+    [Tooltip("ì¿¨ë‹¤ìš´ ì‹œê°„")]
     public float cooldownTime = 0.4f;
-    [Tooltip("¹ĞÃÄ³»±â¿ë Èû")]
-    public float attackForce = 10f;
+    
 
     Rigidbody rigidb;
     CapsuleCollider cap;
@@ -32,11 +31,11 @@ public class MeleeAttackBehavior : AttackBehaviorSO
 
     public override void DoEnterLogic()
     {
-        // 1) ÇÃ·¹ÀÌ¾î ¹æÇâ ¹Ù¶óº¸±â
+        // 1) í”Œë ˆì´ì–´ ë°©í–¥ ë°”ë¼ë³´ê¸°
         Vector3 dir = (enemy.player.position - tf.position).normalized;
         tf.forward = dir;
 
-        // 2) Wind-up ½ÃÀÛ
+        // 2) Wind-up ì‹œì‘
         phase = Phase.Windup;
         phaseStart = Time.time;
     }
@@ -50,11 +49,11 @@ public class MeleeAttackBehavior : AttackBehaviorSO
             case Phase.Windup:
                 if (elapsed >= windupTime)
                 {
-                    // ÁØºñ ³¡ ¡æ °ø°İ
+                    // ì¤€ë¹„ ë â†’ ê³µê²©
                     phase = Phase.Strike;
                     phaseStart = Time.time;
 
-                    // (¿øÇÑ´Ù¸é) Äİ¶óÀÌ´õ È°¼ºÈ­, µ¥¹ÌÁö ÆÇÁ¤ ·ÎÁ÷ Æ®¸®°Å
+                    // (ì›í•œë‹¤ë©´) ì½œë¼ì´ë” í™œì„±í™”, ë°ë¯¸ì§€ íŒì • ë¡œì§ íŠ¸ë¦¬ê±°
                     //AttackHit();
                 }
                 break;
@@ -62,8 +61,8 @@ public class MeleeAttackBehavior : AttackBehaviorSO
             case Phase.Strike:
                 if (elapsed >= strikeTime)
                 {
-                    // °ø°İ ÈÄ¹İºÎ(¹ĞÃÄ³»±â) Ã³¸®
-                    rigidb.AddForce(tf.forward * attackForce, ForceMode.Impulse);
+                    // ê³µê²© í›„ë°˜ë¶€(ë°€ì³ë‚´ê¸°) ì²˜ë¦¬
+                    e.player.ModifyHp(atkPower);
 
                     phase = Phase.Cooldown;
                     phaseStart = Time.time;
@@ -73,7 +72,7 @@ public class MeleeAttackBehavior : AttackBehaviorSO
             case Phase.Cooldown:
                 if (elapsed >= cooldownTime)
                 {
-                    // ³¡ ¡æ »óÀ§ FSM¿¡ ¡°°ø°İ ³¡¡± ½ÅÈ£
+                    // ë â†’ ìƒìœ„ FSMì— â€œê³µê²© ëâ€ ì‹ í˜¸
                     //attackFinishedCallback?.Invoke();
                 }
                 break;
@@ -82,7 +81,7 @@ public class MeleeAttackBehavior : AttackBehaviorSO
 
     public override void DoExitLogic()
     {
-        // ÇÊ¿äÇÏ¸é Äİ¶óÀÌ´õ ºñÈ°¼ºÈ­ µî Á¤¸®
+        // í•„ìš”í•˜ë©´ ì½œë¼ì´ë” ë¹„í™œì„±í™” ë“± ì •ë¦¬
         //CleanupAfterAttack();
     }
 
