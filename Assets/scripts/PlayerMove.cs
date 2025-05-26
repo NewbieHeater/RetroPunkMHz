@@ -16,6 +16,8 @@ public class PlayerMove : MonoBehaviour
     private float vAxis;
     private float chargeTime = 0;
     private float chargeminTime = 1f;
+    private float chargePauseTime = 0.3f;
+    private float temp = 1;
     private bool WalkDown;
     private bool JumpDown;
     private int count = 0;
@@ -24,6 +26,7 @@ public class PlayerMove : MonoBehaviour
     private bool mouseUp;
     private bool isCharging;
     private bool isFloor = false;
+    private bool hasPaused = false;
     private Vector3 moveVec;
 
     private Rigidbody rigid;
@@ -49,6 +52,7 @@ public class PlayerMove : MonoBehaviour
         Jump();
         Attack();
         HandleRotation();
+        //moveAttack();
     }
 
     void GetInput()
@@ -80,40 +84,57 @@ public class PlayerMove : MonoBehaviour
 
     void Attack()
     {
+        moveVec = new Vector3(hAxis * speed, rigid.velocity.y, 0);
         if (mouseDown)
         {
             isCharging = true;
             chargeTime = 0f;
+            if (moveVec == Vector3.zero)
+            {
+               
+                anim.Play("chargeAttack", 0, 0f);
+                StartCoroutine(PauseAnimationAfterDelay(chargePauseTime)); // 0.3√ »ƒ æ÷¥œ∏ﬁ¿Ãº« ∏ÿ√„
+            }
+                
         }
         if (isCharging)
         {
             chargeTime += Time.deltaTime;
         }
-        if (mouseUp)
+        if (mouseUp && isCharging)
         {
-            
+
+            isCharging = false;
+            anim.speed = 1f;
             if (chargeTime >= chargeminTime)
             {
                 if (chargeTime > maxChargeTime)
                 {
-                    anim.SetTrigger("dochargeSwing");
+                    
                     chargeTime = maxChargeTime;
-                    isCharging = false;
                     equipWeapon.ChargeSwing(chargeTime);
                 }
                 else
                 {
-                    anim.SetTrigger("dochargeSwing");
-                    isCharging = false;
+                    
                     equipWeapon.ChargeSwing(chargeTime);
 
                 }
             }
             else
             {
-                anim.SetTrigger("doSwing");
-                isCharging = false;
-                equipWeapon.Swing();
+                if(moveVec != Vector3.zero)
+                {
+                    
+                    anim.SetTrigger("doAttack");
+                    equipWeapon.Swing();
+                }
+                else
+                {
+                    anim.SetTrigger("doSwing");
+                    equipWeapon.Swing();
+                }
+                    
                 
 
             }
@@ -134,6 +155,17 @@ public class PlayerMove : MonoBehaviour
 
     }
 
+    /*void moveAttack()
+    {
+        if (anim.GetCurrentAnimatorStateInfo(1).normalizedTime > 1f)
+        {
+            if (temp >= 0)
+            {
+                temp -= Time.deltaTime;
+            }
+            anim.SetLayerWeight(1, 0);
+        }
+    }*/
     void FixedUpdate()
     {
         Vector3 origin = transform.position + Vector3.up * 0.5f;
@@ -158,7 +190,17 @@ public class PlayerMove : MonoBehaviour
         }
         isJump = isFloor;
     }
-    
+
+    IEnumerator PauseAnimationAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (isCharging)
+        {
+            anim.speed = 0f; // æ÷¥œ∏ﬁ¿Ãº« ∏ÿ√„
+            hasPaused = true;
+        }
+    }
+
 }
 
 
