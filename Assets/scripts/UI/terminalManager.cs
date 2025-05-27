@@ -1,0 +1,59 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class terminalManager : MonoBehaviour
+{
+    public GameObject dirLine;
+    public GameObject responseLine;
+
+    public InputField terminalInput;
+    public GameObject userInputLine;
+    public ScrollRect scrollRect;
+    public GameObject msgList;
+
+    private void OnGUI()
+    {
+        if(terminalInput.isFocused && terminalInput.text != "" && Input.GetKeyDown(KeyCode.Return))
+        {
+            //유저의 입력을 저장
+            string userInput = terminalInput.text;
+
+            //인풋 필드 클리어
+            ClearInputField();
+
+            //디렉토리 라인 인스턴스화
+            AddDirectoryLine(userInput);
+
+            //입력 라인을 마지막줄로 옮기기
+            userInputLine.transform.SetAsLastSibling();
+
+            //입력 필드 리포커싱
+            terminalInput.ActivateInputField();
+            terminalInput.Select();
+        }
+    }
+
+    void ClearInputField()
+    {
+        terminalInput.text = "";
+    }
+
+    void AddDirectoryLine(string userInput)
+    {
+        //커맨드 라인 컨테이너 리사이즈
+        Vector2 msgListSize = msgList.GetComponent<RectTransform>().sizeDelta;
+        msgList.GetComponent<RectTransform>().sizeDelta = new Vector2(msgListSize.x, msgListSize.y + 35f);
+
+        //디렉토리 라인 객체 생성
+        GameObject msg = Instantiate(dirLine, msgList.transform);
+
+        //자식객체 인덱스 설정
+        msg.transform.SetSiblingIndex(msgList.transform.childCount - 1);
+
+        //생성한 객체 텍스트 설정
+        msg.GetComponentsInChildren<Text>()[1].text = userInput;
+    }
+
+}
