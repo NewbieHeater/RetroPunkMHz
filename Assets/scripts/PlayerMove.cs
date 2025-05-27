@@ -89,13 +89,8 @@ public class PlayerMove : MonoBehaviour
         {
             isCharging = true;
             chargeTime = 0f;
-            if (moveVec == Vector3.zero)
-            {
-               
-                anim.Play("chargeAttack", 0, 0f);
-                StartCoroutine(PauseAnimationAfterDelay(chargePauseTime)); // 0.3초후 애니메이션 멈춤
-            }
-                
+            anim.SetTrigger("docharge");
+   
         }
         if (isCharging)
         {
@@ -105,37 +100,29 @@ public class PlayerMove : MonoBehaviour
         {
 
             isCharging = false;
-            anim.speed = 1f;
             if (chargeTime >= chargeminTime)
             {
-                if (chargeTime > maxChargeTime)
+                
+                if (chargeTime > maxChargeTime )
                 {
                     
+                    anim.SetTrigger("dochargeAttack");
                     chargeTime = maxChargeTime;
                     equipWeapon.ChargeSwing(chargeTime);
                 }
-                else
+                else if(chargeTime <= maxChargeTime )
                 {
                     
+                    anim.SetTrigger("dochargeAttack");
                     equipWeapon.ChargeSwing(chargeTime);
 
                 }
             }
             else
             {
-                if(moveVec != Vector3.zero)
-                {
-                    
-                    anim.SetTrigger("doAttack");
-                    equipWeapon.Swing();
-                }
-                else
-                {
-                    anim.SetTrigger("doSwing");
-                    equipWeapon.Swing();
-                }
-                    
-                
+                anim.SetTrigger("doAttack");
+                equipWeapon.Swing();
+
 
             }
         }
@@ -146,7 +133,7 @@ public class PlayerMove : MonoBehaviour
         {
 
             rigid.AddForce(Vector3.up * 20f, ForceMode.Impulse);
-            anim.SetBool("isJump", true);
+            
             anim.SetTrigger("doJump");
             count++;
             JumpDown = false;
@@ -155,17 +142,7 @@ public class PlayerMove : MonoBehaviour
 
     }
 
-    /*void moveAttack()
-    {
-        if (anim.GetCurrentAnimatorStateInfo(1).normalizedTime > 1f)
-        {
-            if (temp >= 0)
-            {
-                temp -= Time.deltaTime;
-            }
-            anim.SetLayerWeight(1, 0);
-        }
-    }*/
+    
     void FixedUpdate()
     {
         Vector3 origin = transform.position + Vector3.up * 0.5f;
@@ -188,18 +165,10 @@ public class PlayerMove : MonoBehaviour
             count = 0;
             
         }
-        isJump = isFloor;
+        isJump = isFloor; // 점프를 하면 isFloor이 false이기 때문에 isJump가 false로 바뀜
     }
 
-    IEnumerator PauseAnimationAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (isCharging)
-        {
-            anim.speed = 0f; // 애니메이션 멈춤
-            hasPaused = true;
-        }
-    }
+    
 
 }
 
