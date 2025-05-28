@@ -74,7 +74,7 @@ public class Player : MonoBehaviour
     private bool isCharging = false;
     private float chargeTimer = 0f;
     #endregion
-    [SerializeField] protected CharacterMotorConfig Config;
+
     #region Ground Detection
     [Header("Ground Detection")]
     [Tooltip("바닥 체크 시작점")]
@@ -269,45 +269,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 수평 이동 방향으로 작은 계단이 있으면 그 높이를 stepOffset으로 리턴.
     /// </summary>
-    private bool TryStepOffset(Vector3 horizontalMove, out float stepOffset)
-    {
-        stepOffset = 0f;
 
-        Vector3 dir = horizontalMove.normalized;
-        float halfH = Config.StepCheck_MaxStepHeight * 0.5f;
-        float fullH = Config.StepCheck_MaxStepHeight;
-        float lookD = Config.Radius + Config.StepCheck_LookAheadRange;
-        int mask = Config.GroundedLayerMask;
-
-        // 1) 앞에 장애물 있는지
-        Vector3 origin1 = transform.position + Vector3.up * halfH;
-        if (!Physics.Raycast(origin1, dir, lookD, mask))
-            return false;
-
-        // 2) 장애물 위 공간이 비어있는지
-        Vector3 origin2 = transform.position + Vector3.up * fullH;
-        if (Physics.Raycast(origin2, dir, lookD, mask))
-            return false;
-
-        // 3) 계단 표면 높이 검사
-        Vector3 rayOrigin = origin2 + dir * lookD;
-        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, fullH * 2f, mask))
-        {
-            // 너무 가파르면 무시
-            if (Vector3.Angle(hit.normal, Vector3.up) > Config.SlopeLimit)
-                return false;
-
-            // 계단 높이만큼 보정
-            float diffY = hit.point.y - transform.position.y;
-            if (diffY > 0f && diffY <= Config.StepCheck_MaxStepHeight)
-            {
-                stepOffset = diffY + 0.01f;  // 소폭 여유 추가
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     bool jumped = false;
 
