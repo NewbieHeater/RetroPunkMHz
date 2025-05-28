@@ -16,12 +16,15 @@ public class SimplePatrolBehavior : PatrolBehaviorSO
     }
     public override void DoEnterLogic()
     {
+        enemy.anime.Play("Move");
+        agent.isStopped = false;
         agent.speed = patrolSpeed;
+        agent.enabled = true;
         if (!agent.hasPath) agent.SetDestination(patrolPoints[patrolIndex].point.position);
     }
     public override void DoExitLogic()
     {
-
+        agent.enabled = false;
     }
     public override void DoUpdateLogic()
     {

@@ -67,7 +67,7 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IKnockbacka
         agent.updateRotation = false;
         //rigid.useGravity = false;
         cap.enabled = false;
-        dicState.Add(State.Attack, new EnemyAttackState());
+        dicState.Add(State.MeleeAttack, new EnemyAttackState());
         dicState.Add(State.Chase, new EnemyMoveState());
         dicState.Add(State.Idle, new EnemyIdleState());
         dicState.Add(State.Patrol, new EnemyPatrollState());

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 public struct DamageInfo
 {
@@ -84,7 +85,7 @@ public class Player : MonoBehaviour
     public LayerMask groundLayer;
     public bool IsGrounded = false;
     #endregion
-
+    CapsuleCollider cap;
     #region Physics & Calculations
     private Rigidbody rb;
     private Camera cam;
@@ -102,13 +103,18 @@ public class Player : MonoBehaviour
     private float newGravity;
     #endregion
 
-    public Image HpBar;
-    public GameObject HpBarParent;
+    public int maxHp = 100;
+    public int curHp = 0;
+
+    public Image chargeBar;
+    public GameObject chargeBarParent;
     public TextMeshProUGUI ChargedValue;
     #region Unity Callbacks
     void Start()
     {
-        HpBarParent.SetActive(false);
+        cap = GetComponent<CapsuleCollider>();
+        curHp = maxHp;
+        chargeBarParent.SetActive(false);
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
         animator = GetComponentInChildren<Animator>();
@@ -133,7 +139,8 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        RaycastHit groundCheckResult = UpdateIsGrounded();
+        RaycastHit groundCheckResult;
+        UpdateIsGrounded(out groundCheckResult);
 
 
         velocity = rb.velocity;
@@ -177,7 +184,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            HpBarParent.SetActive(true);
+            chargeBarParent.SetActive(true);
             isCharging = true;
             chargeTimer = 0f;
         }
@@ -187,14 +194,14 @@ public class Player : MonoBehaviour
             chargeTimer += Time.deltaTime;
             float damage = Mathf.FloorToInt((chargeTimer * 30f) / 10f) * 10;
             ChargedValue.text = damage.ToString();
-            HpBar.fillAmount = chargeTimer / maxChargeTime;
+            chargeBar.fillAmount = chargeTimer / maxChargeTime;
         }
             
         if (isCharging && Input.GetMouseButtonUp(1))
         {
             ChargedAttack(chargeTimer);
-            HpBarParent.SetActive(false);
-            HpBar.fillAmount = 0f;
+            chargeBarParent.SetActive(false);
+            chargeBar.fillAmount = 0f;
             isCharging = false;
         }
     }
@@ -489,45 +496,66 @@ public class Player : MonoBehaviour
         return dir.normalized;
     }
     #endregion
-    
-    float Radius;
-    float GroundedCheckRadiusBuffer;
-    #region Ground Check
-    protected RaycastHit UpdateIsGrounded()
+
+    #region HpModify
+
+    public void ModifyHp(int atkPower)
     {
-        RaycastHit hitResult;
+        curHp -= atkPower;
+    }
 
-        // currently performing a jump
-        if (jumpBufferCounter > 0)
+    #endregion
+    public RaycastHit LastGroundHit { get; private set; }
+    [Header("Ground Check")]
+    [SerializeField] float checkHeight = 0.1f;
+    [SerializeField] float checkRadius = 0.5f;
+    [SerializeField] float maxFallDistance = 0.3f;
+    #region Ground Check
+    private bool UpdateIsGrounded(out RaycastHit hit)
+    {
+        // 1) 점프 버퍼가 남아 있으면 여전히 공중상태
+        if (jumpBufferCounter > 0f)
         {
+            hit = default;
             IsGrounded = false;
-            return new RaycastHit();
+            return false;
         }
 
-        Vector3 startPos = transform.position + Vector3.up * 0.5f;
-        float groundCheckRadius = Radius + GroundedCheckRadiusBuffer;
-        float groundCheckDistance = 0.8f;
+        // 2) CheckSphere 로 대략적 접지 체크
+        Vector3 origin = transform.position + Vector3.up * checkHeight;
+        bool grounded = Physics.CheckSphere(
+            origin,
+            checkRadius,
+            groundLayer,
+            QueryTriggerInteraction.Ignore
+        );
 
-        // perform our spherecast
-        if (Physics.SphereCast(startPos, groundCheckRadius, Vector3.down, out hitResult,
-                               groundCheckDistance, groundLayer, QueryTriggerInteraction.Ignore))
+        hit = default;
+        // 3) 실제 접촉면 노멀·위치 정보가 필요하면 Raycast
+        if (grounded)
         {
-
-            IsGrounded = true;
-            if (jumped && IsGrounded)
+            if (Physics.Raycast(
+                    origin,
+                    Vector3.down,
+                    out RaycastHit rHit,
+                    checkHeight + maxFallDistance,
+                    groundLayer,
+                    QueryTriggerInteraction.Ignore))
             {
-                animator.Play("Unarmed-Land");
-                jumped = false;
+                hit = rHit;
             }
-            // add auto parenting here
         }
-        else
-            IsGrounded = false;
-
-        return hitResult;
+        if (jumped && IsGrounded)
+        {
+            animator.Play("Unarmed-Land");
+            jumped = false;
+        }
+        IsGrounded = grounded;
+        LastGroundHit = hit;
+        return grounded;
     }
     #endregion
-    
+
     #region Utilities
     private void HandleRotation()
     {
@@ -553,4 +581,29 @@ public class Player : MonoBehaviour
         }
     }
     #endregion
+
+    // 맨 아래에 추가하세요.
+    void OnDrawGizmosSelected()
+    {
+        // 1) 대략적 접지 체크용 구체 원점
+        Vector3 origin = transform.position + Vector3.up * checkHeight;
+        float radius = checkRadius;
+        float distance = checkHeight + maxFallDistance;
+
+        // —— 접지 체크 반경 (구체) —— //
+        Gizmos.color = IsGrounded ? Color.green : Color.red;
+        Gizmos.DrawWireSphere(origin, radius);
+
+        // —— Raycast 방향 (수직 하강선) —— //
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(origin, origin + Vector3.down * distance);
+
+        // —— 실제 충돌 지점 표시 —— //
+        if (LastGroundHit.collider != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(LastGroundHit.point, radius * 0.1f);
+        }
+    }
+
 }

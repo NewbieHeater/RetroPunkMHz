@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40c2851cd692cde469fcb3bff604d56d, type: 3}
   m_Name: Robot
   m_EditorClassIdentifier: 
-  patrolSpeed: 5
+  patrolSpeed: 1
   patrolPoints:
   - point: {fileID: 0}
     dwellTime: 0

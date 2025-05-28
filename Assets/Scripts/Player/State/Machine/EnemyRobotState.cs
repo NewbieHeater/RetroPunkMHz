@@ -28,9 +28,17 @@ namespace EnemyRobotState
 
     public class IdleState : IState<EnemyFSMBase>
     {
-        public void OperateEnter(EnemyFSMBase e) { Debug.Log("IOdle"); }
-        public void OperateExit(EnemyFSMBase e) { }
-        public void OperateUpdate(EnemyFSMBase e) { /* 대기 중 애니메이션 */ }
+        //나중에 수정할게요 귀차나
+        
+        public void OperateEnter(EnemyFSMBase e) 
+        {
+            e.idleBehavior.DoEnterLogic();
+        }
+        public void OperateExit(EnemyFSMBase e) { e.idleBehavior.DoExitLogic(); }
+        public void OperateUpdate(EnemyFSMBase e) 
+        {
+            e.idleBehavior.DoUpdateLogic();
+        }
         public void OperateFixedUpdate(EnemyFSMBase e) { }
     }
 
@@ -41,12 +49,30 @@ namespace EnemyRobotState
             Debug.Log("Attack");
             e.agent.isStopped = true;
             e.agent.velocity = Vector3.zero;
+            e.meleeAttackBehavior.DoEnterLogic();
         }
         public void OperateExit(EnemyFSMBase e) 
         {
-            e.agent.isStopped = false;
+            e.meleeAttackBehavior.DoExitLogic();
         }
-        public void OperateUpdate(EnemyFSMBase e) { /* 공격 로직 */ }
+        public void OperateUpdate(EnemyFSMBase e) { e.meleeAttackBehavior.DoUpdateLogic(); }
+        public void OperateFixedUpdate(EnemyFSMBase e) { }
+    }
+
+    public class RangeAttackState : IState<EnemyFSMBase>
+    {
+        public void OperateEnter(EnemyFSMBase e)
+        {
+            Debug.Log("RAttack");
+            e.agent.isStopped = true;
+            e.agent.velocity = Vector3.zero;
+            e.rangeAttackBehavior.DoEnterLogic();
+        }
+        public void OperateExit(EnemyFSMBase e)
+        {
+            e.rangeAttackBehavior.DoExitLogic();
+        }
+        public void OperateUpdate(EnemyFSMBase e) { e.rangeAttackBehavior.DoUpdateLogic(); }
         public void OperateFixedUpdate(EnemyFSMBase e) { }
     }
 

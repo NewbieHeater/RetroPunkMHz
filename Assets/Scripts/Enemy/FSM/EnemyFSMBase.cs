@@ -7,7 +7,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using static UnityEngine.UI.Image;
 
-public enum State { Patrol, Chase, Idle, Attack, Death, ANY }
+public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Death, ANY }
 
 
 [System.Serializable]
@@ -31,7 +31,9 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
     [Header("순찰 전략 (ScriptableObject)")]
     [Tooltip("에디터에서 PatrolBehaviorSO 할당")]
     public PatrolBehaviorSO patrolBehavior;
-
+    public IdleBehaviorSO idleBehavior;
+    public AttackBehaviorSO meleeAttackBehavior;
+    public AttackBehaviorSO rangeAttackBehavior;
     [Header("스탯 설정")]
     [SerializeField] protected TextMeshProUGUI HpBar;
     [SerializeField] protected int maxHp = 100;
@@ -51,13 +53,9 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
 
     [Header("시야 설정")]
     [Tooltip("에너미가 플레이어를 볼 수 있는 최대 각도(도)")]
-    public float viewAngle = 30f;
+    public float viewAngle = 45f;
 
-    // --- SO 상태 관리용 변수 (각 몬스터마다 별도 저장) ---
-    [HideInInspector] public int so_patrolIndex = 0;
-    [HideInInspector] public bool so_isWaiting = false;
-    [HideInInspector] public float so_waitStartTime = 0f;
-    [HideInInspector] public bool so_isGoingForward = true;
+    public GameObject questionMark;
 
     // 컴포넌트 참조
     public CapsuleCollider cap;
@@ -73,13 +71,17 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
     public abstract void Attack();
 
     public State CurrentState { get; private set; }
+
     private Dictionary<State, IState<EnemyFSMBase>> stateMap;
     private List<StateTransition<EnemyFSMBase>> transitions;
     private DataStateMachine<EnemyFSMBase> sm;
     private Dictionary<State, List<StateTransition<EnemyFSMBase>>> transitionsByState;
-    public Transform player;
+
+    public Player player;
     [Header("Ranges")]
-    public float attackRange = 2f;
+    public float findRange = 1.5f;
+    public float meleeAttackRange = 2f;
+    public float rangeAttackRange = 2f;
     public float aggroRange = 5f;
     float maxDist = 0;
     public PatrolPoint[] patrolPoints;
@@ -90,8 +92,18 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
 
         rigid = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
-        anime = GetComponent<Animator>();
+        anime = GetComponentInChildren<Animator>();
         cap = GetComponent<CapsuleCollider>();
+
+        patrolBehavior = Instantiate(patrolBehavior);
+        patrolBehavior.Initialize(gameObject, this);
+        idleBehavior = Instantiate(idleBehavior);
+        idleBehavior.Initialize(gameObject, this);
+        meleeAttackBehavior = Instantiate(meleeAttackBehavior);
+        meleeAttackBehavior.Initialize(gameObject, this);
+        rangeAttackBehavior = Instantiate(rangeAttackBehavior);
+        rangeAttackBehavior.Initialize(gameObject, this);
+
         //agent.updateRotation = false;
         currentHp = maxHp;
         UpdateHpBarText();
@@ -99,11 +111,12 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
         // 상태 인스턴스 매핑
         stateMap = new Dictionary<State, IState<EnemyFSMBase>>()
         {
-            { State.Patrol, new EnemyRobotState.PatrolState() },
-            { State.Chase,   new EnemyRobotState.MoveState()   },
-            { State.Idle,   new EnemyRobotState.IdleState()   },
-            { State.Attack, new EnemyRobotState.AttackState() },
-            { State.Death, new EnemyRobotState.DeathState() }
+            { State.Patrol,         new EnemyRobotState.PatrolState()       },
+            { State.Chase,          new EnemyRobotState.MoveState()         },
+            { State.Idle,           new EnemyRobotState.IdleState()         },
+            { State.MeleeAttack,    new EnemyRobotState.AttackState()       },
+            { State.RangeAttack,    new EnemyRobotState.RangeAttackState()  },
+            { State.Death,          new EnemyRobotState.DeathState()        }
         };
 
         // 테이블 드리븐 전이 정의
@@ -112,29 +125,20 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
 
     private void Start()
     {
-        patrolBehavior = Instantiate(patrolBehavior);
-        patrolBehavior.Initialize(gameObject, this);
+        
 
         transitions = new List<StateTransition<EnemyFSMBase>>() {
-            // Patrol -> Chase
-            //new StateTransition<EnemyFSMBase>(State.Patrol, State.Chase, e =>
-            //    IsPlayerChaseAble()),
-            //// Chase -> Attack
-            //new StateTransition<EnemyFSMBase>(State.Chase, State.Attack, e =>
-            //    Vector3.Distance(e.transform.position, e.player.position) <= e.attackRange),
-            //// Attack -> Chase
-            //new StateTransition<EnemyFSMBase>(State.Attack, State.Chase, e =>
-            //{
-            //    float d = Vector3.Distance(e.transform.position, e.player.position);
-            //    return d > e.attackRange && d <= e.aggroRange;
-            //}),
-            //// Chase -> Patrol
-            //new StateTransition<EnemyFSMBase>(State.Chase, State.Patrol, e =>
-            //    Vector3.Distance(e.transform.position, e.player.position) > e.aggroRange),
-            new StateTransition<EnemyFSMBase>(State.Patrol, State.Attack, e =>
-                IsPlayerInSight(attackRange)),
-            new StateTransition<EnemyFSMBase>(State.Attack, State.Idle, e =>
-                !IsPlayerInSight(attackRange)),
+            new StateTransition<EnemyFSMBase>(State.Patrol, State.RangeAttack, e =>
+                IsPlayerInSight(rangeAttackRange) || Vector3.Distance(transform.position, player.transform.position) < findRange),
+            new StateTransition<EnemyFSMBase>(State.RangeAttack, State.MeleeAttack, e =>
+                IsPlayerInSight(meleeAttackRange)),
+            new StateTransition<EnemyFSMBase>(State.Patrol, State.MeleeAttack, e =>
+                IsPlayerInSight(meleeAttackRange) || Vector3.Distance(transform.position, player.transform.position) < findRange),
+            new StateTransition<EnemyFSMBase>(State.MeleeAttack, State.RangeAttack, e =>
+                Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange),
+            new StateTransition<EnemyFSMBase>(State.RangeAttack, State.Idle, e =>
+                Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange),
+
             new StateTransition<EnemyFSMBase>(State.ANY, State.Death, e =>
                 currentHp <= 0)
         };
@@ -162,19 +166,15 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
     RaycastHit hit;
     public LayerMask obstacleMask;
 
-    /// <summary>
-    /// 플레이어가 주어진 range 안에 있고, 시야각 안에 있으며,
-    /// Raycast 로 막히지 않는지(장애물 없이 보이는지)까지 모두 검사합니다.
-    /// </summary>
     private bool IsPlayerInSight(float range)
     {
         // 1) 거리 체크
-        float dist = Vector3.Distance(transform.position, player.position);
+        float dist = Vector3.Distance(transform.position, player.transform.position);
         if (dist > range)
             return false;
 
         // 2) FOV 체크
-        Vector3 toPlayer = (player.position + Vector3.up - transform.position).normalized;
+        Vector3 toPlayer = (player.transform.position + Vector3.up - transform.position).normalized;
         float angle = Vector3.Angle(transform.forward, toPlayer);
         Debug.DrawRay(transform.position, toPlayer * dist, Color.green, 0.1f);
         if (angle > viewAngle)
@@ -185,13 +185,12 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
 
         // 3) Raycast 체크
         Vector3 origin = transform.position;
-        Vector3 target = player.position + Vector3.up;
+        Vector3 target = player.transform.position + Vector3.up;
         Vector3 dir = target - origin;
         Debug.DrawRay(origin, dir.normalized * range, Color.red, 0.1f);
 
         return IsRayHitOnPlayer(origin, dir);
     }
-
 
     public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir)
     {
@@ -202,7 +201,7 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
         // 2) 실제 Raycast
         if (Physics.Raycast(origin, dir, out var hit, maxDist, obstacleMask))
         {
-            Debug.Log($"[Raycast] Hit: {hit.collider.name}, Tag: {hit.collider.tag}");
+            //Debug.Log($"[Raycast] Hit: {hit.collider.name}, Tag: {hit.collider.tag}");
             return hit;    // RaycastHit 반환
         }
 
@@ -265,7 +264,7 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
     }
 
     // 전이 수행
-    private void ChangeState(State next)
+    public void ChangeState(State next)
     {
         sm.ChangeState(stateMap[next]);
         CurrentState = next;

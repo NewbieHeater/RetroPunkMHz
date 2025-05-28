@@ -8,6 +8,8 @@ public class Robot : EnemyFSMBase
     public override int RequiredPerPts => 0;
     public override int RequiredWavPts => 0;
 
+    
+
     protected override void Awake()
     {
 
