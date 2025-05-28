@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.IO;
+
 public class Interpreter : MonoBehaviour
 {
     Dictionary<string, string> colors = new Dictionary<string, string>()
@@ -28,6 +30,13 @@ public class Interpreter : MonoBehaviour
             response.Add("커맨드를 사용하려면 \'/\'뒤에 명령어를 입력하세요");
             return response;
         }
+
+        else if(args[0] == "ascii")
+        {
+            LoadTitle("ascii.txt", "cyan", 2);
+            return response;
+        }
+        
         else if(args[0] == "/selfDestroy")
         {
             response.Add("자폭 시퀀스 가동");
@@ -38,6 +47,7 @@ public class Interpreter : MonoBehaviour
             response.Add(ColorString("붐",colors["red"]));
             return response;
         }
+        
         else
         {
             return response;
@@ -54,5 +64,28 @@ public class Interpreter : MonoBehaviour
     void ListEntry(string a, string b)
     {
         response.Add(ColorString(a, colors["red"]) + ColorString(b, colors["cyan"]));
+    }
+
+    void LoadTitle(string path, string color, int spacing)
+    {
+        StreamReader file = new StreamReader(Path.Combine(Application.streamingAssetsPath, path));
+
+        for(int i = 0; i < spacing; i++)
+        {
+            response.Add("");
+        }
+
+        while (!file.EndOfStream)
+        {
+            response.Add(ColorString(file.ReadLine(), colors[color]));
+        }
+
+        for(int i=0; i < spacing; i++)
+        {
+            response.Add("");
+        }
+
+        file.Close();
+
     }
 }
