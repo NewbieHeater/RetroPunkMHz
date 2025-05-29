@@ -5,14 +5,14 @@ using UnityEngine;
 public class Sandbag : Enemy
 {
     // Start is called before the first frame update
-    public override void Start()
+    void Start()
     {
         Maxhp = 100;
         Currenthp = Maxhp;
-        base.Start();
     }
 
-    protected override void TakeDamage(int damage)
+    // takedamage는 샌드백에서 사용 x enemy 에서만 사용
+    override public void TakeDamage(int damage)
     {
         Currenthp -= damage;
 
@@ -22,7 +22,7 @@ public class Sandbag : Enemy
         }
     }
 
-    public override void LastAttack(string attackType, int chargelevel, Vector3 attackDirection)
+    override public void LastAttack(string attackType, int chargelevel, Vector3 attackDirection)
     {
         lastType = attackType;
         Debug.Log("샌드백이 받은 마지막 공격 속성: " + lastType);
@@ -40,9 +40,6 @@ public class Sandbag : Enemy
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            Knockback(1, Vector3.forward);
-        }
+        
     }
 }

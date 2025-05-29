@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    
+    [SerializeField]
+    private KeyCode jumpKeyCode = KeyCode.Space;
     private Movement3D movement3D;
-    //public jumpScripts ;
 
     private void Awake()
     {
@@ -17,9 +17,8 @@ public class PlayerController : MonoBehaviour
         float z = Input.GetAxisRaw("Vertical");
 
         movement3D.MoveTo(new Vector3(x, 0, 0));
-        movement3D.Trun(x);
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(jumpKeyCode))
         {
             movement3D.JumpTo();
         }
