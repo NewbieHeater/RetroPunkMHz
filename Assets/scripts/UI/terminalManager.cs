@@ -94,7 +94,7 @@ public class terminalManager : MonoBehaviour
     {
         if(lines > 4)
         {
-            scrollRect.velocity = new Vector2(0, 450);
+            scrollRect.velocity = new Vector2(0, 900);
         }
         else
         {
