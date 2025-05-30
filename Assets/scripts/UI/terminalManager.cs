@@ -32,19 +32,21 @@ public class terminalManager : MonoBehaviour
 
             //디렉토리 라인 인스턴스화
             AddDirectoryLine(userInput);
+            StartCoroutine(interpreter.Interpret(userInput, interpretation =>
+            {
+                //인터프리터 라인 추가
+                int lines = AddInterpreterLines(interpretation);
 
-            //인터프리터 라인 추가
-            int lines = AddInterpreterLines(interpreter.Interpret(userInput));
+                //바닥쪽으로 스크롤
+                ScrollToBottom(lines);
 
-            //바닥쪽으로 스크롤
-            ScrollToBottom(lines);
+                //입력 라인을 마지막줄로 옮기기
+                userInputLine.transform.SetAsLastSibling();
 
-            //입력 라인을 마지막줄로 옮기기
-            userInputLine.transform.SetAsLastSibling();
-
-            //입력 필드 리포커싱
-            terminalInput.ActivateInputField();
-            terminalInput.Select();
+                //입력 필드 리포커싱
+                terminalInput.ActivateInputField();
+                terminalInput.Select();
+            }));
         }
     }
 

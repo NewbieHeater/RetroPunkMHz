@@ -1,11 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using System.IO;
 
 public class Interpreter : MonoBehaviour
 {
+    RAGHandler ragHandler;
+    string answer;
+    private void Start()
+    {
+        ragHandler = GetComponent<RAGHandler>();
+    }
+
     Dictionary<string, string> colors = new Dictionary<string, string>()
     {
         {"red",     "#ff0000"},
@@ -18,41 +24,58 @@ public class Interpreter : MonoBehaviour
 
     List<string> response = new List<string>();
 
-    public List<string> Interpret(string userInput)
+    public IEnumerator Interpret(string userInput, System.Action<List<string>> onComplete)
     {
         response.Clear();
+        answer = "";
 
         string[] args = userInput.Split();
 
-        if(args[0] == "/help")
+        if (args[0] == "/help")
         {
             response.Add("모르는 것이 있으면 터미널에게 물어보세요.");
             response.Add("커맨드를 사용하려면 \'/\'뒤에 명령어를 입력하세요");
-            return response;
+            onComplete(response);
+            yield break;
         }
 
-        else if(args[0] == "ascii")
+        else if (args[0] == "ascii")
         {
             LoadTitle("ascii.txt", "cyan", 2);
-            return response;
+            onComplete(response);
+            yield break;
         }
-        
-        else if(args[0] == "/selfDestroy")
+
+        else if (args[0] == "/selfDestroy")
         {
             response.Add("자폭 시퀀스 가동");
             ListEntry("3", "초후 폭발...");
             ListEntry("2", "초후 폭발...");
             ListEntry("1", "초후 폭발...");
             response.Add("...");
-            response.Add(ColorString("붐",colors["red"]));
-            return response;
+            response.Add(ColorString("붐", colors["red"]));
+            onComplete(response);
+            yield break;
         }
-        
+
+        else if (args[0] == "/query")
+        {
+            yield return StartCoroutine(ragHandler.AskServer(userInput, (Answer, context) => {
+                response.Add("답변: " + Answer);
+            }));
+
+            onComplete(response);
+            yield break;
+        }
+
         else
         {
-            return response;
+            response.Add("알 수 없는 명령어입니다.");
+            onComplete(response);
+            yield break;
         }
     }
+
     public string ColorString(string s, string color)
     {
         string leftTag = "<color=" + color + ">";
@@ -87,5 +110,15 @@ public class Interpreter : MonoBehaviour
 
         file.Close();
 
+    }
+
+    string Query(string userInput)
+    {
+        
+        StartCoroutine(ragHandler.AskServer(userInput, (Answer, context) => {
+            Debug.Log("답변: " + Answer);
+            answer = Answer;
+        }));
+        return "답변: " + answer;
     }
 }
