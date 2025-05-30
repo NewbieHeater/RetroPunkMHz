@@ -58,22 +58,28 @@ public class Interpreter : MonoBehaviour
             yield break;
         }
 
-        else if (args[0] == "/query")
+        else
         {
             yield return StartCoroutine(ragHandler.AskServer(userInput, (Answer, context) => {
-                response.Add("답변: " + Answer);
+                string[] answers = Answer.Split(new string[] { "<END>" }, System.StringSplitOptions.None);
+                foreach(string item in answers)
+                {
+                    response.Add(item);
+                }
+                
             }));
 
             onComplete(response);
             yield break;
         }
-
+        /*
         else
         {
             response.Add("알 수 없는 명령어입니다.");
             onComplete(response);
             yield break;
         }
+        */
     }
 
     public string ColorString(string s, string color)
@@ -110,15 +116,5 @@ public class Interpreter : MonoBehaviour
 
         file.Close();
 
-    }
-
-    string Query(string userInput)
-    {
-        
-        StartCoroutine(ragHandler.AskServer(userInput, (Answer, context) => {
-            Debug.Log("답변: " + Answer);
-            answer = Answer;
-        }));
-        return "답변: " + answer;
     }
 }

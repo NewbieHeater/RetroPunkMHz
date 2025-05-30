@@ -32,11 +32,18 @@ public class terminalManager : MonoBehaviour
 
             //디렉토리 라인 인스턴스화
             AddDirectoryLine(userInput);
+
+            //입력 라인을 마지막줄로 옮기기
+            userInputLine.transform.SetAsLastSibling();
+            userInputLine.SetActive(false);
+
             StartCoroutine(interpreter.Interpret(userInput, interpretation =>
             {
+                
                 //인터프리터 라인 추가
                 int lines = AddInterpreterLines(interpretation);
 
+                userInputLine.SetActive(true);
                 //바닥쪽으로 스크롤
                 ScrollToBottom(lines);
 
