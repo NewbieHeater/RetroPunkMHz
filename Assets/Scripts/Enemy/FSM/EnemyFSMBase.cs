@@ -26,7 +26,7 @@ public struct PatrolPoint
     public float jumpPower;
 }
 
-public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnockbackable, IAttackable
+public abstract class EnemyFSMBase : MonoBehaviour, IAttackable//, IExplosionInteract, IKnockbackable, IAttackable
 {
     [Header("순찰 전략 (ScriptableObject)")]
     [Tooltip("에디터에서 PatrolBehaviorSO 할당")]
@@ -129,7 +129,7 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
 
         transitions = new List<StateTransition<EnemyFSMBase>>() {
             new StateTransition<EnemyFSMBase>(State.Patrol, State.RangeAttack, e =>
-                IsPlayerInSight(rangeAttackRange) || Vector3.Distance(transform.position, player.transform.position) < findRange),
+                (IsPlayerInSight(rangeAttackRange) || Vector3.Distance(transform.position, player.transform.position) < findRange) && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange),
             new StateTransition<EnemyFSMBase>(State.RangeAttack, State.MeleeAttack, e =>
                 IsPlayerInSight(meleeAttackRange)),
             new StateTransition<EnemyFSMBase>(State.Patrol, State.MeleeAttack, e =>
@@ -218,8 +218,6 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
         }
         return false;
     }
-
-
 
     public void ChasePlayer()
     {
@@ -314,7 +312,7 @@ public abstract class EnemyFSMBase : MonoBehaviour//, IExplosionInteract, IKnock
         if (isDead) return;
 
         currentHp -= info.Amount;
-
+        Debug.Log("hit");
         if (currentHp <= 0)
         {
             currentHp = 0;

@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: RobotRangeAttack
   m_EditorClassIdentifier: 
   windupTime: 1
-  strikeTime: 0.3
+  strikeTime: 1
   cooldownTime: 2.5
-  atkPower: 10
   rotationSpeed: 360
   bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}

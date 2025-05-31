@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static Unity.Burst.Intrinsics.X86.Avx;
+
 
 public struct DamageInfo
 {
@@ -131,9 +131,13 @@ public class Player : MonoBehaviour
         ProcessInput();
         
         HandleJumpBuffer();
-        if(rb.velocity.y < -1f && !IsGrounded)
+        if(!IsGrounded && rb.velocity.y < 0f)
         {
-            animator.Play("Unarmed-Fall");
+            animator.SetBool("Fall", true);
+        }
+        else if(IsGrounded)
+        {
+            animator.SetBool("Fall", false);
         }
     }
 
@@ -141,7 +145,7 @@ public class Player : MonoBehaviour
     {
         RaycastHit groundCheckResult;
         UpdateIsGrounded(out groundCheckResult);
-
+        
 
         velocity = rb.velocity;
         ApplyGravity();
@@ -161,11 +165,16 @@ public class Player : MonoBehaviour
     }
     #endregion
     float inputX;
+    Vector3 lastMoveDir = Vector3.right; // 기본값: 오른쪽
     #region Input Handling
     private void ProcessInput()
     {
         velocity.x = rb.velocity.x;
         inputX = Input.GetAxisRaw("Horizontal");
+        if (Mathf.Abs(inputX) > 0.001f)
+        {
+            lastMoveDir = new Vector3(inputX, 0f, 0f).normalized;
+        }
         //velocity.x = inputX * maxSpeed;
 
         if (Input.GetButtonDown("Jump"))
@@ -261,6 +270,8 @@ public class Player : MonoBehaviour
             }
             
         }
+        animator.SetBool("Move", Mathf.Abs(inputX) > 0.01f);
+        animator.SetFloat("Speed", Mathf.Abs(velocity.x));
         wasSlop = isOnSlope;
         ApplyPhysics();   // rb.velocity = new Vector3(velocity.x, rb.velocity.y, 0)
     }
@@ -277,7 +288,8 @@ public class Player : MonoBehaviour
     {
         if (CanJump())
         {
-            animator.Play("Unarmed-Jump");
+            animator.SetBool("Jump", true);
+            animator.SetTrigger("JUMP");
             jumped = true;
             desiredJump = false;
             jumpBufferCounter = 0f;
@@ -293,6 +305,7 @@ public class Player : MonoBehaviour
             if (!IsGrounded && maxAirJumps > 0)
                 maxAirJumps--;
             currentlyJumping = true;
+
         }
         if (jumpBufferTime == 0)
         {
@@ -399,6 +412,16 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Attack
+
+    private Vector3 GetLastInputDirection()
+    {
+        // 만약 lastMoveDir이 벡터 (±1,0,0)이어서 공격의 XY 평면 방향으로 적절히 사용됩니다.
+        // 그 외에도 필요 시 y축으로 변환한다면 여기에 로직 추가 가능
+        Vector3 dir = lastMoveDir;
+        dir.z = 0f;
+        return dir.normalized;
+    }
+
     public void PrimaryAttack()
     {
         animator.SetTrigger("Attack");
@@ -412,7 +435,6 @@ public class Player : MonoBehaviour
         ExecuteAttack(info);
     }
         
-
     public void ChargedAttack(float chargeTime)
     {
         animator.Play("Attack_5Combo_4_Inplace");
@@ -424,28 +446,66 @@ public class Player : MonoBehaviour
             Amount = dmg,
             SourceDir = GetAttackDirection(),
             IsCharge = t >= minChargeTime,
-            KnockbackForce = dmg / 3f
+            KnockbackForce = dmg
         };
         ExecuteAttack(info);
 
     }
+    private Collider[] _overlapResults = new Collider[16];
+
+    float attackCapsuleHeight = 1f;
     private void ExecuteAttack(in DamageInfo info)
     {
-        var dir = info.SourceDir;
-        var hits = Physics.SphereCastAll(
-            transform.position,
-            attackRadius,
-            dir,
-            attackRange,
-            LayerMask.GetMask("Enemy", "Destructible")
-        );
+        Vector3 dir = GetLastInputDirection(); // lastMoveDir이 들어있음
+        Vector3 tipCenter = transform.position + Vector3.up + dir * attackRange / 2;
+        attackRadius = attackRange / 2;
+        Vector3 perp = new Vector3(-dir.y, dir.x, 0f).normalized;
+        float halfHeight = attackCapsuleHeight * 0.5f;
 
-        foreach (var hit in hits)
+        Vector3 pointA = tipCenter + perp * halfHeight;
+        Vector3 pointB = tipCenter - perp * halfHeight;
+
+        int mask = LayerMask.GetMask("Enemy", "Destructible");
+        int hitCount = Physics.OverlapCapsuleNonAlloc(
+            pointA,
+            pointB,
+            attackRadius,
+            _overlapResults,
+            mask,
+            QueryTriggerInteraction.Collide
+        );
+        Debug.Log($"OverlapCapsule hitCount = {hitCount}");
+        for (int i = 0; i < hitCount; i++)
         {
-            if (hit.collider.TryGetComponent<IAttackable>(out var atk))
+            if (_overlapResults[i].TryGetComponent<IAttackable>(out var atk))
                 atk.TakeDamage(info);
         }
     }
+#if UNITY_EDITOR
+    // Editor뷰에서 공격 캡슐을 시각화해 볼 수 있는 코드
+    private void OnDrawGizmosSelected()
+    {
+        if (!Application.isPlaying) return;
+
+        Vector3 dir = GetLastInputDirection();
+        Vector3 tipCenter = transform.position + Vector3.up + dir * attackRange / 2;
+        float halfHeight = attackCapsuleHeight * 0.5f;
+        Vector3 perp = new Vector3(-dir.y, dir.x, 0f).normalized;
+        Vector3 pointA = tipCenter + perp * halfHeight;
+        Vector3 pointB = tipCenter - perp * halfHeight;
+        float radius = attackRadius;
+
+        // 캡슐의 끝점에 와이어스피어
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(pointA, radius);
+        Gizmos.DrawWireSphere(pointB, radius);
+
+        // 중앙을 잇는 선
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(pointA, pointB);
+    }
+#endif
+
 
 
     private Vector3 GetAttackDirection()
@@ -458,7 +518,7 @@ public class Player : MonoBehaviour
         return dir.normalized;
     }
     #endregion
-
+    bool falling = false;
     #region HpModify
 
     public void ModifyHp(int atkPower)
@@ -507,11 +567,11 @@ public class Player : MonoBehaviour
                 hit = rHit;
             }
         }
-        if (jumped && IsGrounded)
-        {
-            animator.Play("Unarmed-Land");
-            jumped = false;
-        }
+        
+
+
+        animator.SetBool("Grounded", grounded);
+
         IsGrounded = grounded;
         LastGroundHit = hit;
         return grounded;
@@ -525,7 +585,7 @@ public class Player : MonoBehaviour
         {
             playerMesh.rotation = Quaternion.Slerp(playerMesh.rotation,
                 Quaternion.LookRotation(Vector3.right * velocity.x), rotationSpeed);
-            if(!jumped && IsGrounded)
+            if (!jumped && IsGrounded)
             {
                 animator.SetBool("Move", true);
                 animator.SetBool("Idle", false);
@@ -543,29 +603,5 @@ public class Player : MonoBehaviour
         }
     }
     #endregion
-
-    // 맨 아래에 추가하세요.
-    void OnDrawGizmosSelected()
-    {
-        // 1) 대략적 접지 체크용 구체 원점
-        Vector3 origin = transform.position + Vector3.up * checkHeight;
-        float radius = checkRadius;
-        float distance = checkHeight + maxFallDistance;
-
-        // —— 접지 체크 반경 (구체) —— //
-        Gizmos.color = IsGrounded ? Color.green : Color.red;
-        Gizmos.DrawWireSphere(origin, radius);
-
-        // —— Raycast 방향 (수직 하강선) —— //
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(origin, origin + Vector3.down * distance);
-
-        // —— 실제 충돌 지점 표시 —— //
-        if (LastGroundHit.collider != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(LastGroundHit.point, radius * 0.1f);
-        }
-    }
 
 }

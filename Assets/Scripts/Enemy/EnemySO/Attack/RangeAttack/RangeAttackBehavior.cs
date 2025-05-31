@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Enemy/AttackBehavior/Range")]
@@ -13,22 +11,20 @@ public class RangeAttackBehavior : AttackBehaviorSO
     public float strikeTime = 0.3f;
     [Tooltip("쿨다운 시간")]
     public float cooldownTime = 0.4f;
-    [Tooltip("밀쳐내기용 힘")]
-    public int atkPower = 10;
 
     [Header("회전 속도 (°/초)")]
     public float rotationSpeed = 360f;
 
+    [Header("발사체")]
     public GameObject bullet;
 
     Rigidbody rigidb;
     CapsuleCollider cap;
 
     Phase phase;
-    float phaseStart;
+    float timer;
     bool hasFired;
-    // Enter 때 목표 회전을 미리 계산해둡니다
-    private Quaternion targetRotation;
+    Quaternion targetRotation;
 
     public override void Initialize(GameObject go, EnemyFSMBase e)
     {
@@ -39,74 +35,63 @@ public class RangeAttackBehavior : AttackBehaviorSO
 
     public override void DoEnterLogic()
     {
+        // 첫 진입 시 Windup 상태로, 타이머 설정
         phase = Phase.Windup;
-        phaseStart = Time.time;
+        timer = windupTime;
         hasFired = false;
     }
 
     public override void DoUpdateLogic()
     {
-        float elapsed = Time.time - phaseStart;
+        // 매 프레임 타이머 감소
+        timer -= Time.deltaTime;
 
         switch (phase)
         {
             case Phase.Windup:
+                // 1) 플레이어 방향으로 Y축만 회전
                 Vector3 dir = (enemy.player.transform.position - transform.position).normalized;
                 targetRotation = Quaternion.LookRotation(dir);
-                // 현재와 목표의 Y축 각도만 구합니다.
                 float currentY = transform.eulerAngles.y;
                 float targetY = targetRotation.eulerAngles.y;
-
-                // Y축 각도만 rotationSpeed 속도로 보간
-                float newY = Mathf.MoveTowardsAngle(
-                    currentY,
-                    targetY,
-                    rotationSpeed * Time.deltaTime
-                );
-
-                // X/Z는 그대로 두고 Y만 적용
-                Vector3 euler = transform.eulerAngles;
+                float newY = Mathf.MoveTowardsAngle(currentY, targetY, rotationSpeed * Time.deltaTime);
+                var euler = transform.eulerAngles;
                 transform.eulerAngles = new Vector3(euler.x, newY, euler.z);
 
-                if (elapsed >= windupTime)
+                // 2) 준비 시간 경과 시 Strike로 전환
+                if (timer <= 0f)
                 {
                     phase = Phase.Strike;
-                    phaseStart = Time.time;
+                    timer = strikeTime;
                     hasFired = false;
+                    // 공격 애니메이션 재생
                     enemy.anime.CrossFade("Attack", 0.1f);
-                    Debug.Log(elapsed + " wait→Strike");
                 }
                 break;
 
             case Phase.Strike:
-                if (!hasFired && elapsed >= strikeTime)
+                // 1) 아직 발사하지 않았다면 즉시 발사
+                if (!hasFired)
                 {
-                    Instantiate(bullet,
-                                transform.position + Vector3.up * 1f,
-                                transform.rotation);
-                    Debug.Log(elapsed + " attacking");
+                    Instantiate(bullet, transform.position + Vector3.up * 1f, transform.rotation);
                     hasFired = true;
-
-                    // 선택: 애니는 바로 Idle로
-                    enemy.anime.SetTrigger("stop");
                 }
-
-                // 애니메이션이 끝나면 Cooldown
-                if (elapsed >= strikeTime + cooldownTime)
+                // 2) strikeTime 경과 시 Cooldown으로 전환
+                if (timer <= 0f)
                 {
-                    phase = Phase.Windup;
-                    phaseStart = Time.time;
-                    Debug.Log(elapsed + " Strike→Windup");
+                    phase = Phase.Cooldown;
+                    timer = cooldownTime;
+                    enemy.anime.CrossFade("Idle", 0.05f);
                 }
                 break;
 
             case Phase.Cooldown:
-                // cooldownTime은 내부 논리용 타이머만 남기고, Idle 이미 페이드했으니 바로 Windup
-                if (elapsed >= cooldownTime)
+                // 쿨타임 끝나면 다시 Windup
+                if (timer <= 0f)
                 {
                     phase = Phase.Windup;
-                    phaseStart = Time.time;
-                    Debug.Log(elapsed + "end");
+                    timer = windupTime;
+                    hasFired = false;
                 }
                 break;
         }
@@ -114,9 +99,12 @@ public class RangeAttackBehavior : AttackBehaviorSO
 
     public override void DoExitLogic()
     {
-        // 필요 시 뒤처리
+        enemy.anime.CrossFade("Idle", 0.05f);
         hasFired = false;
     }
 
-    public override void DoFixedUpdateLogic() { }
+    public override void DoFixedUpdateLogic()
+    {
+        // 이 공격 행동은 물리 업데이트가 필요 없으므로 비워둡니다.
+    }
 }

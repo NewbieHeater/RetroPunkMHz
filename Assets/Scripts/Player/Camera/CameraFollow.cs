@@ -30,7 +30,7 @@ public class CameraFollow : MonoBehaviour
             var position = Player.transform.position;
             float posX = Mathf.Clamp(position.x, minX, maxX);
             float posY = Mathf.Clamp(position.y, minY, maxY);
-            transform.position = new Vector3(posX, posY + 3f, -14f);
+            transform.position = new Vector3(posX, posY + 3f, -9f);
         }
     }
 }

@@ -46,7 +46,6 @@ namespace EnemyRobotState
     {
         public void OperateEnter(EnemyFSMBase e) 
         { 
-            Debug.Log("Attack");
             e.agent.isStopped = true;
             e.agent.velocity = Vector3.zero;
             e.meleeAttackBehavior.DoEnterLogic();
@@ -63,7 +62,6 @@ namespace EnemyRobotState
     {
         public void OperateEnter(EnemyFSMBase e)
         {
-            Debug.Log("RAttack");
             e.agent.isStopped = true;
             e.agent.velocity = Vector3.zero;
             e.rangeAttackBehavior.DoEnterLogic();
@@ -80,7 +78,6 @@ namespace EnemyRobotState
     {
         public void OperateEnter(EnemyFSMBase e) 
         { 
-            Debug.Log("Attack"); 
             e.agent.enabled = false;
         }
         public void OperateExit(EnemyFSMBase e) { }

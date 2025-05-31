@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   windupTime: 0.5
   strikeTime: 1
-  cooldownTime: 0.6
+  cooldownTime: 1
   atkPower: 10
   rotationSpeed: 360

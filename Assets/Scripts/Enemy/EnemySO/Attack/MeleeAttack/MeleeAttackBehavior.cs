@@ -109,7 +109,7 @@ public class MeleeAttackBehavior : AttackBehaviorSO
 
     public override void DoExitLogic()
     {
-        // 필요 시 뒤처리
+        enemy.anime.CrossFade("Idle", 0.05f);
     }
 
     public override void DoFixedUpdateLogic() { }
