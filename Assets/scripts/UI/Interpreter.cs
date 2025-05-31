@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System.IO;
 
 public class Interpreter : MonoBehaviour
@@ -24,10 +25,9 @@ public class Interpreter : MonoBehaviour
 
     List<string> response = new List<string>();
 
-    public IEnumerator Interpret(string userInput, System.Action<List<string>> onComplete)
+    public IEnumerator Interpret(string userInput, Text outputTarget, System.Action onComplete)
     {
         response.Clear();
-        answer = "";
 
         string[] args = userInput.Split();
 
@@ -35,14 +35,20 @@ public class Interpreter : MonoBehaviour
         {
             response.Add("모르는 것이 있으면 터미널에게 물어보세요.");
             response.Add("커맨드를 사용하려면 \'/\'뒤에 명령어를 입력하세요");
-            onComplete(response);
+            foreach (string i in response)
+            {
+                outputTarget.text += i;
+            }
             yield break;
         }
 
         else if (args[0] == "ascii")
         {
             LoadTitle("ascii.txt", "cyan", 2);
-            onComplete(response);
+            foreach (string i in response)
+            {
+                outputTarget.text += i;
+            }
             yield break;
         }
 
@@ -54,13 +60,28 @@ public class Interpreter : MonoBehaviour
             ListEntry("1", "초후 폭발...");
             response.Add("...");
             response.Add(ColorString("붐", colors["red"]));
-            onComplete(response);
+            foreach(string i in response)
+            {
+                outputTarget.text += i;
+            }
             yield break;
         }
 
         else
         {
-            yield return StartCoroutine(ragHandler.AskServer(userInput, (Answer, context) => {
+            outputTarget.text = ""; // 초기화
+
+            yield return StartCoroutine(ragHandler.AskServerStream(userInput, (chunk) =>
+            {
+                Debug.Log("UI 업데이트됨: " + outputTarget.text);
+                outputTarget.text += chunk;
+            }));
+
+            onComplete?.Invoke();
+            yield break;
+
+            /*
+            yield return StartCoroutine(ragHandler.AskServerStream(userInput, (Answer) => {
                 string[] answers = Answer.Split(new string[] { "<END>" }, System.StringSplitOptions.None);
                 foreach(string item in answers)
                 {
@@ -70,16 +91,8 @@ public class Interpreter : MonoBehaviour
             }));
 
             onComplete(response);
-            yield break;
+            yield break;*/
         }
-        /*
-        else
-        {
-            response.Add("알 수 없는 명령어입니다.");
-            onComplete(response);
-            yield break;
-        }
-        */
     }
 
     public string ColorString(string s, string color)

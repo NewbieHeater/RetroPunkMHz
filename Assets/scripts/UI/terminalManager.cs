@@ -33,22 +33,32 @@ public class terminalManager : MonoBehaviour
             //디렉토리 라인 인스턴스화
             AddDirectoryLine(userInput);
 
-            //입력 라인을 마지막줄로 옮기기
+            // 프리팹 미리 생성
+            GameObject response = Instantiate(responseLine, msgList.transform);
+            response.transform.SetAsLastSibling();
+
+            // 높이 증가
+            Vector2 listSize = msgList.GetComponent<RectTransform>().sizeDelta;
+            msgList.GetComponent<RectTransform>().sizeDelta = new Vector2(listSize.x, listSize.y + 35f);
+
+            //입력 라인을 마지막줄로 옮기고 출력하는동안 숨기기
             userInputLine.transform.SetAsLastSibling();
             userInputLine.SetActive(false);
 
-            StartCoroutine(interpreter.Interpret(userInput, interpretation =>
+            Text uiText = response.GetComponentInChildren<Text>();
+
+            StartCoroutine(interpreter.Interpret(userInput,uiText, () =>
             {
-                
-                //인터프리터 라인 추가
-                int lines = AddInterpreterLines(interpretation);
+                ContentSizeFitter fitter = response.GetComponent<ContentSizeFitter>();
+                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
                 userInputLine.SetActive(true);
-                //바닥쪽으로 스크롤
-                ScrollToBottom(lines);
 
                 //입력 라인을 마지막줄로 옮기기
                 userInputLine.transform.SetAsLastSibling();
+                
+                //바닥쪽으로 스크롤
+                scrollRect.verticalNormalizedPosition = 0f;
 
                 //입력 필드 리포커싱
                 terminalInput.ActivateInputField();
