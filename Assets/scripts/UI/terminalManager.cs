@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class terminalManager : MonoBehaviour
 {
     public GameObject dirLine;
     public GameObject responseLine;
 
-    public InputField terminalInput;
+    public TMP_InputField terminalInput;
     public GameObject userInputLine;
     public ScrollRect scrollRect;
     public GameObject msgList;
@@ -49,9 +50,6 @@ public class terminalManager : MonoBehaviour
 
             StartCoroutine(interpreter.Interpret(userInput,uiText, () =>
             {
-                ContentSizeFitter fitter = response.GetComponent<ContentSizeFitter>();
-                fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
                 userInputLine.SetActive(true);
 
                 //입력 라인을 마지막줄로 옮기기
