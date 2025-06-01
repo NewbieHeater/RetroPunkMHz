@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+//using UnityEngine.Windows; 이거 때문에 오류 뜨는데 뭔지 모르겠음
 
 public class PlayerMove : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class PlayerMove : MonoBehaviour
     public int Waveform;
     public GameObject[] weapon;
     public Transform playerMesh;
+    public int damage;
     private float maxChargeTime = 5f;
     private float hAxis;
     private float vAxis;
@@ -27,22 +29,32 @@ public class PlayerMove : MonoBehaviour
     private bool isCharging;
     private bool isFloor = false;
     private bool hasPaused = false;
+    private float attackCapsuleHeight = 1f;
+    private float changedamage;
+    private float attackTime = 0.3f;
+    private Collider[] _overlapResults = new Collider[16];
     private Vector3 moveVec;
 
     private Rigidbody rigid;
+    private Rigidbody rb;
     private Animator anim;
-
+    private Vector3 velocity;
     private GameObject nearObject;
-   
+    [SerializeField] private float attackRadius = 0.5f;
+    [SerializeField] private float attackRange = 2f;
+    
 
-    [SerializeField]
-    private weapon equipWeapon;
-
+    /*public struct DamageInfo
+    {
+        public int Amount;          // 입힐 피해량
+        public Vector3 SourceDir;     // 공격 원점→목표 방향
+        public float KnockbackForce; // 넉백 세기 (차지 공격일 때만 의미)
+    }*/
     void Start()
     {
         rigid = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
-        equipWeapon = GameObject.Find("hand").GetComponent<weapon>();
+        rb = GetComponent<Rigidbody>();
     }
 
     void Update()
@@ -52,7 +64,7 @@ public class PlayerMove : MonoBehaviour
         Jump();
         Attack();
         HandleRotation();
-        //moveAttack();
+        GetLastInputDirection();
     }
 
     void GetInput()
@@ -61,6 +73,7 @@ public class PlayerMove : MonoBehaviour
         JumpDown = Input.GetButtonDown("Jump");
         mouseDown = Input.GetButtonDown("Fire1");
         mouseUp = Input.GetButtonUp("Fire1");
+        ProcessInput();
     }
 
     void Move()
@@ -116,20 +129,20 @@ public class PlayerMove : MonoBehaviour
                     
                     anim.SetTrigger("dochargeAttack");
                     chargeTime = maxChargeTime;
-                    equipWeapon.ChargeSwing(chargeTime);
+                    ChargeSwing(chargeTime);
                 }
                 else if(chargeTime <= maxChargeTime )
                 {
                     
                     anim.SetTrigger("dochargeAttack");
-                    equipWeapon.ChargeSwing(chargeTime);
+                    ChargeSwing(chargeTime);
 
                 }
             }
             else
             {
                 anim.SetTrigger("doAttack");
-                equipWeapon.Swing();
+                swing();
 
 
             }
@@ -149,8 +162,76 @@ public class PlayerMove : MonoBehaviour
 
 
     }
-
+    Vector3 lastMoveDir = Vector3.right;
+    private void ProcessInput()
+    {
+        velocity.x = rb.velocity.x;
+        if (Mathf.Abs(hAxis) > 0.001f)
+        {
+            lastMoveDir = new Vector3(hAxis, 0f, 0f).normalized;
+        }
+    }
+    private Vector3 GetLastInputDirection()
+    {
+        // 만약 lastMoveDir이 벡터 (±1,0,0)이어서 공격의 XY 평면 방향으로 적절히 사용됩니다.
+        // 그 외에도 필요 시 y축으로 변환한다면 여기에 로직 추가 가능
+        Vector3 dir = lastMoveDir;
+        dir.z = 0f;
+        return dir.normalized;
+    }
     
+
+    void swing()
+    {
+        var info = new DamageInfo
+        {
+            Amount = damage,
+            SourceDir = GetLastInputDirection(), // 또는 GetAttackDirection()
+            KnockbackForce = 0
+        };
+        ExecuteAttack(info);
+        Debug.Log("데미지: " + damage);
+    }
+
+    public void ChargeSwing(float chargePower)
+    {
+        changedamage = Mathf.Clamp(chargePower * damage, damage, 100);
+        var info = new DamageInfo
+        {
+            Amount = (int)changedamage,
+            SourceDir = GetLastInputDirection(), // 또는 GetAttackDirection()
+            KnockbackForce = chargePower
+        };
+        ExecuteAttack(info);
+        Debug.Log("차지 공격! 데미지: " + changedamage);
+    }
+    private void ExecuteAttack(in DamageInfo info)
+    {
+        Vector3 dir = GetLastInputDirection(); // lastMoveDir이 들어있음
+        Vector3 tipCenter = transform.position + Vector3.up + dir * attackRange / 2;
+        attackRadius = attackRange / 2;
+        Vector3 perp = new Vector3(-dir.y, dir.x, 0f).normalized;
+        float halfHeight = attackCapsuleHeight * 0.5f;
+
+        Vector3 pointA = tipCenter + perp * halfHeight;
+        Vector3 pointB = tipCenter - perp * halfHeight;
+
+        int mask = LayerMask.GetMask("Enemy", "Destructible");
+        int hitCount = Physics.OverlapCapsuleNonAlloc(
+            pointA,
+            pointB,
+            attackRadius,
+            _overlapResults,
+            mask,
+            QueryTriggerInteraction.Collide
+        );
+        Debug.Log($"OverlapCapsule hitCount = {hitCount}");
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (_overlapResults[i].TryGetComponent<IAttackable>(out var atk))
+                atk.TakeDamage(info);
+        }
+    }
     void FixedUpdate()
     {
         Vector3 origin = transform.position + Vector3.up * 0.5f;
