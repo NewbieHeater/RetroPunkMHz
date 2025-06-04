@@ -129,8 +129,7 @@ public class Player : MonoBehaviour
     {
         HandleRotation();
         ProcessInput();
-        
-        HandleJumpBuffer();
+
         if(!IsGrounded && rb.velocity.y < 0f)
         {
             animator.SetBool("Fall", true);
@@ -138,6 +137,7 @@ public class Player : MonoBehaviour
         else if(IsGrounded)
         {
             animator.SetBool("Fall", false);
+            currentlyJumping = false;
         }
     }
 
@@ -152,7 +152,7 @@ public class Player : MonoBehaviour
         UpdateCoyoteTimer();
         ProcessMovement(groundCheckResult);
 
-
+        HandleJumpBufferAndExecute();
         if (desiredJump)
         {
             ExecuteJump();
@@ -181,6 +181,7 @@ public class Player : MonoBehaviour
         {
             desiredJump = true;
             jumpHeld = true;
+            jumpBufferCounter = jumpBufferTime;
         }
         if (Input.GetButtonUp("Jump"))
         {
@@ -288,7 +289,6 @@ public class Player : MonoBehaviour
     {
         if (CanJump())
         {
-            animator.SetBool("Jump", true);
             animator.SetTrigger("JUMP");
             jumped = true;
             desiredJump = false;
@@ -307,20 +307,20 @@ public class Player : MonoBehaviour
             currentlyJumping = true;
 
         }
-        if (jumpBufferTime == 0)
-        {
-            desiredJump = false;
-        }
     }
-    private void HandleJumpBuffer()
+    private void HandleJumpBufferAndExecute()
     {
-        if (!jumpBufferTime.Equals(0) && desiredJump)
+        if (jumpBufferCounter > 0f)
         {
-            jumpBufferCounter += Time.deltaTime;
-            if (jumpBufferCounter > jumpBufferTime)
+            // CanJump() == true이면 땅에 닿았거나 코요테 타임 중
+            if (CanJump())
             {
-                desiredJump = false;
-                jumpBufferCounter = 0f;
+                ExecuteJump();
+                jumpBufferCounter = 0f; // 버퍼 초기화
+            }
+            else
+            {
+                jumpBufferCounter -= Time.fixedDeltaTime;
             }
         }
     }
@@ -390,7 +390,7 @@ public class Player : MonoBehaviour
 
             gravityMultiplier = defaultGravityScale;
         }
-        rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, 100), 0);
+        //rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, 100), 0);
     }
     
     private void ApplyGravity()
@@ -535,14 +535,6 @@ public class Player : MonoBehaviour
     #region Ground Check
     private bool UpdateIsGrounded(out RaycastHit hit)
     {
-        // 1) 점프 버퍼가 남아 있으면 여전히 공중상태
-        if (jumpBufferCounter > 0f)
-        {
-            hit = default;
-            IsGrounded = false;
-            return false;
-        }
-
         // 2) CheckSphere 로 대략적 접지 체크
         Vector3 origin = transform.position + Vector3.up * checkHeight;
         bool grounded = Physics.CheckSphere(

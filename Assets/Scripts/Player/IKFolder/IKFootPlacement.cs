@@ -5,7 +5,7 @@ using UnityEngine;
 public class IKFootPlacement : MonoBehaviour
 {
     Animator animator;
-    Camera cam;
+    
 
     [Header("발 IK 설정")]
     public LayerMask layer;
@@ -13,11 +13,7 @@ public class IKFootPlacement : MonoBehaviour
     [Range(0f, 2f)] public float footRayExtraHeight;
     public float footSpacing = 1f;
 
-    [Header("머리 LookAt 설정")]
-    public Transform target;           // 씬에 빈 GameObject 하나를 할당
-    [Range(0f, 1f)] public float lookWeight = 1f;
-    public float lookClamp = 0.5f; // 얼마나 엄격하게 머리를 고정할지
-    Transform headBone;
+    
 
     // 내부 상태
     private Quaternion defaultLeftToeLocalRot, defaultRightToeLocalRot;
@@ -26,7 +22,7 @@ public class IKFootPlacement : MonoBehaviour
 
     void Start()
     {
-        cam = Camera.main;
+        
         animator = GetComponent<Animator>();
 
         // 토우 기본 회전값 저장
@@ -34,7 +30,7 @@ public class IKFootPlacement : MonoBehaviour
         defaultRightToeLocalRot = animator.GetBoneTransform(HumanBodyBones.RightToes).localRotation;
 
         // 머리 본도 추출해두면 직접 제어 가능 (필요 시)
-        headBone = animator.GetBoneTransform(HumanBodyBones.Head);
+        
 
         // 힙 오프셋 초기화
         hipOffset = transform.localPosition.y;
@@ -45,15 +41,6 @@ public class IKFootPlacement : MonoBehaviour
         footPos = animator.GetIKPosition(AvatarIKGoal.LeftFoot);
     }
 
-    private Vector3 GetAttackDirection()
-    {
-        Vector3 mp = Input.mousePosition;
-        mp.z = cam.WorldToScreenPoint(transform.position).z;
-        Vector3 world = cam.ScreenToWorldPoint(mp);
-        Vector3 dir = (world - transform.position);
-        dir.z = 0f;
-        return dir.normalized;
-    }
     void Update()
     {
         // 힙 높이 조절 (기존 로직 유지)
@@ -61,22 +48,7 @@ public class IKFootPlacement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.L)) goal = hipOffset + 0.1f;
         hipOffset = Mathf.SmoothDamp(hipOffset, goal, ref vel, 0.35f, Mathf.Infinity);
         transform.localPosition = Vector3.up * hipOffset;
-
-        float headZ = headBone.position.z;
-
-        // 2) ScreenPoint → Ray
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-
-        // 3) 머리 Z 고정 평면 정의 (normal = Vector3.forward, distance = headZ)
-        Plane lookPlane = new Plane(Vector3.forward, new Vector3(0f, 0f, headZ));
-
-        // 4) Ray가 평면과 교차하면 그 지점으로 target 옮기기
-        if (lookPlane.Raycast(ray, out float enter))
-        {
-            Vector3 worldPoint = ray.GetPoint(enter);
-            // worldPoint 는 (X, Y, headZ) 형태가 나오게 됩니다.
-            target.position = worldPoint;
-        }
+        
     }
 
     
@@ -105,9 +77,7 @@ public class IKFootPlacement : MonoBehaviour
     {
         if (animator == null) return;
 
-        // —— 머리 LookAt IK 설정 —— 
-        //animator.SetLookAtWeight(lookWeight, 0f, 1f, 1f, lookClamp);
-        //animator.SetLookAtPosition(target.position);
+        
 
         // —— 발 IK 설정 —— 
         animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
@@ -146,4 +116,7 @@ public class IKFootPlacement : MonoBehaviour
             animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultRightToeLocalRot);
         }
     }
+    // —— 머리 LookAt IK 설정 —— 
+    //animator.SetLookAtWeight(lookWeight, 0f, 1f, 1f, lookClamp);
+    //animator.SetLookAtPosition(target.position);
 }
