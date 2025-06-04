@@ -9,7 +9,8 @@ public class terminalManager : MonoBehaviour
     public GameObject dirLine;
     public GameObject responseLine;
 
-    public TMP_InputField terminalInput;
+    public InputField terminalInput;
+    public TMP_InputField terminalInput_tmpro;
     public GameObject userInputLine;
     public ScrollRect scrollRect;
     public GameObject msgList;

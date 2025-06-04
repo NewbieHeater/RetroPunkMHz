@@ -8,6 +8,8 @@ public class Interpreter : MonoBehaviour
 {
     RAGHandler ragHandler;
     string answer;
+    public float printDelay;
+    public float printDelayLine;
     private void Start()
     {
         ragHandler = GetComponent<RAGHandler>();
@@ -33,37 +35,36 @@ public class Interpreter : MonoBehaviour
 
         if (args[0] == "/help")
         {
+            outputTarget.text = ""; // 초기화
+
             response.Add("모르는 것이 있으면 터미널에게 물어보세요.");
             response.Add("커맨드를 사용하려면 \'/\'뒤에 명령어를 입력하세요");
-            foreach (string i in response)
-            {
-                outputTarget.text += i;
-            }
+            yield return StartCoroutine(PrintSequentialy(outputTarget));
+            onComplete?.Invoke();
             yield break;
         }
 
-        else if (args[0] == "ascii")
+        else if (args[0] == "/ascii")
         {
+            outputTarget.text = ""; // 초기화
+
             LoadTitle("ascii.txt", "cyan", 2);
-            foreach (string i in response)
-            {
-                outputTarget.text += i;
-            }
+            yield return StartCoroutine(PrintSequentialyLine(outputTarget));
+            onComplete?.Invoke();
             yield break;
         }
 
         else if (args[0] == "/selfDestroy")
         {
+            outputTarget.text = ""; // 초기화
+
             response.Add("자폭 시퀀스 가동");
             ListEntry("3", "초후 폭발...");
             ListEntry("2", "초후 폭발...");
             ListEntry("1", "초후 폭발...");
             response.Add("...");
             response.Add(ColorString("붐", colors["red"]));
-            foreach(string i in response)
-            {
-                outputTarget.text += i;
-            }
+            StartCoroutine(PrintSequentialy(outputTarget));
             yield break;
         }
 
@@ -95,12 +96,39 @@ public class Interpreter : MonoBehaviour
         }
     }
 
+    IEnumerator PrintSequentialy(Text outputTarget)
+    {
+        int cnt = 0;
+        foreach(string line in response)
+        {
+            foreach (char i in line)
+            {
+                outputTarget.text += i;
+                yield return new WaitForSeconds(printDelay);
+            }
+            if(cnt < response.Count-1)
+                outputTarget.text += "\n";
+            cnt++;
+        }
+    }
+    IEnumerator PrintSequentialyLine(Text outputTarget)
+    {
+        int cnt = 0;
+        foreach (string line in response)
+        {
+            outputTarget.text += line;
+            yield return new WaitForSeconds(printDelayLine);
+            if (cnt < response.Count - 1)
+                outputTarget.text += "\n";
+            cnt++;
+        }
+    }
+
     public string ColorString(string s, string color)
     {
-        string leftTag = "<color=" + color + ">";
-        string rightTag = "</color>";
+        string Taged = "<color=" + color + ">" + s + "</color>";
 
-        return leftTag + s + rightTag;
+        return Taged;
     }
 
     void ListEntry(string a, string b)
