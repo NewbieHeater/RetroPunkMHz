@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -56,7 +57,7 @@ public class Player : MonoBehaviour
     [Tooltip("떨어지는 속도 제한")]
     public float speedLimit = 15f;
     private float jumpSpeed;
-    private bool currentlyJumping = false;
+    public bool currentlyJumping = false;
     #endregion
 
     #region Attack Settings
@@ -96,11 +97,11 @@ public class Player : MonoBehaviour
     public Vector3 velocity;
     private float coyoteTimer;
     private float jumpBufferCounter;
-    private bool jumpHeld;
+    [SerializeField] private bool jumpHeld;
     private bool desiredJump;
     private float gravityMultiplier;
     private float defaultGravityScale = 1f;
-    private float newGravity;
+    [SerializeField]  private float newGravity;
     #endregion
 
     public int maxHp = 100;
@@ -151,7 +152,7 @@ public class Player : MonoBehaviour
         ApplyGravity();
         UpdateCoyoteTimer();
         ProcessMovement(groundCheckResult);
-
+        
         HandleJumpBufferAndExecute();
         if (desiredJump)
         {
@@ -164,6 +165,7 @@ public class Player : MonoBehaviour
         CalculateGravity();
     }
     #endregion
+    bool cuted = false;
     float inputX;
     Vector3 lastMoveDir = Vector3.right; // 기본값: 오른쪽
     #region Input Handling
@@ -180,14 +182,22 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             desiredJump = true;
+            cuted = false ;
             jumpHeld = true;
             jumpBufferCounter = jumpBufferTime;
         }
         if (Input.GetButtonUp("Jump"))
         {
             jumpHeld = false;
-            ApplyJumpCutOff();
+            
         }
+
+        if(!jumpHeld && !cuted)
+        {
+            //ApplyJumpCutOff();
+            cuted = true;
+        }
+            
 
         if (Input.GetMouseButtonDown(0))
             PrimaryAttack();
@@ -290,7 +300,8 @@ public class Player : MonoBehaviour
         if (CanJump())
         {
             animator.SetTrigger("JUMP");
-            jumped = true;
+            if (!jumpHeld)
+                jumpHeld = true;
             desiredJump = false;
             jumpBufferCounter = 0f;
             coyoteTimer = 0f;
@@ -299,8 +310,8 @@ public class Player : MonoBehaviour
 
             var currentVerticalSpeed = Vector3.Dot(velocity, Vector3.down);
             var targetVerticalSpeed = Mathf.Max(currentVerticalSpeed, jumpSpeed);
-
-            velocity += Vector3.up * (targetVerticalSpeed + currentVerticalSpeed);
+   
+            velocity.y = (targetVerticalSpeed );
 
             if (!IsGrounded && maxAirJumps > 0)
                 maxAirJumps--;
@@ -310,20 +321,26 @@ public class Player : MonoBehaviour
     }
     private void HandleJumpBufferAndExecute()
     {
-        if (jumpBufferCounter > 0f)
+        if (!IsGrounded && desiredJump && jumpBufferCounter > 0f)
         {
-            // CanJump() == true이면 땅에 닿았거나 코요테 타임 중
-            if (CanJump())
+            jumpBufferCounter -= Time.fixedDeltaTime;
+            if (jumpBufferCounter <= 0f)
             {
-                ExecuteJump();
-                jumpBufferCounter = 0f; // 버퍼 초기화
-            }
-            else
-            {
-                jumpBufferCounter -= Time.fixedDeltaTime;
+                // 버퍼 만료: 더 이상 자동 점프 불가
+                jumpBufferCounter = 0f;
+                desiredJump = false;
             }
         }
+
+        if (IsGrounded && desiredJump && jumpBufferCounter > 0f)
+        {
+            ExecuteJump();
+            // 버퍼 사용했으므로 초기화
+            jumpBufferCounter = 0f;
+            desiredJump = false;
+        }
     }
+
     private bool CanJump()
     {
         return IsGrounded || coyoteTimer > 0f || (allowDoubleJump && maxAirJumps > 0);
@@ -332,7 +349,11 @@ public class Player : MonoBehaviour
     private void ApplyJumpCutOff()
     {
         if (rb.velocity.y > 0f)
+        {
             rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, 0f);
+            Debug.Log("cut");
+        }
+            
     }
 
     private void UpdateCoyoteTimer()
@@ -355,13 +376,13 @@ public class Player : MonoBehaviour
             }
             else
             {
-                if (jumpHeld && currentlyJumping)
+                if (jumpHeld)
                 {
                     gravityMultiplier = upwardMovementMultiplier;
                 }
                 else
                 {
-                    gravityMultiplier = jumpCutOff;
+                    //gravityMultiplier = jumpCutOff;
                 }
             }
         }
@@ -392,7 +413,7 @@ public class Player : MonoBehaviour
         }
         //rb.velocity = new Vector3(velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, 100), 0);
     }
-    
+    public float a;
     private void ApplyGravity()
     {
         //newGravity = (((-2 * maxJumpHeight) / (timeToJumpApex * timeToJumpApex)) / 9.81f);
@@ -401,6 +422,7 @@ public class Player : MonoBehaviour
             return;
         }
         newGravity = (((-2) / (timeToJumpApex * timeToJumpApex)));
+        a = newGravity * gravityMultiplier;
         rb.AddForce(Vector3.up * newGravity * gravityMultiplier, ForceMode.Acceleration);
     }
 

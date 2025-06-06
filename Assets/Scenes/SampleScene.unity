@@ -2098,8 +2098,12 @@ GameObject:
   - component: {fileID: 508776098}
   - component: {fileID: 508776097}
   - component: {fileID: 508776095}
-  - component: {fileID: 508776103}
   - component: {fileID: 508776101}
+  - component: {fileID: 508776106}
+  - component: {fileID: 508776105}
+  - component: {fileID: 508776104}
+  - component: {fileID: 508776103}
+  - component: {fileID: 508776102}
   m_Layer: 7
   m_Name: Player (1)
   m_TagString: Player
@@ -2114,26 +2118,27 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 508776094}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a20bd627145efa2429976a87a19ad601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 10
+  maxSpeed: 3
   accelerationTime: 0.1
   decelerationTime: 0.2
   airControl: 1
   rotationSpeed: 0.2
-  maxJumpHeight: 15
+  maxJumpHeight: 4
   timeToJumpApex: 0.2
   coyoteTime: 0.1
-  jumpBufferTime: 0.2
+  jumpBufferTime: 0.15
   allowDoubleJump: 0
   maxAirJumps: 0
   upwardMovementMultiplier: 1.71
   downwardMovementMultiplier: 2.48
   jumpCutOff: 2
   speedLimit: 15
+  currentlyJumping: 0
   normalDamage: 10
   minChargeTime: 0.2
   maxChargeTime: 1
@@ -2148,11 +2153,14 @@ MonoBehaviour:
   IsGrounded: 0
   playerMesh: {fileID: 860096322}
   velocity: {x: 0, y: 0, z: 0}
+  jumpHeld: 0
+  newGravity: 0
   maxHp: 100
   curHp: 0
   chargeBar: {fileID: 313605542}
   chargeBarParent: {fileID: 1956644212}
   ChargedValue: {fileID: 868125773}
+  a: 0
   checkHeight: 0.1
   checkRadius: 0.25
   maxFallDistance: 0.3
@@ -2196,8 +2204,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 875880538}
   - {fileID: 860096322}
+  - {fileID: 875880538}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!136 &508776101
@@ -2223,6 +2231,24 @@ CapsuleCollider:
   m_Height: 1.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.75, z: 0}
+--- !u!114 &508776102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508776094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e691713c9ba6dc4bb5f48deb92c6ced, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  checkHeight: 0.1
+  checkRadius: 0.5
+  maxFallDistance: 0.3
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &508776103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2230,19 +2256,75 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 508776094}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6326d0ba5b5bdb4a858867e8c0f8cc9, type: 3}
+  m_Script: {fileID: 11500000, guid: b07b3cef37dfc524489de526e2e259ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  Amlitude: 1
-  Period: 2
-  Waveform: 2
-  weapon:
-  - {fileID: 0}
-  playerMesh: {fileID: 860096322}
-  equipWeapon: {fileID: 0}
+  normalDamage: 10
+  minChargeTime: 0.2
+  maxChargeTime: 1
+  maxChargeDamage: 30
+  attackRange: 2
+  attackRadius: 0.5
+  chargeBar: {fileID: 0}
+  chargeBarParent: {fileID: 0}
+  chargedValue: {fileID: 0}
+--- !u!114 &508776104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508776094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5db40f1c54e6564abe67efa807d182a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxJumpHeight: 2
+  timeToJumpApex: 0.2
+  coyoteTime: 0.2
+  jumpBufferTime: 0.2
+  allowDoubleJump: 0
+  maxAirJumps: 0
+  upwardMovementMultiplier: 1.47
+  downwardMovementMultiplier: 1.5
+  jumpCutOffMultiplier: 2
+  speedLimit: 15
+--- !u!114 &508776105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508776094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b07d7df21cf9f24b957f86f58e58a63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxWalkSpeed: 6
+  maxRunSpeed: 12
+  accelerationTime: 0.1
+  decelerationTime: 0.2
+  airControl: 1
+  rotationSpeed: 0.2
+  isOnSlope: 0
+  shift: 0
+--- !u!114 &508776106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508776094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 346bafeb223bcc64db57f35050773e7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  velocity: {x: 0, y: 0, z: 0}
 --- !u!1 &510413944
 GameObject:
   m_ObjectHideFlags: 0
