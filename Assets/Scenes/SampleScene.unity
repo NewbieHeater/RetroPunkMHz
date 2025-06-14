@@ -947,6 +947,7 @@ GameObject:
   m_Component:
   - component: {fileID: 238919697}
   - component: {fileID: 238919701}
+  - component: {fileID: 238919705}
   - component: {fileID: 238919702}
   - component: {fileID: 238919703}
   - component: {fileID: 238919704}
@@ -985,30 +986,28 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 238919692}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4749f4cea4464c14f816b5b6c3d3ad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patrolBehavior: {fileID: 11400000, guid: 8e7cb15b64961444e8b9a7404d0e91e0, type: 2}
-  idleBehavior: {fileID: 11400000, guid: 1ddd1eb7be4fa9340adfd4e317ca4b9d, type: 2}
-  meleeAttackBehavior: {fileID: 11400000, guid: e041fa6760f735a41868f722e963cf38, type: 2}
-  rangeAttackBehavior: {fileID: 11400000, guid: b20e7b827157c4b4fb4af09bed3197c1, type: 2}
   HpBar: {fileID: 1369868908}
   maxHp: 100
+  currentHp: 0
   defaultApexHeight: 2
   getBackAvailable: 1
   explodeOnWall: 0
   collisionDetectionSpeedThreshold: 5
   explosionRadius: 3
   viewAngle: 45
-  questionMark: {fileID: 495410214}
-  cap: {fileID: 0}
-  player: {fileID: 508776095}
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 192
   findRange: 2
   meleeAttackRange: 3
   rangeAttackRange: 6
   aggroRange: 8
+  maxDist: 0
   patrolPoints:
   - point: {fileID: 1594107488}
     dwellTime: 0
@@ -1022,9 +1021,10 @@ MonoBehaviour:
     dwellTime: 0
     needJump: 0
     jumpPower: 0
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 192
+  cap: {fileID: 0}
+  player: {fileID: 508776095}
+  questionMark: {fileID: 495410214}
+  bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
 --- !u!195 &238919702
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1097,6 +1097,52 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &238919705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238919692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26b6ca6d3399dce4c847bf6be97eba8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HpBar: {fileID: 1369868908}
+  maxHp: 100
+  currentHp: 0
+  defaultApexHeight: 2
+  getBackAvailable: 0
+  explodeOnWall: 0
+  collisionDetectionSpeedThreshold: 5
+  explosionRadius: 3
+  viewAngle: 45
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 192
+  findRange: 1.5
+  meleeAttackRange: 2
+  rangeAttackRange: 6
+  aggroRange: 5
+  maxDist: 0
+  patrolPoints:
+  - point: {fileID: 1594107488}
+    dwellTime: 0
+    needJump: 0
+    jumpPower: 0
+  - point: {fileID: 843116565}
+    dwellTime: 0
+    needJump: 0
+    jumpPower: 0
+  - point: {fileID: 1401807244}
+    dwellTime: 0
+    needJump: 0
+    jumpPower: 0
+  cap: {fileID: 0}
+  player: {fileID: 508776095}
+  questionMark: {fileID: 495410214}
+  bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
 --- !u!1 &282889885
 GameObject:
   m_ObjectHideFlags: 0

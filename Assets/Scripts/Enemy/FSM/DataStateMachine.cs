@@ -1,27 +1,44 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class DataStateMachine<T>
+public class DataStateMachine<TSelf>
+    where TSelf : EnemyFSMBase<TSelf>
 {
-    private IState<T> _currentState;
-    private T _owner;
+    private readonly Dictionary<State, BaseState<TSelf>> _states;
+    private readonly List<StateTransition<TSelf>> _transitions;
+    private BaseState<TSelf> _currentState;
+    private State _currentKey;
 
-    public DataStateMachine(T owner, IState<T> initial)
+    public DataStateMachine(State initialKey,
+                            Dictionary<State, BaseState<TSelf>> states,
+                            List<StateTransition<TSelf>> transitions)
     {
-        _owner = owner;
-        _currentState = initial;
-        _currentState.OperateEnter(_owner);
+        _states = states;
+        _transitions = transitions;
+        _currentKey = (State)(-1);
+        ChangeState(initialKey);
     }
 
-    public void ChangeState(IState<T> next)
+    public void UpdateState()
     {
-        _currentState.OperateExit(_owner);
+        foreach (var t in _transitions)
+            if ((t.From == _currentKey || t.From == State.ANY) && t.Condition())
+                ChangeState(t.To);
+        _currentState.OperateUpdate();
+    }
+
+    public void FixedUpdateState() => _currentState.OperateFixedUpdate();
+
+    public void ChangeState(State newKey)
+    {
+        if (_currentState != null && _currentKey == newKey)
+            return;
+        _currentState?.OperateExit();
+        if (!_states.TryGetValue(newKey, out var next) || next == null)
+        {
+            return;
+        }
+        _currentKey = newKey;
         _currentState = next;
-        _currentState.OperateEnter(_owner);
-        Debug.Log(next.ToString());
+        _currentState.OperateEnter();
     }
-
-    public void Update() => _currentState.OperateUpdate(_owner);
-    public void FixedUpdate() => _currentState.OperateFixedUpdate(_owner);
 }

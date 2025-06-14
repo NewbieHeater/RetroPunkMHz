@@ -1,18 +1,16 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class StateTransition<T>
+public class StateTransition<TContext>
+    where TContext : EnemyFSMBase<TContext>
 {
     public State From;
     public State To;
-    public Func<T, bool> Condition;
-
-    public StateTransition(State from, State to, Func<T, bool> condition)
+    private readonly Func<bool> _condition;
+    public StateTransition(State from, State to, Func<bool> condition)
     {
         From = from;
         To = to;
-        Condition = condition;
+        _condition = condition;
     }
+    public bool Condition() => _condition();
 }
