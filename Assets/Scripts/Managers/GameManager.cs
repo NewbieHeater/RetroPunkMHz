@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+
+        GameObject.FindWithTag("Player").TryGetComponent<PlayerManagement>(out player);
     }
     public static GameManager Instance
     {
@@ -30,7 +32,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public CharacterController player;
+    public PlayerManagement player;
 
     void Start()
     {

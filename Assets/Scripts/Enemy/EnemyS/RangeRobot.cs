@@ -51,18 +51,14 @@ public class RangeRobot : EnemyFSMBase<RangeRobot>, IFireable
 
         
     }
-    public override void Update()
-    {
-        fsm.UpdateState();
-    }
-
-    public override void FixedUpdate()
-    {
-        fsm.FixedUpdateState();
-    }
     public GameObject bullet;
     public void Fire()
     {
         Instantiate(bullet, transform.position + Vector3.up * 1f, transform.rotation);
+    }
+
+    public override void SetQuestionMark(bool active)
+    {
+        questionMark.SetActive(active);
     }
 }

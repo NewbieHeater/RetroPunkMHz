@@ -71,13 +71,8 @@ public class Robot : EnemyFSMBase<Robot>, IFireable
         CurrentState = State.Patrol;
     }
 
-    public override void Update()
+    public override void SetQuestionMark(bool active)
     {
-        fsm.UpdateState();
-    }
-
-    public override void FixedUpdate()
-    {
-        fsm.FixedUpdateState();
+        questionMark.SetActive(active);
     }
 }

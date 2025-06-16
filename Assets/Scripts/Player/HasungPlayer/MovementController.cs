@@ -15,7 +15,7 @@ public class MovementController : MonoBehaviour
     private Rigidbody rb;
     private Animator animator;
     private GroundDetector groundDetector;
-    private float inputX;
+    public float inputX;
     private bool wasOnSlope;
     public bool isOnSlope;
 
@@ -25,7 +25,7 @@ public class MovementController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         groundDetector = gd;
     }
-    Vector3 newVelocity;
+    public Vector3 newVelocity;
     [SerializeField] private bool shift;
     public void ProcessMovement(bool isGrounded, RaycastHit groundHit)
     {
@@ -38,8 +38,8 @@ public class MovementController : MonoBehaviour
         float decel = isGrounded ? speed / decelerationTime : (speed / decelerationTime) * airControl;
         float newVx = Mathf.Abs(inputX) > 0.01f ? Mathf.MoveTowards(rb.velocity.x, targetVx, accel * dt) : Mathf.MoveTowards(rb.velocity.x, 0f, decel * dt);
 
-        isOnSlope = IsOnSlope(groundHit);
-        
+        isOnSlope = IsOnSlope(groundHit) && isGrounded;
+
         if (isOnSlope)
         {
             Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundHit.normal).normalized;

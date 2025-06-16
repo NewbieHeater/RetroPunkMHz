@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerController : MonoBehaviour
+public class PlayerManagement : MonoBehaviour
 {
     // Sub-Components
     private MovementController movementController;
@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     private AttackController attackController;
     private GroundDetector groundDetector;
 
-    public Vector3 velocity;
+    public bool IsGrounded;
 
     void Awake()
     {
@@ -44,12 +44,12 @@ public class PlayerController : MonoBehaviour
         groundDetector.UpdateGroundStatus();
         bool isGrounded = groundDetector.IsGrounded;
         RaycastHit groundHit = groundDetector.LastHit;
-
+        // Movement physics
+        movementController.ProcessMovement(isGrounded, groundHit);
         // Jump physics
         jumpController.ProcessJump(isGrounded);
 
-        // Movement physics
-        movementController.ProcessMovement(isGrounded, groundHit);
+        IsGrounded = isGrounded;
 
         // Attack logic (overlap checks)
         attackController.ProcessAttack();

@@ -192,7 +192,7 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            //enemy.questionMark.SetActive(true);
+            enemy.SetQuestionMark(true);
             Debug.Log("IOdle");
             enemy.anime.Play("Idle");
             curTime = 0;
@@ -209,6 +209,7 @@ namespace EnemyRobotState
 
         public override void OperateExit()
         {
+            enemy.SetQuestionMark(false);
             curTime = 0;
         }
 

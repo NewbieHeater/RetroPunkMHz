@@ -55,13 +55,9 @@ public class MeleeRobot : EnemyFSMBase<MeleeRobot>
 
 
     }
-    public override void Update()
-    {
-        fsm.UpdateState();
-    }
 
-    public override void FixedUpdate()
+    public override void SetQuestionMark(bool active)
     {
-        fsm.FixedUpdateState();
+        questionMark.SetActive(active);
     }
 }

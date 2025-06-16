@@ -145,14 +145,14 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
 
     #region StateUpdate
 
-    public virtual void Update()
+    private void Update()
     {
-        
+        fsm.UpdateState();
     }
 
-    public virtual void FixedUpdate()
+    private void FixedUpdate()
     {
-        
+        fsm.FixedUpdateState();
     }
 
     public void ChangeState(State next)
@@ -235,5 +235,8 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
     }
     #endregion
 
-    
+    public virtual void SetQuestionMark(bool active)
+    {
+        
+    }
 }
