@@ -17,8 +17,8 @@
           "id": "2",
           "speaker": "Eto",
           "nameTag": "Eto",
-          "sprite": "neutral",
-          "text": "퀘스트 1, 내용 전달입니다.",
+          "sprite": "surprise",
+          "text": "그게 무슨소리야!!",
           "next": "3",
           "eventKey": "",
           "choices": null

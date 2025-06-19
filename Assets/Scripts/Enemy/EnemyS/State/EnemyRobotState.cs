@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering.PostProcessing;
 
 namespace EnemyRobotState
 {
@@ -10,7 +11,6 @@ namespace EnemyRobotState
     where TSelf : EnemyFSMBase<TSelf>
     {
         protected Transform transform;
-        protected Transform playerTransform;
         protected NavMeshAgent agent;
         protected GameObject gameObject;
         Rigidbody enemyRigid;
@@ -26,7 +26,6 @@ namespace EnemyRobotState
             agent = monster.agent;
             enemyRigid = monster.rigid;
             enemyCap = monster.cap;
-            playerTransform = monster.player.transform;
 
             // 인덱스 초기값 설정
             patrolIndex = 0;
@@ -34,20 +33,46 @@ namespace EnemyRobotState
             isGoingForward = true;
         }
 
-        public override void OperateEnter() 
+        public override void OperateEnter()
         {
-            Debug.Log("Enter");
             enemy.anime.Play("Move");
             agent.enabled = true;
             agent.isStopped = false;
             agent.speed = patrolSpeed;
-            
-            if (!agent.hasPath) agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
+
+            // 포인트가 1개 이하라면 바로 이동 후 멈춤 플래그 준비
+            if (enemy.patrolPoints == null || enemy.patrolPoints.Length <= 1)
+            {
+                if (enemy.patrolPoints != null && enemy.patrolPoints.Length == 1)
+                    agent.SetDestination(enemy.patrolPoints[0].point.position);
+
+                return;
+            }
+
+            // 기존 순찰 시작 로직
+            if (!agent.hasPath)
+                agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
         }
         public override void OperateExit() { agent.enabled = false; }
+
         public override void OperateUpdate()
         {
-            if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0) return;
+            // 포인트가 0개면 아무 것도 안 함
+            if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0)
+                return;
+
+            // 포인트가 1개일 때: 목적지에 도착하면 멈춤 플래그 셋
+            if (enemy.patrolPoints.Length == 1)
+            {
+                if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+                {
+                    // 멈춤 상태로 전환
+                    enemy.stop = true;
+                    agent.isStopped = true;
+                    enemy.ChangeState(State.Idle);
+                }
+                return;
+            }
 
 
             // 대기 처리
@@ -63,7 +88,7 @@ namespace EnemyRobotState
             else
             {
                 // 도착 판정 (X축 근접 기준)
-                if (!agent.pathPending &&
+                if (
                     Mathf.Abs(enemy.patrolPoints[patrolIndex].point.position.x - transform.position.x) < 0.05f)
                 {
                     agent.ResetPath();
@@ -99,7 +124,6 @@ namespace EnemyRobotState
                         {
                             AdvanceIndex();
                             agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
-                            Debug.Log(enemy.patrolPoints[patrolIndex].point.position);
                         }
                     }
                 }
@@ -107,12 +131,20 @@ namespace EnemyRobotState
         }
         void AdvanceIndex()
         {
+            int len = enemy.patrolPoints.Length;
+            if (len <= 1)
+            {
+                // 포인트가 0개이거나 1개 뿐이라면 순찰 로직을 수행하지 않음
+                patrolIndex = 0;
+                isWaiting = false;
+                return;
+            }
             if (enemy.getBackAvailable)
             {
                 if (isGoingForward)
                 {
                     patrolIndex++;
-                    if (patrolIndex >= enemy.patrolPoints.Length)
+                    if (patrolIndex >= len - 1)
                     {
                         patrolIndex = enemy.patrolPoints.Length - 2;
                         isGoingForward = false;
@@ -121,7 +153,7 @@ namespace EnemyRobotState
                 else
                 {
                     patrolIndex--;
-                    if (patrolIndex < 0)
+                    if (patrolIndex <= 0)
                     {
                         patrolIndex = 1;
                         isGoingForward = true;
@@ -192,8 +224,33 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
+            enemy.anime.Play("Idle");
+            curTime = 0;
+        }
+
+        public override void OperateUpdate()
+        {
+            enemy.anime.Play("Idle");
+        }
+
+        public override void OperateExit()
+        {
+            curTime = 0;
+        }
+
+        public override void OperateFixedUpdate() { }
+    }
+
+    public class SearchState<TSelf> : BaseState<TSelf>
+    where TSelf : EnemyFSMBase<TSelf>
+    {
+        private float waitTime = 2;
+        private float curTime = 0;
+        public SearchState(TSelf monster) : base(monster) { }
+
+        public override void OperateEnter()
+        {
             enemy.SetQuestionMark(true);
-            Debug.Log("IOdle");
             enemy.anime.Play("Idle");
             curTime = 0;
         }
@@ -201,9 +258,10 @@ namespace EnemyRobotState
         public override void OperateUpdate()
         {
             curTime += Time.deltaTime;
-            if (curTime >= waitTime)
+            if (curTime >= waitTime && enemy.patrolPoints.Length > 0)
             {
-                enemy.ChangeState(State.Patrol);
+
+                enemy.ChangeState(State.Idle);
             }
         }
 
@@ -290,7 +348,7 @@ namespace EnemyRobotState
                     // strikeTime 대신, 애니 재생 시작 후 바로 데미지
                     if (elapsed >= 0f && elapsed < Time.deltaTime)
                     {
-                        enemy.player.ModifyHp(atkPower);
+                        enemy.player.playerHp.ModifyHp(atkPower);
                         Debug.Log("dagage");
                     }
 

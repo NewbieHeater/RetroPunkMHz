@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 
-public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Death, ANY }
+public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death, ANY }
 
 
 [System.Serializable]
@@ -28,7 +28,7 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
     IAttackable, IExplosionInteract
     where TSelf : EnemyFSMBase<TSelf>
 {
-
+    public bool stop;
     [Header("Ω∫≈» º≥¡§")]
     [SerializeField] protected TextMeshProUGUI HpBar;
     [SerializeField] protected int          maxHp = 100;
@@ -75,7 +75,7 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
     protected Dictionary<State, BaseState<TSelf>> stateMap;
     protected List<StateTransition<TSelf>> transitions;
 
-    public Player player;
+    public PlayerManagement player;
 
 
     protected virtual void Awake()
@@ -86,30 +86,33 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
         agent = GetComponent<NavMeshAgent>();
         anime = GetComponentInChildren<Animator>();
         cap   = GetComponent<CapsuleCollider>();
-
+        
         currentHp = maxHp;
         UpdateHpBarText();
+        
     }
 
     protected virtual void Start()
     {
-
-        fsm = new DataStateMachine<TSelf>(CurrentState, stateMap, transitions);
+        //player = GameManager.Instance.player;
+        //fsm = new DataStateMachine<TSelf>(CurrentState, stateMap, transitions);
     }
-    
 
+    protected virtual void OnEnable()
+    {
+    }
     protected bool IsPlayerInSight(float range)
     {
         float dist = Vector3.Distance(transform.position, player.transform.position);
         if (dist > range)
             return false;
 
-        Vector3 toPlayer = (player.transform.position + Vector3.up - transform.position).normalized;
+        Vector3 toPlayer = (player.transform.position - transform.position).normalized;
         float angle = Vector3.Angle(transform.forward, toPlayer);
-        Debug.DrawRay(transform.position, toPlayer * dist, Color.green, 0.1f);
+        Debug.DrawRay(transform.position + Vector3.up, toPlayer * dist, Color.green, 0.1f);
         if (angle > viewAngle)
         {
-            Debug.DrawRay(transform.position, toPlayer * dist, Color.gray, 0.1f);
+            Debug.DrawRay(transform.position + Vector3.up, toPlayer * dist, Color.gray, 0.1f);
             return false;
         }
 

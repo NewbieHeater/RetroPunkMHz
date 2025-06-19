@@ -68,7 +68,7 @@ public class AttackController : MonoBehaviour
     {
         animator.Play("Attack_5Combo_4_Inplace");
         float t = Mathf.Clamp(chargeTimer, minChargeTime, maxChargeTime);
-        int dmg = (int)Mathf.Lerp(normalDamage, maxChargeDamage, (t - minChargeTime) / (maxChargeTime - minChargeTime));
+        int dmg = (int)Mathf.Lerp(normalDamage, maxChargeDamage, (t - minChargeTime) / (maxChargeTime - minChargeTime)) /10 *10;
         DamageInfo info = new DamageInfo { Amount = dmg, SourceDir = GetAttackDirection(), IsCharge = t >= minChargeTime, KnockbackForce = dmg };
         ExecuteAttack(info);
         ResetCharge();

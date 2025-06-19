@@ -90,4 +90,10 @@ public class MovementController : MonoBehaviour
         mesh.rotation = Quaternion.Slerp(mesh.rotation, targetRot, rotationSpeed);
         animator.SetBool("Idle", false);
     }
+
+    public void ForceStop()
+    {
+        rb.velocity = Vector3.zero; 
+        UpdateAnimationStates();
+    }
 }

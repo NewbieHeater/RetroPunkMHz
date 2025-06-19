@@ -16,4 +16,6 @@ MonoBehaviour:
   displayName: Eto
   expressions:
   - key: neutral
-    sprite: {fileID: 21300000, guid: c8b527ea0abf79e429eae4704346dbb1, type: 3}
+    sprite: {fileID: 172975581, guid: 2b48a034cf7456d4a92a98697c952143, type: 3}
+  - key: surprise
+    sprite: {fileID: 159453590, guid: 2b48a034cf7456d4a92a98697c952143, type: 3}

@@ -58,6 +58,7 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
     {
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
+            interactionHintUI.SetActive(false);
             Interact();
         }
     }

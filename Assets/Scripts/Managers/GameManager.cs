@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     void Awake()
     {
+        GameObject.FindWithTag("Player").TryGetComponent<PlayerManagement>(out player);
         if (null == instance)
         {
             instance = this;
@@ -18,7 +19,7 @@ public class GameManager : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        GameObject.FindWithTag("Player").TryGetComponent<PlayerManagement>(out player);
+        
     }
     public static GameManager Instance
     {
@@ -34,14 +35,4 @@ public class GameManager : MonoBehaviour
 
     public PlayerManagement player;
 
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

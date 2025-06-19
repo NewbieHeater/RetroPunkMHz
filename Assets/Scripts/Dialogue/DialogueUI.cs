@@ -27,6 +27,7 @@ public class DialogueUI : MonoBehaviour
         if (dialoguePanel != null)
         {
             dialoguePanel.SetActive(show);
+            GameManager.Instance.player.SetAblePlayer(!show);
         }
     }
 
@@ -70,6 +71,7 @@ public class DialogueUI : MonoBehaviour
                 leftPortrait.gameObject.SetActive(true);
                 leftPortrait.sprite = speakerProfile.GetSprite(expressionKey);
                 leftPortrait.color = Color.white;   // 활성화된 화자는 컬러 표시
+                //leftPortrait.SetNativeSize();
                 if (rightPortrait != null && rightPortrait.sprite != null)
                 {
                     rightPortrait.color = Color.gray;   // 상대방은 회색 처리
@@ -81,6 +83,7 @@ public class DialogueUI : MonoBehaviour
                 rightPortrait.gameObject.SetActive(true);
                 rightPortrait.sprite = speakerProfile.GetSprite(expressionKey);
                 rightPortrait.color = Color.white;
+                //rightPortrait.SetNativeSize();
                 if (leftPortrait != null && leftPortrait.sprite != null)
                 {
                     leftPortrait.color = Color.gray;

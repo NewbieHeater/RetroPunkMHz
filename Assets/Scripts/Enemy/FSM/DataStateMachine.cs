@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using UnityEngine;
+using System;
 
 public class DataStateMachine<TSelf>
     where TSelf : EnemyFSMBase<TSelf>
@@ -21,7 +23,7 @@ public class DataStateMachine<TSelf>
     public void UpdateState()
     {
         foreach (var t in _transitions)
-            if ((t.From == _currentKey || t.From == State.ANY) && t.Condition())
+            if ((t.From == _currentKey || (t.From == State.ANY && t.From == t.To)) && t.Condition())
                 ChangeState(t.To);
         _currentState.OperateUpdate();
     }
@@ -30,6 +32,7 @@ public class DataStateMachine<TSelf>
 
     public void ChangeState(State newKey)
     {
+        Debug.Log(newKey);
         if (_currentState != null && _currentKey == newKey)
             return;
         _currentState?.OperateExit();

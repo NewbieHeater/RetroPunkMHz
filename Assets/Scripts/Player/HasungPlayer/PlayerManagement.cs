@@ -10,8 +10,10 @@ public class PlayerManagement : MonoBehaviour
     private JumpController jumpController;
     private AttackController attackController;
     private GroundDetector groundDetector;
+    public PlayerHp playerHp;
 
     public bool IsGrounded;
+    public bool IsEnabled = true;
 
     void Awake()
     {
@@ -20,6 +22,7 @@ public class PlayerManagement : MonoBehaviour
         movementController = GetComponent<MovementController>();
         jumpController = GetComponent<JumpController>();
         attackController = GetComponent<AttackController>();
+        playerHp = GetComponent<PlayerHp>();
 
         // Pass references as needed
         movementController.Initialize(groundDetector);
@@ -29,6 +32,7 @@ public class PlayerManagement : MonoBehaviour
 
     void Update()
     {
+        if(!IsEnabled) return;
         // Centralized Input Handling & UI
         jumpController.HandleInput();
         attackController.HandleInput();
@@ -40,6 +44,7 @@ public class PlayerManagement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!IsEnabled) return;
         // Ground detection always updates first
         groundDetector.UpdateGroundStatus();
         bool isGrounded = groundDetector.IsGrounded;
@@ -53,5 +58,11 @@ public class PlayerManagement : MonoBehaviour
 
         // Attack logic (overlap checks)
         attackController.ProcessAttack();
+    }
+
+    public void SetAblePlayer(bool set)
+    {
+        IsEnabled = set;
+        movementController.ForceStop();
     }
 }
