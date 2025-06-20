@@ -1946,7 +1946,7 @@ MonoBehaviour:
   accelerationTime: 0.1
   decelerationTime: 0.2
   airControl: 1
-  rotationSpeed: 0.2
+  rotationSpeed: 0.1
   inputX: 0
   isOnSlope: 0
   newVelocity: {x: 0, y: 0, z: 0}
@@ -1978,7 +1978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba4dbb3ccd4c55145a62b67337f49050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 0
+  hp: 100
 --- !u!1 &510413944
 GameObject:
   m_ObjectHideFlags: 0
@@ -6293,6 +6293,10 @@ PrefabInstance:
     - target: {fileID: 8874187368424205674, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8874187368424205674, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
+      propertyPath: m_TagString
+      value: EnemyAttackCollider
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

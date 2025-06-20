@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeleeRobot : EnemyFSMBase<MeleeRobot>
+public class MeleeRobot : EnemyFSMBase<MeleeRobot>, IMeleeAttack
 {
+    [SerializeField] public BoxCollider boxCollider { get; set; }
     public override int RequiredAmpPts => 0;
     public override int RequiredPerPts => 0;
     public override int RequiredWavPts => 0;

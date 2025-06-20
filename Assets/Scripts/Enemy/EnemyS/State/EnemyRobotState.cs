@@ -275,40 +275,42 @@ namespace EnemyRobotState
     }
 
     public class AttackState<TSelf> : BaseState<TSelf>
-    where TSelf : EnemyFSMBase<TSelf>
+    where TSelf : EnemyFSMBase<TSelf>, IMeleeAttack
     {
         enum Phase { Windup, Strike, Cooldown }
 
-        [Tooltip("공격 준비 시간")]
-        public float windupTime = 0.5f;
-        [Tooltip("공격 동작 시간")]
-        public float strikeTime = 0.3f;
-        [Tooltip("쿨다운 시간")]
-        public float cooldownTime = 0.4f;
-        [Tooltip("밀쳐내기용 힘")]
+        [Header("타이밍 (초)")]
+        public float windupTime = 0.5f;   // 준비 동작 시간
+        public float strikeDuration = 0.8f;   // 타격 판정 유지 시간
+        public float cooldownTime = 0.9f;   // 쿨다운 시간
+
+        [Tooltip("넉백 힘")]
         public int atkPower = 10;
 
         [Header("회전 속도 (°/초)")]
         public float rotationSpeed = 360f;
 
-        Rigidbody rigidb;
-        CapsuleCollider cap;
+        private Phase phase;
+        private float phaseStart;
+        private bool hasHit;                // ← 한 번 히트했는지 체크
 
-        Phase phase;
-        float phaseStart;
+        // 캐싱
+        private Transform transform;
+        private Animator animator;
 
-        protected Transform transform;
-        // Enter 때 목표 회전을 미리 계산해둡니다
-        private Quaternion targetRotation;
-        public AttackState(TSelf monster) : base(monster) 
-        { 
-            transform = enemy.transform;
+        public AttackState(TSelf monster) : base(monster)
+        {
+            this.transform = enemy.transform;
+            this.animator = enemy.anime;
         }
 
         public override void OperateEnter()
         {
+            // Windup 시작 시 초기화
             phase = Phase.Windup;
             phaseStart = Time.time;
+            hasHit = false;
+            enemy.boxCollider.enabled = false;
         }
 
         public override void OperateUpdate()
@@ -318,70 +320,81 @@ namespace EnemyRobotState
             switch (phase)
             {
                 case Phase.Windup:
-                    Vector3 dir = (enemy.player.transform.position - transform.position).normalized;
-                    targetRotation = Quaternion.LookRotation(dir);
-                    // 현재와 목표의 Y축 각도만 구합니다.
-                    float currentY = transform.eulerAngles.y;
-                    float targetY = targetRotation.eulerAngles.y;
-
-                    // Y축 각도만 rotationSpeed 속도로 보간
-                    float newY = Mathf.MoveTowardsAngle(
-                        currentY,
-                        targetY,
-                        rotationSpeed * Time.deltaTime
-                    );
-
-                    // X/Z는 그대로 두고 Y만 적용
-                    Vector3 euler = transform.eulerAngles;
-                    transform.eulerAngles = new Vector3(euler.x, newY, euler.z);
+                    RotateTowardPlayer();
 
                     if (elapsed >= windupTime)
-                    {
-                        phase = Phase.Strike;
-                        phaseStart = Time.time;
-                        // 바로 Attack 애니메이션으로 페이드
-                        enemy.anime.CrossFade("Attack", 0.1f);
-                    }
+                        EnterStrike();
                     break;
 
                 case Phase.Strike:
-                    // strikeTime 대신, 애니 재생 시작 후 바로 데미지
-                    if (elapsed >= 0f && elapsed < Time.deltaTime)
+                    // 한 번만 판정
+                    if (!hasHit)
                     {
-                        enemy.player.playerHp.ModifyHp(atkPower);
-                        Debug.Log("dagage");
+                        enemy.boxCollider.enabled = true;
+                        Debug.Log("damage!");
+                        hasHit = true;
                     }
 
-                    // 애니메이션 상태를 직접 체크해서 끝나면 Cooldown 진입
-                    AnimatorStateInfo info = enemy.anime.GetCurrentAnimatorStateInfo(0);
+                    // strikeDuration 이후 콜라이더 비활성화
+                    if (elapsed >= strikeDuration)
+                        enemy.boxCollider.enabled = false;
+
+                    // 애니메이션 완료 체크
+                    var info = animator.GetCurrentAnimatorStateInfo(0);
                     if (info.IsName("Attack") && info.normalizedTime >= 1f)
-                    {
-                        phase = Phase.Cooldown;
-                        phaseStart = Time.time;
-                        // Optional: 짧은 페이드로 Idle 준비 애니로 전환
-                        enemy.anime.CrossFade("Idle", 0.05f);
-                    }
+                        EnterCooldown();
                     break;
 
                 case Phase.Cooldown:
-                    // cooldownTime은 내부 논리용 타이머만 남기고, Idle 이미 페이드했으니 바로 Windup
                     if (elapsed >= cooldownTime)
-                    {
-                        phase = Phase.Windup;
-                        phaseStart = Time.time;
-                        // attackFinishedCallback?.Invoke();
-                    }
+                        OperateEnter();  // 다시 Windup 시작
                     break;
             }
         }
 
         public override void OperateExit()
         {
-            enemy.anime.CrossFade("Idle", 0.05f);
+            enemy.boxCollider.enabled = false;
+            animator.CrossFade("Idle", 0.05f);
         }
 
         public override void OperateFixedUpdate() { }
+
+        // 플레이어 방향으로 부드럽게 회전
+        private void RotateTowardPlayer()
+        {
+            Vector3 dir = (enemy.player.transform.position - transform.position).normalized;
+            Quaternion tgt = Quaternion.LookRotation(dir);
+
+            float currentY = transform.eulerAngles.y;
+            float targetY = tgt.eulerAngles.y;
+            float newY = Mathf.MoveTowardsAngle(
+                                 currentY,
+                                 targetY,
+                                 rotationSpeed * Time.deltaTime);
+
+            var e = transform.eulerAngles;
+            transform.eulerAngles = new Vector3(e.x, newY, e.z);
+        }
+
+        // Strike 단계 진입
+        private void EnterStrike()
+        {
+            phase = Phase.Strike;
+            phaseStart = Time.time;
+            hasHit = false;
+            animator.CrossFade("Attack", 0.1f);
+        }
+
+        // Cooldown 단계 진입
+        private void EnterCooldown()
+        {
+            phase = Phase.Cooldown;
+            phaseStart = Time.time;
+            animator.CrossFade("Idle", 0.05f);
+        }
     }
+
 
     public class RangeAttackState<TSelf> : BaseState<TSelf>
     where TSelf : EnemyFSMBase<TSelf>, IFireable
@@ -491,7 +504,7 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-
+            
         }
 
         public override void OperateUpdate()

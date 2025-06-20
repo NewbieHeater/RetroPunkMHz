@@ -4,20 +4,19 @@ using UnityEngine;
 
 public class PlayerHp : MonoBehaviour
 {
-    public float hp;
-    void Start()
-    {
-        
-    }
+    [SerializeField] private float hp = 100;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void ModifyHp(float atkPower)
     {
         hp -= atkPower;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("EnemyAttackCollider"))
+        {
+            //hp -= other
+        }
     }
 }
