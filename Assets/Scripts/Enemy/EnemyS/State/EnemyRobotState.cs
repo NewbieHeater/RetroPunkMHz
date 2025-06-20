@@ -36,7 +36,7 @@ namespace EnemyRobotState
         public override void OperateEnter()
         {
             enemy.anime.Play("Move");
-            agent.enabled = true;
+            //agent.enabled = true;
             agent.isStopped = false;
             agent.speed = patrolSpeed;
 
@@ -53,12 +53,12 @@ namespace EnemyRobotState
             if (!agent.hasPath)
                 agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
         }
-        public override void OperateExit() { agent.enabled = false; }
+        public override void OperateExit() { agent.isStopped = true; }
 
         public override void OperateUpdate()
         {
             // 포인트가 0개면 아무 것도 안 함
-            if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0)
+            if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0 || stop == true)
                 return;
 
             // 포인트가 1개일 때: 목적지에 도착하면 멈춤 플래그 셋
@@ -93,23 +93,26 @@ namespace EnemyRobotState
                 {
                     agent.ResetPath();
                     agent.velocity = Vector3.zero;
-
                     // 점프 로직
                     if (enemy.patrolPoints[patrolIndex].needJump && isGoingForward)
                     {
+                        Debug.Log("Jum[p");
+                        agent.ResetPath();
                         agent.enabled = false;
+                        
                         enemyCap.enabled = true;
-
+                        float apexH = enemy.patrolPoints[patrolIndex].jumpPower > 0 ? enemy.patrolPoints[patrolIndex].jumpPower : enemy.defaultApexHeight;
                         AdvanceIndex();
                         var nextPos = enemy.patrolPoints[patrolIndex].point.position;
 
-                        float apexH = enemy.patrolPoints[patrolIndex].jumpPower > 0 ? enemy.patrolPoints[patrolIndex].jumpPower : enemy.defaultApexHeight;
+                        
                         var launch = CalculateLaunchVelocity(transform.position, nextPos, apexH);
 
                         enemyRigid.useGravity = true;
                         enemyRigid.velocity = launch;
-
+                        //enemyRigid.AddForce(launch, ForceMode.Impulse);
                         enemy.patrolPoints[patrolIndex].needJump = false;
+                        stop = true;
                         enemy.StartCoroutine(ResumeAfterJump(nextPos));
                     }
                     else
@@ -144,7 +147,7 @@ namespace EnemyRobotState
                 if (isGoingForward)
                 {
                     patrolIndex++;
-                    if (patrolIndex >= len - 1)
+                    if (patrolIndex >= len)
                     {
                         patrolIndex = enemy.patrolPoints.Length - 2;
                         isGoingForward = false;
@@ -164,6 +167,7 @@ namespace EnemyRobotState
             {
                 patrolIndex = (patrolIndex + 1) % enemy.patrolPoints.Length;
             }
+            Debug.Log(patrolIndex);
         }
 
         // 발사 벨로시티 계산
@@ -180,7 +184,7 @@ namespace EnemyRobotState
             Vector3 vHoriz = horiz / totalT;
             return vHoriz + Vector3.up * vUp;
         }
-
+        bool stop;
         // 점프 후 복귀
         IEnumerator ResumeAfterJump(Vector3 resumePos)
         {
@@ -190,6 +194,7 @@ namespace EnemyRobotState
             agent.enabled = true;
             agent.updatePosition = true;
             agent.isStopped = false;
+            stop = false;
             agent.SetDestination(resumePos);
         }
         public override void OperateFixedUpdate() { }
