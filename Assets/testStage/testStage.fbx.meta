@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9c18580b97512ed43885caa0955ca4fb
+guid: f2f6be7f7f31bad46a2fa4c301a83fe0
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,13 +7,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: ae15f9a1ff5d18d4aa193443faa34e6c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: body
-    second: {fileID: 2100000, guid: 82724217681bfa048a03406f433370ba, type: 2}
+      name: Buildings
+    second: {fileID: 2100000, guid: bece6a2f8f5fba34db670cba7c9a76b3, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

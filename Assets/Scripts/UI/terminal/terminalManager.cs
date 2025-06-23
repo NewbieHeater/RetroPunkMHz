@@ -55,9 +55,9 @@ public class terminalManager : MonoBehaviour
 
                 //입력 라인을 마지막줄로 옮기기
                 userInputLine.transform.SetAsLastSibling();
-                
+
                 //바닥쪽으로 스크롤
-                scrollRect.verticalNormalizedPosition = 0f;
+                scrollRect.verticalNormalizedPosition = 0;
 
                 //입력 필드 리포커싱
                 terminalInput.ActivateInputField();

@@ -81,18 +81,6 @@ public class Interpreter : MonoBehaviour
             onComplete?.Invoke();
             yield break;
 
-            /*
-            yield return StartCoroutine(ragHandler.AskServerStream(userInput, (Answer) => {
-                string[] answers = Answer.Split(new string[] { "<END>" }, System.StringSplitOptions.None);
-                foreach(string item in answers)
-                {
-                    response.Add(item);
-                }
-                
-            }));
-
-            onComplete(response);
-            yield break;*/
         }
     }
 

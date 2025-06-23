@@ -10,6 +10,7 @@ public class RAGHandler : MonoBehaviour
     public class AskRequest
     {
         public string question;
+        public string user_id;
     }
 
     [System.Serializable]
@@ -89,12 +90,12 @@ public class RAGHandler : MonoBehaviour
 
     public IEnumerator AskServerStream(string question, System.Action<string> onTextStream)
     {
-        AskRequest requestData = new AskRequest { question = question };
+        AskRequest requestData = new AskRequest { question = question,user_id = "test" };
         string json = JsonUtility.ToJson(requestData);
         Debug.Log("Àü¼ÛÇÒ JSON: " + json);
 
         UnityWebRequest request = new UnityWebRequest("http://localhost:5000/ask-stream", "POST");
-        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new StreamingHandler(chunk =>
         {
