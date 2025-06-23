@@ -33,7 +33,7 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
     [SerializeField] protected TextMeshProUGUI HpBar;
     [SerializeField] protected int          maxHp = 100;
     [SerializeField] protected int          currentHp;
-    protected bool                          isDead;
+    public bool                          isDead;
 
     [Header("점프 설정")]
     [Tooltip("포물선 최고점까지 높이")]
@@ -182,9 +182,9 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
         explodeOnWall = true;
     }
 
-    private void OnTriggerEnter(Collider other)
+    protected virtual void OnCollisionEnter(Collision other)
     {
-        if (other.CompareTag("Ground") && isDead)
+        if (other.collider.CompareTag("Ground") && isDead)
         {
             Explode();
         }

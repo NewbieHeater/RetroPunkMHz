@@ -130,4 +130,12 @@ public class Robot : EnemyFSMBase<Robot>, IFireable, IMeleeAttack
     {
         questionMark.SetActive(active);
     }
+
+    protected override void OnCollisionEnter(Collision other)
+    {
+        if (other.collider.CompareTag("Ground") && isDead)
+        {
+            Explode();
+        }
+    }
 }

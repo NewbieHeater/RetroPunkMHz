@@ -229,6 +229,9 @@ public class DialogueManager : MonoBehaviour
         // 선택된 선택지를 가져옴
         Choice selectedChoice = currentLine.choices[choiceIndex];
 
+        dialogueUI.ClearChoices();
+        isWaitingForChoice = false;
+
         // 여기서 선택지 이벤트 처리(있는 경우)도 할 수 있습니다.
         // 예: foreach(EventInfo evt in selectedChoice.events) { ProcessEvent(evt); }
 

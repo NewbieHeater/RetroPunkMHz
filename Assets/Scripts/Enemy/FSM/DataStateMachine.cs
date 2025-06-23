@@ -23,7 +23,7 @@ public class DataStateMachine<TSelf>
     public void UpdateState()
     {
         foreach (var t in _transitions)
-            if ((t.From == _currentKey || (t.From == State.ANY && t.From == t.To)) && t.Condition())
+            if ((t.From == _currentKey || (t.From == State.ANY && _currentKey != t.To)) && t.Condition())
                 ChangeState(t.To);
         _currentState.OperateUpdate();
     }

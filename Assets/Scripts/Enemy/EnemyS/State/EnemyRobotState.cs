@@ -509,7 +509,8 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            
+            enemy.isDead = true;
+            enemy.agent.enabled = false;
         }
 
         public override void OperateUpdate()

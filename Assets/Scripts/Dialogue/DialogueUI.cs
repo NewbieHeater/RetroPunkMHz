@@ -78,7 +78,7 @@ public class DialogueUI : MonoBehaviour
                 }
             }
             // 화자가 오른쪽 프로필일 경우
-            else if (speakerProfile.id == "Guard")
+            else if (speakerProfile.id != "Eto")
             {
                 rightPortrait.gameObject.SetActive(true);
                 rightPortrait.sprite = speakerProfile.GetSprite(expressionKey);

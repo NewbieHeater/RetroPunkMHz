@@ -28,29 +28,36 @@ public class CameraFollow : MonoBehaviour
     private float groundY;        // 마지막 착지 높이(월드 Y)
     private float currentX, currentY;
     private Vector2 velocity;     // SmoothDamp용 벡터 (x, y)
+    private bool Smashing = false;
 
     void Start()
     {
         if (player == null)
             player = GameManager.Instance.player.transform;
 
-        movementController = player.GetComponent<MovementController>();
-        playerMovement = player.GetComponent<PlayerManagement>();
-        playerRb = player.GetComponent<Rigidbody>();
+        movementController  =   player.GetComponent<MovementController>();
+        playerMovement      =   player.GetComponent<PlayerManagement>();
+        playerRb            =   player.GetComponent<Rigidbody>();
 
-        wasGrounded = playerMovement.IsGrounded;
-        groundY = player.position.y;
-        currentX = transform.localPosition.x;
-        currentY = transform.localPosition.y;
+        wasGrounded =   playerMovement.IsGrounded;
+        groundY     =   player.position.y;
+        currentX    =   transform.localPosition.x;
+        currentY    =   transform.localPosition.y;
     }
 
     void LateUpdate()
     {
-        bool grounded = playerMovement.IsGrounded;
-        float input = movementController.inputX;
-        float vertVel = playerRb.velocity.y;
-        bool isRising = !grounded && vertVel > 0f;
-        bool isFalling = !grounded && vertVel < 0f;
+        if (Smashing)
+        {
+            ActivateSmashSystem();
+            return;
+        }
+        #region ModifyCamera
+        bool grounded   = playerMovement.IsGrounded;
+        float input     = movementController.inputX;
+        float vertVel   = playerRb.velocity.y;
+        bool isRising   = !grounded && vertVel > 0f;
+        bool isFalling  = !grounded && vertVel < 0f;
 
         // — 착지 직후
         if (!wasGrounded && grounded)
@@ -115,5 +122,11 @@ public class CameraFollow : MonoBehaviour
         transform.localPosition = new Vector3(
             currentX, currentY, transform.localPosition.z
         );
+        #endregion
+    }
+
+    private void ActivateSmashSystem()
+    {
+
     }
 }
