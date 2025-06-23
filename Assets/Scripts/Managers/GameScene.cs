@@ -12,7 +12,7 @@ public class GameScene : MonoBehaviour
     }
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.T))
         {
             ChannelUIObject.SetActive(!ChannelUIObject.activeSelf);
         }

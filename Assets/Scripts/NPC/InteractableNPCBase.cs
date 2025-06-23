@@ -56,7 +56,9 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
 
     protected void Update()
     {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
+        if (isPlayerInRange
+        && Input.GetKeyDown(KeyCode.E)
+        && !DialogueManager.Instance.IsDialogueActive)
         {
             interactionHintUI.SetActive(false);
             Interact();

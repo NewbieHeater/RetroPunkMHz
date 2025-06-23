@@ -16,6 +16,7 @@ public class DialogueManager : MonoBehaviour
     private bool isAuto = false;
     private bool isWaitingForChoice = false;
     private bool isDialogueActive = false;
+    public bool IsDialogueActive => isDialogueActive;
     private bool isWaitingForEvent = false;
     private string eventResumeNodeId = null;
 
@@ -51,6 +52,8 @@ public class DialogueManager : MonoBehaviour
     // fileName: JSON 파일 리소스 경로 (확장자 없이), groupName: "Quest1", "Quest2", "Normal" 등
     public void StartDialogue(string fileName, string groupName)
     {
+        if (isDialogueActive) return;
+        isDialogueActive = true;
         dialogueUI.InitCharacters();
         // JSON 파일을 로드하고, 지정한 그룹의 대화 데이터를 가져옴
         if (dialogueLoader.LoadDialogueData(fileName))
