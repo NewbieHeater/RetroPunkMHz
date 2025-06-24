@@ -5378,7 +5378,7 @@ GameObject:
   - component: {fileID: 1187366670}
   - component: {fileID: 1187366674}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: DialogueCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8850,6 +8850,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1187366673}
+  - {fileID: 281182944}
   - {fileID: 1374260335}
   - {fileID: 508776098}
   - {fileID: 1725580494}
@@ -8861,4 +8862,3 @@ SceneRoots:
   - {fileID: 9168394672882995917}
   - {fileID: 229581117}
   - {fileID: 1709790597}
-  - {fileID: 281182944}
