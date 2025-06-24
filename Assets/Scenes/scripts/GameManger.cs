@@ -14,20 +14,38 @@ public class GameManger : MonoBehaviour
     private int playerScore;
 
     private int computerScore;
-
+    private string ScoreChar = "Win";
     public void PlayerScores()
     {
         playerScore++;
-        this.playerScoreText.text = playerScore.ToString();
-        ResetRound();
+        if(playerScore > 4) // 5점내기
+        {
+            this.playerScoreText.text = ScoreChar.ToString();
+            GameEnd();
+        }
+        else
+        {
+            this.playerScoreText.text = playerScore.ToString();
+            ResetRound();
+        }
+            
     }
 
     public void ComputerScores()
     {
-
+        
         computerScore++;
-        this.computerScoreText.text = computerScore.ToString();
-        ResetRound();
+        if (computerScore > 4) // 5점내기
+        {
+            this.playerScoreText.text = ScoreChar.ToString();
+            GameEnd();
+        }
+        else
+        {
+            this.computerScoreText.text = computerScore.ToString();
+            ResetRound();
+        }
+            
     }
     private void ResetRound()
     {
@@ -45,6 +63,13 @@ public class GameManger : MonoBehaviour
         computerScore =0;
         this.computerScoreText.text = computerScore.ToString();
         ResetRound();
+    }
+
+    private void GameEnd()
+    {
+        this.playerPaddle.ResetPosition();
+        this.computerPaddle.ResetPosition();
+        this.ball.ResetPosition();
     }
 }
    
