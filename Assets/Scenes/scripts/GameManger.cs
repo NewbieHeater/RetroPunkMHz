@@ -14,13 +14,15 @@ public class GameManger : MonoBehaviour
     private int playerScore;
 
     private int computerScore;
-    private string ScoreChar = "Win";
+    private string ScoreChar = "W i n";
+    private string ScoreLose = "L o s e";
     public void PlayerScores()
     {
         playerScore++;
         if(playerScore > 4) // 5점내기
         {
             this.playerScoreText.text = ScoreChar.ToString();
+            this.computerScoreText.text = ScoreLose.ToString();
             GameEnd();
         }
         else
@@ -37,7 +39,8 @@ public class GameManger : MonoBehaviour
         computerScore++;
         if (computerScore > 4) // 5점내기
         {
-            this.playerScoreText.text = ScoreChar.ToString();
+            this.computerScoreText.text = ScoreChar.ToString();
+            this.playerScoreText.text = ScoreLose.ToString();
             GameEnd();
         }
         else
