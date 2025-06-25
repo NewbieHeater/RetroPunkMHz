@@ -47,7 +47,7 @@ public class menuManager : MonoBehaviour
         scrollRect.horizontalNormalizedPosition = Mathf.Lerp(
             scrollRect.horizontalNormalizedPosition,
             targetPos,
-            Time.deltaTime * transitionSpeed
+            dt * transitionSpeed
         );
     }
 
