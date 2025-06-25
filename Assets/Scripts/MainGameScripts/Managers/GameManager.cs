@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
             Destroy(this.gameObject);
         }
 
-        
+        Paused = false;
     }
     public static GameManager Instance
     {
@@ -36,10 +36,32 @@ public class GameManager : MonoBehaviour
     }
 
     public PlayerManagement player;
+
+
+
+    private static bool paused = false;
+    public static bool Paused
+    {
+        get => paused;
+        set
+        {
+            paused = value;
+            Time.timeScale = value ? 0 : 1;
+        }
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindPlayer();
+        paused = false;
+        Time.timeScale = 1;
     }
+
+    public void GamePause()
+    {
+        Paused = !Paused;
+    }
+
     private void FindPlayer()
     {
         var go = GameObject.FindWithTag("Player");
