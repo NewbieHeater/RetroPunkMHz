@@ -43,6 +43,7 @@ public class CameraFollow : MonoBehaviour
         groundY     =   player.position.y;
         currentX    =   transform.localPosition.x;
         currentY    =   transform.localPosition.y;
+        velocity = Vector2.zero;
     }
 
     void LateUpdate()

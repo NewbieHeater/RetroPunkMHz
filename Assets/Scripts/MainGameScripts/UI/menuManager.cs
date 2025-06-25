@@ -19,25 +19,23 @@ public class menuManager : MonoBehaviour
     public RectTransform panel;
     public Vector2 hiddenPos;  // 숨겨진 위치 (위로)
     public Vector2 shownPos;     // 보이는 위치
-    public Vector2 verticalTartgetPos;
+    public Vector2 verticalTargetPos;
 
     private void Start()
     {
         panel.anchoredPosition = hiddenPos;
         active = false;
-        verticalTartgetPos = hiddenPos;
+        verticalTargetPos = hiddenPos;
         targetPos = (float)currentPage / (totalPages - 1);
     }
 
     void Update()
     {
         if (Input.GetKeyDown(activationKey))
-        {
-            active = !active;
-            verticalTartgetPos = active ? shownPos : hiddenPos;
-        }
+            ToggleMenu();
 
-        panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, verticalTartgetPos, Time.deltaTime * transitionSpeed);
+        float dt = Time.unscaledDeltaTime;
+        panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, verticalTargetPos, dt * transitionSpeed);
 
         if (!active) return;
 
@@ -58,5 +56,22 @@ public class menuManager : MonoBehaviour
         Debug.Log("kb hit");
         currentPage = Mathf.Clamp(pageIndex, 0, totalPages - 1);
         targetPos = (float)currentPage / (totalPages - 1); // 0.0 ~ 1.0 사이 값
+    }
+
+    void ToggleMenu()
+    {
+        active = !active;
+        verticalTargetPos = active ? shownPos : hiddenPos;
+
+        if (active)
+        {
+            GameManager.Instance.GamePause();
+            AudioListener.pause = true;     // 선택 사항: 오디오 일시정지
+        }
+        else
+        {
+            GameManager.Instance.GamePause();
+            AudioListener.pause = false;
+        }
     }
 }
