@@ -43,12 +43,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 180
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -69,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -121,7 +121,49 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: IMG_1527_9
+      rect:
+        serializedVersion: 2
+        x: 2864
+        y: 486
+        width: 812
+        height: 1337
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 72b8d359eb332f8458ffefce2a5d5ffe
+      internalID: 159453590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: IMG_1527_0
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 931
+        width: 731
+        height: 1017
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 57edc645765e2ed4aac8c7df06a1b8c0
+      internalID: 172975581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +174,25 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      IMG_1527_0: 172975581
+      IMG_1527_1: -138345540
+      IMG_1527_10: 1256625163
+      IMG_1527_11: 1829844079
+      IMG_1527_12: -159524915
+      IMG_1527_13: 138004629
+      IMG_1527_14: -101948398
+      IMG_1527_15: 1049741740
+      IMG_1527_16: 645370927
+      IMG_1527_17: 1227944564
+      IMG_1527_2: 1413152564
+      IMG_1527_3: 1704356546
+      IMG_1527_4: -638033804
+      IMG_1527_5: -982706053
+      IMG_1527_6: -136894489
+      IMG_1527_7: -1324632081
+      IMG_1527_8: -1913380439
+      IMG_1527_9: 159453590
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

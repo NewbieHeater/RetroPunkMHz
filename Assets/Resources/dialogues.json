@@ -9,24 +9,37 @@
           "nameTag": "성문 경비병",
           "sprite": "neutral",
           "text": "퀘스트 1, 인삿말입니다.",
-          "next": "2",
+          "next": "",
           "eventKey": "",
-          "choices": null
+          "choices": [
+            {
+              "choiceText": "마을로 간다",
+              "next": "2",
+              "events": [
+              ]
+            },
+            {
+              "choiceText": "숲으로 간다",
+              "next": "3",
+              "events": []
+            }
+          ]
+
         },
         {
           "id": "2",
           "speaker": "Eto",
           "nameTag": "Eto",
-          "sprite": "neutral",
-          "text": "퀘스트 1, 내용 전달입니다.",
+          "sprite": "surprise",
+          "text": "그게 무슨소리야!!",
           "next": "3",
           "eventKey": "",
           "choices": null
         },
         {
           "id": "3",
-          "speaker": "Guard",
-          "nameTag": "성문 경비병",
+          "speaker": "ai",
+          "nameTag": "ai",
           "sprite": "neutral",
           "text": "퀘스트 1, 인삿말",
           "next": "4",
