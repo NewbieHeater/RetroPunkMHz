@@ -177,7 +177,7 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
         rigid.isKinematic = false;
         rigid.useGravity = true;
         rigid.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        rigid.AddForce(direction.normalized * force , ForceMode.Impulse);
+        rigid.AddForce(direction.normalized * force / 1.3f , ForceMode.Impulse);
 
         explodeOnWall = true;
     }

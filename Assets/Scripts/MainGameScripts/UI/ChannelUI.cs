@@ -37,6 +37,8 @@ public class ChannelUI : MonoBehaviour
         SliderSetting(amplitudeSlider);
         SliderSetting(periodSlider);
         SliderSetting(waveformSlider);
+
+        RefreshUI();
     }
 
     private void SliderSetting(Slider slider)
