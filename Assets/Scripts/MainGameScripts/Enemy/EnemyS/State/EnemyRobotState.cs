@@ -190,7 +190,7 @@ namespace EnemyRobotState
         {
             yield return new WaitForSeconds(2f);
             enemyRigid.velocity = Vector3.zero;
-            enemyCap.enabled = false;
+            //enemyCap.enabled = false;
             agent.enabled = true;
             agent.updatePosition = true;
             agent.isStopped = false;
