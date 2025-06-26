@@ -50,10 +50,20 @@
         },
         {
           "id": "22",
+          "speaker": "ai",
+          "nameTag": "동네 친구2",
+          "sprite": "neutral",
+          "text": "잡아먹히지 않게 조심하라고",
+          "next": "23",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "23",
           "speaker": "Eto",
           "nameTag": "Eto",
           "sprite": "surprise",
-          "text": "그게 무슨소리야!!",
+          "text": "소름돋게 그게 무슨소리야!!",
           "next": "end",
           "eventKey": "",
           "choices": null

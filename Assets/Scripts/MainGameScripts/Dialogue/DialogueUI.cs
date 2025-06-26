@@ -6,13 +6,14 @@ using TMPro;
 public class DialogueUI : MonoBehaviour
 {
     // Unity 에디터에서 할당해야 하는 UI 참조들
-    public GameObject dialoguePanel;   // 대화 전체 패널 (배경 패널 등)
-    public TextMeshProUGUI leftNameText;              // 화자 이름 표시 Text
-    public TextMeshProUGUI dialogueText;          // 대사 내용 표시 Text (타이핑 대상)
-    public Image leftPortrait;         // 좌측 캐릭터 초상화 이미지
-    public Image rightPortrait;        // 우측 캐릭터 초상화 이미지
-    public Transform choiceContainer;  // 선택지 버튼들을 담는 컨테이너 (예: Vertical Layout Group)
-    public Button choiceButtonPrefab;  // 선택지 버튼 프리팹 (미리 설정해둔 UI Button)
+    [SerializeField] private GameObject dialoguePanel;   // 대화 전체 패널 (배경 패널 등)
+    [SerializeField] private TextMeshProUGUI leftNameText;              // 화자 이름 표시 Text
+    [SerializeField] private TextMeshProUGUI dialogueText;          // 대사 내용 표시 Text (타이핑 대상)
+    [SerializeField] private Image leftPortrait;         // 좌측 캐릭터 초상화 이미지
+    [SerializeField] private Image rightPortrait;        // 우측 캐릭터 초상화 이미지
+    [SerializeField] private Transform choiceContainer;  // 선택지 버튼들을 담는 컨테이너 (예: Vertical Layout Group)
+    [SerializeField] private Button choiceButtonPrefab;  // 선택지 버튼 프리팹 (미리 설정해둔 UI Button)
+    [SerializeField] private float delay = 0.03f;
 
     private CharacterProfile leftProfile;
     private CharacterProfile rightProfile;
@@ -122,7 +123,6 @@ public class DialogueUI : MonoBehaviour
     private IEnumerator TypeText(string content)
     {
         isTypingText = true;
-        float delay = 0.03f;  // 글자 출력 딜레이 (필요에 따라 조정)
         for (int i = 0; i < content.Length; i++)
         {
             if (dialogueText != null)

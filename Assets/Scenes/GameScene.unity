@@ -2279,7 +2279,7 @@ Transform:
   m_GameObject: {fileID: 500050554}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.7, y: 4.27, z: 0}
+  m_LocalPosition: {x: -0.7, y: 5.47, z: 0}
   m_LocalScale: {x: 6, y: 1, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3519,6 +3519,7 @@ MonoBehaviour:
   rightPortrait: {fileID: 1116701357}
   choiceContainer: {fileID: 379082685}
   choiceButtonPrefab: {fileID: 3818170992955329435, guid: 2b8dc8b1ab236cb44b651aabc8fa9908, type: 3}
+  delay: 0.03
 --- !u!114 &812274442
 MonoBehaviour:
   m_ObjectHideFlags: 0
