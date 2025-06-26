@@ -56,19 +56,27 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
 
     protected void Update()
     {
-        if (isPlayerInRange
-        && Input.GetKeyDown(KeyCode.F)
-        && !DialogueManager.Instance.IsDialogueActive)
+        bool inRange = isPlayerInRange;
+        bool isTalking = DialogueManager.Instance.IsDialogueActive;
+
+        if (inRange && !isTalking)
         {
-            if (interactionHintUI != null)
-                interactionHintUI.SetActive(false);
-            Interact();
-        }
-        if (isPlayerInRange
-        && !DialogueManager.Instance.IsDialogueActive)
-        {
-            if (interactionHintUI != null)
+            // 범위 안·대화 중 아님 → 힌트 보이기
+            if (interactionHintUI != null && !interactionHintUI.activeSelf)
                 interactionHintUI.SetActive(true);
+
+            // 키 입력 시 대화 시작
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                interactionHintUI.SetActive(false);
+                Interact();
+            }
+        }
+        else
+        {
+            // 대화 중이거나 범위 벗어남 → 힌트 숨기기
+            if (interactionHintUI != null && interactionHintUI.activeSelf)
+                interactionHintUI.SetActive(false);
         }
     }
 }
