@@ -15,7 +15,7 @@ public class UISpriteSheetAnimator : MonoBehaviour
         if (sprites == null || sprites.Length == 0 || targetImage == null)
             return;
 
-        timer += Time.deltaTime;
+        timer += Time.unscaledDeltaTime;
 
         if (timer >= 1f / frameRate)
         {
