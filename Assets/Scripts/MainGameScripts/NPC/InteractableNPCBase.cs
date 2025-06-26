@@ -33,8 +33,8 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
         {
             isPlayerInRange = true;
             // 힌트 UI 표시
-            if (interactionHintUI != null)
-                interactionHintUI.SetActive(true);
+            //if (interactionHintUI != null)
+            //    interactionHintUI.SetActive(true);
             interactionHintUI.GetComponentInChildren<TextMeshProUGUI>().text = GetInteractPrompt();
             // 플레이어에게 자신을 현재 대상로 설정하도록 알림
 
@@ -47,8 +47,8 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
         {
             isPlayerInRange = false;
             // 힌트 UI 숨기기
-            if (interactionHintUI != null)
-                interactionHintUI.SetActive(false);
+            //if (interactionHintUI != null)
+            //    interactionHintUI.SetActive(false);
             // 플레이어 현재 상호작용 대상 해제
 
         }
@@ -60,8 +60,15 @@ public abstract class InteractableNPCBase : MonoBehaviour, IInteractable
         && Input.GetKeyDown(KeyCode.F)
         && !DialogueManager.Instance.IsDialogueActive)
         {
-            interactionHintUI.SetActive(false);
+            if (interactionHintUI != null)
+                interactionHintUI.SetActive(false);
             Interact();
+        }
+        if (isPlayerInRange
+        && !DialogueManager.Instance.IsDialogueActive)
+        {
+            if (interactionHintUI != null)
+                interactionHintUI.SetActive(true);
         }
     }
 }

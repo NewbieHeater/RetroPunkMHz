@@ -20,6 +20,10 @@ public class DialogueUI : MonoBehaviour
     private Coroutine typingCoroutine;      // 진행 중인 타이핑 코루틴
     private string currentTypedContent;     // 현재 타이핑 효과로 출력할 전체 문자열
 
+    private void Start()
+    {
+        //InitCharacters();
+    }
 
     // 대화 패널 활성/비활성화
     public void ShowDialoguePanel(bool show)
@@ -35,16 +39,15 @@ public class DialogueUI : MonoBehaviour
     public void InitCharacters()
     {
 
-        leftPortrait.sprite = null;
+        leftPortrait.sprite = CharacterProfileManager.Instance.GetProfile("Eto").GetSprite("netural");
         leftPortrait.color = Color.gray; // 초기엔 비활성 (화자가 나올 때 업데이트)
-        leftPortrait.gameObject.SetActive(false);
+        leftPortrait.gameObject.SetActive(true);
 
         rightPortrait.sprite = null;
-        // 우측 캐릭터가 없는 경우 이미지 숨김
         rightPortrait.gameObject.SetActive(rightProfile != null);
         if (rightProfile != null)
             rightPortrait.color = Color.gray;
-        rightPortrait.gameObject.SetActive(false);
+        rightPortrait.gameObject.SetActive(true);
         // 이름 텍스트 초기화
         if (leftNameText != null)
             leftNameText.text = "";
@@ -164,7 +167,7 @@ public class DialogueUI : MonoBehaviour
             if (choice == null || string.IsNullOrEmpty(choice.choiceText))
                 continue;
             Button choiceButton = Instantiate(choiceButtonPrefab, choiceContainer);
-            Text buttonText = choiceButton.GetComponentInChildren<Text>();
+            TextMeshProUGUI buttonText = choiceButton.GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
                 buttonText.text = choice.choiceText;
             int index = i;
