@@ -31,6 +31,16 @@ public class MovementController : MonoBehaviour
     {
         shift = Input.GetKey(KeyCode.LeftShift);
         inputX = Input.GetAxisRaw("Horizontal");
+
+        if(inputX == 0)
+        {
+            rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+        }
+        else
+        {
+            rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+        }
+
         float dt = Time.fixedDeltaTime;
         float speed = shift ? maxRunSpeed : maxWalkSpeed;
         float targetVx = inputX * speed;
@@ -43,8 +53,9 @@ public class MovementController : MonoBehaviour
         if (isOnSlope)
         {
             Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundHit.normal).normalized;
-            Debug.Log(slopeDir);
-            newVelocity = slopeDir * newVx;
+            float multi = 1f / slopeDir.x;
+            Debug.Log(slopeDir * multi);
+            newVelocity = slopeDir * newVx * multi;
             //rb.velocity = newVelocity;
         }
         else
