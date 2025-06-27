@@ -27,7 +27,7 @@ namespace EnemyRobotState
             enemyRigid = monster.rigid;
             enemyCap = monster.cap;
 
-            // ÀÎµ¦½º ÃÊ±â°ª ¼³Á¤
+            // ì¸ë±ìŠ¤ ì´ˆê¸°ê°’ ì„¤ì •
             patrolIndex = 0;
             isWaiting = false;
             isGoingForward = true;
@@ -40,7 +40,7 @@ namespace EnemyRobotState
             agent.isStopped = false;
             agent.speed = patrolSpeed;
 
-            // Æ÷ÀÎÆ®°¡ 1°³ ÀÌÇÏ¶ó¸é ¹Ù·Î ÀÌµ¿ ÈÄ ¸ØÃã ÇÃ·¡±× ÁØºñ
+            // í¬ì¸íŠ¸ê°€ 1ê°œ ì´í•˜ë¼ë©´ ë°”ë¡œ ì´ë™ í›„ ë©ˆì¶¤ í”Œë˜ê·¸ ì¤€ë¹„
             if (enemy.patrolPoints == null || enemy.patrolPoints.Length <= 1)
             {
                 if (enemy.patrolPoints != null && enemy.patrolPoints.Length == 1)
@@ -49,7 +49,7 @@ namespace EnemyRobotState
                 return;
             }
 
-            // ±âÁ¸ ¼øÂû ½ÃÀÛ ·ÎÁ÷
+            // ê¸°ì¡´ ìˆœì°° ì‹œì‘ ë¡œì§
             if (!agent.hasPath)
                 agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
         }
@@ -57,16 +57,16 @@ namespace EnemyRobotState
 
         public override void OperateUpdate()
         {
-            // Æ÷ÀÎÆ®°¡ 0°³¸é ¾Æ¹« °Íµµ ¾È ÇÔ
+            // í¬ì¸íŠ¸ê°€ 0ê°œë©´ ì•„ë¬´ ê²ƒë„ ì•ˆ í•¨
             if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0 || stop == true)
                 return;
 
-            // Æ÷ÀÎÆ®°¡ 1°³ÀÏ ¶§: ¸ñÀûÁö¿¡ µµÂøÇÏ¸é ¸ØÃã ÇÃ·¡±× ¼Â
+            // í¬ì¸íŠ¸ê°€ 1ê°œì¼ ë•Œ: ëª©ì ì§€ì— ë„ì°©í•˜ë©´ ë©ˆì¶¤ í”Œë˜ê·¸ ì…‹
             if (enemy.patrolPoints.Length == 1)
             {
                 if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
                 {
-                    // ¸ØÃã »óÅÂ·Î ÀüÈ¯
+                    // ë©ˆì¶¤ ìƒíƒœë¡œ ì „í™˜
                     enemy.stop = true;
                     agent.isStopped = true;
                     enemy.ChangeState(State.Idle);
@@ -75,7 +75,7 @@ namespace EnemyRobotState
             }
 
 
-            // ´ë±â Ã³¸®
+            // ëŒ€ê¸° ì²˜ë¦¬
             if (isWaiting)
             {
                 if (Time.time - waitStartTime >= enemy.patrolPoints[patrolIndex].dwellTime)
@@ -87,13 +87,13 @@ namespace EnemyRobotState
             }
             else
             {
-                // µµÂø ÆÇÁ¤ (XÃà ±ÙÁ¢ ±âÁØ)
+                // ë„ì°© íŒì • (Xì¶• ê·¼ì ‘ ê¸°ì¤€)
                 if (
                     Mathf.Abs(enemy.patrolPoints[patrolIndex].point.position.x - transform.position.x) < 0.05f)
                 {
                     agent.ResetPath();
                     agent.velocity = Vector3.zero;
-                    // Á¡ÇÁ ·ÎÁ÷
+                    // ì í”„ ë¡œì§
                     if (enemy.patrolPoints[patrolIndex].needJump && isGoingForward)
                     {
                         Debug.Log("Jum[p");
@@ -117,7 +117,7 @@ namespace EnemyRobotState
                     }
                     else
                     {
-                        // ´ë±â or Áï½Ã ÀÌµ¿
+                        // ëŒ€ê¸° or ì¦‰ì‹œ ì´ë™
                         if (enemy.patrolPoints[patrolIndex].dwellTime > 0f)
                         {
                             isWaiting = true;
@@ -137,7 +137,7 @@ namespace EnemyRobotState
             int len = enemy.patrolPoints.Length;
             if (len <= 1)
             {
-                // Æ÷ÀÎÆ®°¡ 0°³ÀÌ°Å³ª 1°³ »ÓÀÌ¶ó¸é ¼øÂû ·ÎÁ÷À» ¼öÇàÇÏÁö ¾ÊÀ½
+                // í¬ì¸íŠ¸ê°€ 0ê°œì´ê±°ë‚˜ 1ê°œ ë¿ì´ë¼ë©´ ìˆœì°° ë¡œì§ì„ ìˆ˜í–‰í•˜ì§€ ì•ŠìŒ
                 patrolIndex = 0;
                 isWaiting = false;
                 return;
@@ -170,7 +170,7 @@ namespace EnemyRobotState
             Debug.Log(patrolIndex);
         }
 
-        // ¹ß»ç º§·Î½ÃÆ¼ °è»ê
+        // ë°œì‚¬ ë²¨ë¡œì‹œí‹° ê³„ì‚°
         Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
         {
             float g = Physics.gravity.y;
@@ -185,7 +185,7 @@ namespace EnemyRobotState
             return vHoriz + Vector3.up * vUp;
         }
         bool stop;
-        // Á¡ÇÁ ÈÄ º¹±Í
+        // ì í”„ í›„ ë³µê·€
         IEnumerator ResumeAfterJump(Vector3 resumePos)
         {
             yield return new WaitForSeconds(2f);
@@ -223,14 +223,12 @@ namespace EnemyRobotState
     public class IdleState<TSelf> : BaseState<TSelf>
     where TSelf : EnemyFSMBase<TSelf>
     {
-        private float waitTime = 2;
-        private float curTime = 0;
         public IdleState(TSelf monster) : base(monster) { }
 
         public override void OperateEnter()
         {
             enemy.anime.Play("Idle");
-            curTime = 0;
+            
         }
 
         public override void OperateUpdate()
@@ -240,7 +238,7 @@ namespace EnemyRobotState
 
         public override void OperateExit()
         {
-            curTime = 0;
+           
         }
 
         public override void OperateFixedUpdate() { }
@@ -284,22 +282,22 @@ namespace EnemyRobotState
     {
         enum Phase { Windup, Strike, Cooldown }
 
-        [Header("Å¸ÀÌ¹Ö (ÃÊ)")]
-        public float windupTime = 0.5f;   // ÁØºñ µ¿ÀÛ ½Ã°£
-        public float strikeDuration = 0.8f;   // Å¸°İ ÆÇÁ¤ À¯Áö ½Ã°£
-        public float cooldownTime = 0.9f;   // Äğ´Ù¿î ½Ã°£
+        [Header("íƒ€ì´ë° (ì´ˆ)")]
+        public float windupTime = 0.5f;   // ì¤€ë¹„ ë™ì‘ ì‹œê°„
+        public float strikeDuration = 0.8f;   // íƒ€ê²© íŒì • ìœ ì§€ ì‹œê°„
+        public float cooldownTime = 0.9f;   // ì¿¨ë‹¤ìš´ ì‹œê°„
 
-        [Tooltip("³Ë¹é Èû")]
+        [Tooltip("ë„‰ë°± í˜")]
         public int atkPower = 10;
 
-        [Header("È¸Àü ¼Óµµ (¡Æ/ÃÊ)")]
+        [Header("íšŒì „ ì†ë„ (Â°/ì´ˆ)")]
         public float rotationSpeed = 360f;
 
         private Phase phase;
         private float phaseStart;
-        private bool hasHit;                // ¡ç ÇÑ ¹ø È÷Æ®Çß´ÂÁö Ã¼Å©
+        private bool hasHit;                // â† í•œ ë²ˆ íˆíŠ¸í–ˆëŠ”ì§€ ì²´í¬
 
-        // Ä³½Ì
+        // ìºì‹±
         private Transform transform;
         private Animator animator;
 
@@ -311,7 +309,7 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            // Windup ½ÃÀÛ ½Ã ÃÊ±âÈ­
+            // Windup ì‹œì‘ ì‹œ ì´ˆê¸°í™”
             phase = Phase.Windup;
             phaseStart = Time.time;
             hasHit = false;
@@ -332,7 +330,7 @@ namespace EnemyRobotState
                     break;
 
                 case Phase.Strike:
-                    // ÇÑ ¹ø¸¸ ÆÇÁ¤
+                    // í•œ ë²ˆë§Œ íŒì •
                     if (!hasHit)
                     {
                         enemy.boxCollider.enabled = true;
@@ -340,11 +338,11 @@ namespace EnemyRobotState
                         hasHit = true;
                     }
 
-                    // strikeDuration ÀÌÈÄ Äİ¶óÀÌ´õ ºñÈ°¼ºÈ­
+                    // strikeDuration ì´í›„ ì½œë¼ì´ë” ë¹„í™œì„±í™”
                     if (elapsed >= strikeDuration)
                         enemy.boxCollider.enabled = false;
 
-                    // ¾Ö´Ï¸ŞÀÌ¼Ç ¿Ï·á Ã¼Å©
+                    // ì• ë‹ˆë©”ì´ì…˜ ì™„ë£Œ ì²´í¬
                     var info = animator.GetCurrentAnimatorStateInfo(0);
                     if (info.IsName("Attack") && info.normalizedTime >= 1f)
                         EnterCooldown();
@@ -352,7 +350,7 @@ namespace EnemyRobotState
 
                 case Phase.Cooldown:
                     if (elapsed >= cooldownTime)
-                        OperateEnter();  // ´Ù½Ã Windup ½ÃÀÛ
+                        OperateEnter();  // ë‹¤ì‹œ Windup ì‹œì‘
                     break;
             }
         }
@@ -365,7 +363,7 @@ namespace EnemyRobotState
 
         public override void OperateFixedUpdate() { }
 
-        // ÇÃ·¹ÀÌ¾î ¹æÇâÀ¸·Î ºÎµå·´°Ô È¸Àü
+        // í”Œë ˆì´ì–´ ë°©í–¥ìœ¼ë¡œ ë¶€ë“œëŸ½ê²Œ íšŒì „
         private void RotateTowardPlayer()
         {
             Vector3 dir = (enemy.player.transform.position - transform.position).normalized;
@@ -382,7 +380,7 @@ namespace EnemyRobotState
             transform.eulerAngles = new Vector3(e.x, newY, e.z);
         }
 
-        // Strike ´Ü°è ÁøÀÔ
+        // Strike ë‹¨ê³„ ì§„ì…
         private void EnterStrike()
         {
             phase = Phase.Strike;
@@ -391,7 +389,7 @@ namespace EnemyRobotState
             animator.CrossFade("Attack", 0.1f);
         }
 
-        // Cooldown ´Ü°è ÁøÀÔ
+        // Cooldown ë‹¨ê³„ ì§„ì…
         private void EnterCooldown()
         {
             phase = Phase.Cooldown;
@@ -407,17 +405,17 @@ namespace EnemyRobotState
         protected Transform transform;
         enum Phase { Windup, Strike, Cooldown }
 
-        [Tooltip("°ø°İ ÁØºñ ½Ã°£")]
+        [Tooltip("ê³µê²© ì¤€ë¹„ ì‹œê°„")]
         public float windupTime = 0.5f;
-        [Tooltip("°ø°İ µ¿ÀÛ ½Ã°£")]
+        [Tooltip("ê³µê²© ë™ì‘ ì‹œê°„")]
         public float strikeTime = 1f;
-        [Tooltip("Äğ´Ù¿î ½Ã°£")]
+        [Tooltip("ì¿¨ë‹¤ìš´ ì‹œê°„")]
         public float cooldownTime = 0.4f;
 
-        [Header("È¸Àü ¼Óµµ (¡Æ/ÃÊ)")]
+        [Header("íšŒì „ ì†ë„ (Â°/ì´ˆ)")]
         public float rotationSpeed = 360f;
 
-        [Header("¹ß»çÃ¼")]
+        [Header("ë°œì‚¬ì²´")]
         public GameObject bullet;
 
         Rigidbody rigidb;
@@ -454,25 +452,25 @@ namespace EnemyRobotState
                     var euler = transform.eulerAngles;
                     transform.eulerAngles = new Vector3(euler.x, newY, euler.z);
 
-                    // 2) ÁØºñ ½Ã°£ °æ°ú ½Ã Strike·Î ÀüÈ¯
+                    // 2) ì¤€ë¹„ ì‹œê°„ ê²½ê³¼ ì‹œ Strikeë¡œ ì „í™˜
                     if (timer <= 0f)
                     {
                         phase = Phase.Strike;
                         timer = strikeTime;
                         hasFired = false;
-                        // °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı
+                        // ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
                         enemy.anime.CrossFade("Attack", 0.1f);
                     }
                     break;
 
                 case Phase.Strike:
-                    // 1) ¾ÆÁ÷ ¹ß»çÇÏÁö ¾Ê¾Ò´Ù¸é Áï½Ã ¹ß»ç
+                    // 1) ì•„ì§ ë°œì‚¬í•˜ì§€ ì•Šì•˜ë‹¤ë©´ ì¦‰ì‹œ ë°œì‚¬
                     if (!hasFired)
                     {
                         enemy.Fire();
                         hasFired = true;
                     }
-                    // 2) strikeTime °æ°ú ½Ã CooldownÀ¸·Î ÀüÈ¯
+                    // 2) strikeTime ê²½ê³¼ ì‹œ Cooldownìœ¼ë¡œ ì „í™˜
                     if (timer <= 0f)
                     {
                         phase = Phase.Cooldown;
@@ -482,7 +480,7 @@ namespace EnemyRobotState
                     break;
 
                 case Phase.Cooldown:
-                    // ÄğÅ¸ÀÓ ³¡³ª¸é ´Ù½Ã Windup
+                    // ì¿¨íƒ€ì„ ëë‚˜ë©´ ë‹¤ì‹œ Windup
                     if (timer <= 0f)
                     {
                         phase = Phase.Windup;
