@@ -24,9 +24,7 @@ public struct PatrolPoint
     public float jumpPower;
 }
 
-public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
-    IAttackable, IExplosionInteract
-    where TSelf : EnemyFSMBase<TSelf>
+public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInteract
 {
     public bool stop;
     [Header("Ω∫≈» º≥¡§")]
@@ -71,9 +69,9 @@ public abstract class EnemyFSMBase<TSelf> : MonoBehaviour,
 
     public State CurrentState { get; protected set; }
 
-    protected DataStateMachine<TSelf> fsm;
-    protected Dictionary<State, BaseState<TSelf>> stateMap;
-    protected List<StateTransition<TSelf>> transitions;
+    protected DataStateMachine fsm;
+    protected Dictionary<State, BaseState> stateMap;
+    protected List<StateTransition> transitions;
 
     public PlayerManagement player;
 

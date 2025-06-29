@@ -8,6 +8,16 @@
           "speaker": "Guard",
           "nameTag": "동네 친구",
           "sprite": "neutral",
+          "text": "조심히 들어가.",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Guard",
+          "nameTag": "동네 친구",
+          "sprite": "neutral",
           "text": "어디가?",
           "next": "",
           "eventKey": "",

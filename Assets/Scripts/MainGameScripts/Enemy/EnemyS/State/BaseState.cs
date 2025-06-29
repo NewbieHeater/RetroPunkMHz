@@ -1,11 +1,15 @@
-public abstract class BaseState<TSelf>
-    where TSelf : EnemyFSMBase<TSelf>
+public abstract class BaseState
 {
-    protected readonly TSelf enemy;
-    public BaseState(TSelf ctx) => enemy = ctx;
+    protected EnemyFSMBase enemy;
+    protected bool stop;
 
-    public virtual void OperateEnter() { }
-    public virtual void OperateUpdate() { }
-    public virtual void OperateExit() { }
-    public virtual void OperateFixedUpdate() { }
+    public BaseState(EnemyFSMBase enemy)
+    {
+        this.enemy = enemy;
+    }
+
+    public abstract void OperateEnter();
+    public abstract void OperateUpdate();
+    public abstract void OperateExit();
+    public abstract void OperateFixedUpdate();
 }

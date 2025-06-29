@@ -2366,7 +2366,6 @@ GameObject:
   m_Component:
   - component: {fileID: 508776098}
   - component: {fileID: 508776097}
-  - component: {fileID: 508776095}
   - component: {fileID: 508776101}
   - component: {fileID: 508776106}
   - component: {fileID: 508776105}
@@ -2381,59 +2380,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &508776095
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508776094}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a20bd627145efa2429976a87a19ad601, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxSpeed: 3
-  accelerationTime: 0.1
-  decelerationTime: 0.2
-  airControl: 1
-  rotationSpeed: 0.2
-  maxJumpHeight: 4
-  timeToJumpApex: 0.2
-  coyoteTime: 0.1
-  jumpBufferTime: 0.15
-  allowDoubleJump: 0
-  maxAirJumps: 0
-  upwardMovementMultiplier: 1.71
-  downwardMovementMultiplier: 2.48
-  jumpCutOff: 2
-  speedLimit: 15
-  currentlyJumping: 0
-  normalDamage: 10
-  minChargeTime: 0.2
-  maxChargeTime: 1
-  maxChargeDamage: 30
-  attackRange: 2
-  attackRadius: 1
-  groundCheck: {fileID: 875880538}
-  groundCheckDistance: 0.5
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  IsGrounded: 0
-  playerMesh: {fileID: 860096322}
-  velocity: {x: 0, y: 0, z: 0}
-  jumpHeld: 0
-  newGravity: 0
-  maxHp: 100
-  curHp: 0
-  chargeBar: {fileID: 313605542}
-  chargeBarParent: {fileID: 1956644212}
-  ChargedValue: {fileID: 868125773}
-  a: 0
-  checkHeight: 0.1
-  checkRadius: 0.25
-  maxFallDistance: 0.3
 --- !u!54 &508776097
 Rigidbody:
   m_ObjectHideFlags: 0

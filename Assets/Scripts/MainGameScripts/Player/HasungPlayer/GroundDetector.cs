@@ -20,14 +20,6 @@ public class GroundDetector : MonoBehaviour
     }
     [SerializeField] Transform groundCheck;
 
-    //public bool IsGrounded()
-    //{
-    //    Vector3 boxSize = new Vector3(transform.lossyScale.x, 0.4f, transform.lossyScale.z);
-    //    return Physics.CheckBox(groundCheck.position, boxSize, Quaternion.identity, groundLayer);
-    //    //Physics.CheckSphere(origin, checkRadius, groundLayer, QueryTriggerInteraction.Ignore);
-    //}
-
-    // Quaternion.identity는 회전값이 없다는 의미입니다.
     public void UpdateGroundStatus()
     {
         Vector3 origin = transform.position + Vector3.up * checkHeight;
