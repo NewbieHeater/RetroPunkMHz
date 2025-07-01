@@ -51,7 +51,7 @@ public class IKFootPlacement : MonoBehaviour
         
     }
 
-    
+
     //Ray ray1 = new Ray(body.position + (body.right * footSpacing) + body.forward * 0.5f + (body.up), Vector3.down);
     //if (Physics.Raycast(ray1, out RaycastHit hit1, 10, layer))
     //{ 
@@ -73,49 +73,71 @@ public class IKFootPlacement : MonoBehaviour
     //    transform.localPosition = Vector3.up * hipOffset;
     //    //Debug.Log(Mathf.Abs(hit.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y));
     //}
+    float yL = 0f, yR = 0f;
     private void OnAnimatorIK(int layerIndex)
     {
         if (animator == null) return;
-
-        
-
-        // —— 발 IK 설정 —— 
         animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
         animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
         animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
         animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
-
         RaycastHit hit;
-        // 왼발
-        Ray rayL = new Ray(animator.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up * 0.1f, Vector3.down);
-        if (Physics.Raycast(rayL, out hit, DistanceToGround + footRayExtraHeight, layer)
+
+        // —— LEFT FOOT IK ——
+        Vector3 leftFootIKPos = animator.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up * footRayExtraHeight;
+        if (Physics.Raycast(leftFootIKPos, Vector3.down, out hit, DistanceToGround + footRayExtraHeight, layer)
             && hit.transform.CompareTag("Ground"))
         {
+            // 1) 위치 세팅 (기존 로직)
             Vector3 pos = hit.point;
             pos.y += DistanceToGround;
-            Vector3 forward = Vector3.ProjectOnPlane(transform.forward, hit.normal);
-            Quaternion rot = Quaternion.LookRotation(forward, hit.normal);
-
             animator.SetIKPosition(AvatarIKGoal.LeftFoot, pos);
-            animator.SetIKRotation(AvatarIKGoal.LeftFoot, rot);
+
+            // 2) 발 뼈대 원래 회전 & forward 가져오기
+            Transform leftFootBone = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+            Quaternion originalRot = leftFootBone.rotation;
+            Vector3 originalForward = leftFootBone.forward;
+
+            // 3) 원래 forward 를 경사면 평면에 투영
+            Vector3 slopeForward = Vector3.ProjectOnPlane(-originalForward, hit.normal).normalized;
+
+            // 4) 투영된 forward 와 hit.normal 로 회전 만들기
+            Quaternion slopeRot = Quaternion.LookRotation(slopeForward, hit.normal);
+
+            // 5) “경사 틸트”만 적용하고 싶으면 slopeRot 을 그대로, 
+            //    “원래 회전 보존 + 틸트”를 원하면 아래처럼 곱해줍니다:
+            // Quaternion finalRot = slopeRot * Quaternion.Inverse(
+            //     Quaternion.LookRotation(leftFootBone.forward, Vector3.up)
+            // ) * originalRot;
+            animator.SetIKPosition(AvatarIKGoal.LeftFoot, pos);
+            // 여기서는 전자(발이 slopeRot 그대로)를 사용
+            animator.SetIKRotation(AvatarIKGoal.LeftFoot, slopeRot);
+
+            // 토우 회전은 초기값으로 복원
             animator.SetBoneLocalRotation(HumanBodyBones.LeftToes, defaultLeftToeLocalRot);
         }
 
-        // 오른발
-        Ray rayR = new Ray(animator.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up * 0.1f, Vector3.down);
-        if (Physics.Raycast(rayR, out hit, DistanceToGround + footRayExtraHeight, layer)
+        // —— RIGHT FOOT IK ——
+        Vector3 rightFootIKPos = animator.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up * footRayExtraHeight;
+        if (Physics.Raycast(rightFootIKPos, Vector3.down, out hit, DistanceToGround + footRayExtraHeight, layer)
             && hit.transform.CompareTag("Ground"))
         {
             Vector3 pos = hit.point;
             pos.y += DistanceToGround;
-            Vector3 forward = Vector3.ProjectOnPlane(transform.forward, hit.normal);
-            Quaternion rot = Quaternion.LookRotation(forward, hit.normal);
-
             animator.SetIKPosition(AvatarIKGoal.RightFoot, pos);
-            animator.SetIKRotation(AvatarIKGoal.RightFoot, rot);
+
+            Transform rightFootBone = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+            Quaternion originalRot = rightFootBone.rotation;
+            Vector3 originalForward = rightFootBone.forward;
+
+            Vector3 slopeForward = Vector3.ProjectOnPlane(-originalForward, hit.normal).normalized;
+            Quaternion slopeRot = Quaternion.LookRotation(slopeForward, hit.normal);
+            animator.SetIKPosition(AvatarIKGoal.RightFoot, pos);
+            animator.SetIKRotation(AvatarIKGoal.RightFoot, slopeRot);
             animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultRightToeLocalRot);
         }
     }
+
     // —— 머리 LookAt IK 설정 —— 
     //animator.SetLookAtWeight(lookWeight, 0f, 1f, 1f, lookClamp);
     //animator.SetLookAtPosition(target.position);

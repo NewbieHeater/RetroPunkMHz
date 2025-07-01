@@ -32,13 +32,13 @@ public class MovementController : MonoBehaviour
         shift = Input.GetKey(KeyCode.LeftShift);
         inputX = Input.GetAxisRaw("Horizontal");
 
-        if(inputX == 0)
+        if(inputX == 0 && isGrounded && rb.velocity.x == 0)
         {
-            rb.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
+            rb.velocity = new Vector3(0f, 0, 0f);
         }
         else
         {
-            rb.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionZ;
+
         }
 
         float dt = Time.fixedDeltaTime;
@@ -54,17 +54,13 @@ public class MovementController : MonoBehaviour
         {
             Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundHit.normal).normalized;
             float multi = 1f / slopeDir.x;
-            Debug.Log(slopeDir * multi);
             newVelocity = slopeDir * newVx * multi;
             //rb.velocity = newVelocity;
         }
         else
         {
-            //if (wasOnSlope)
-            //    rb.velocity = new Vector3(newVx, -5f, 0f);
-            //else
-            //    newVelocity = new Vector3(newVx, rb.velocity.y, 0f);
-            newVelocity = new Vector3(newVx, rb.velocity.y, 0f);
+            newVelocity = new Vector3(newVx, isGrounded ? 0f : rb.velocity.y, 0f);
+
         }
 
         //if (!isOnSlope)

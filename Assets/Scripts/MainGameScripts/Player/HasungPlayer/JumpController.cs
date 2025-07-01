@@ -26,13 +26,15 @@ public class JumpController : MonoBehaviour
     private bool cutOffApplied;
     private int airJumpsLeft;
     private float inputJump;
-
+    public float gravityValue;
+    private float jumpVelocity;
     public void Initialize(GroundDetector gd)
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
         groundDetector = gd;
         airJumpsLeft = maxAirJumps;
+        gravityValue = (-2f) / (timeToJumpApex * timeToJumpApex);
     }
 
     public void HandleInput()
@@ -64,6 +66,7 @@ public class JumpController : MonoBehaviour
 
         ApplyGravity(isGrounded);
         ApplyPhysicsClamp();
+
     }
 
     private void UpdateCoyoteTimer(bool isGrounded)
@@ -109,10 +112,9 @@ public class JumpController : MonoBehaviour
         desiredJump = false;
         coyoteTimer = 0f;
 
-        float gravityValue = (-2f * maxJumpHeight) / (timeToJumpApex * timeToJumpApex);
-        float jumpVelocity = Mathf.Sqrt(-2f * gravityValue * maxJumpHeight);
+        jumpVelocity = Mathf.Sqrt(-2f * gravityValue * maxJumpHeight);
         rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, 0f);
-
+        gravity = jumpVelocity;
         if (!groundDetector.IsGrounded)
             airJumpsLeft--;
     }
@@ -124,13 +126,20 @@ public class JumpController : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, 0f);
         }
     }
-
+    public float gravity;
     private void ApplyGravity(bool isGrounded)
     {
-        if (isGrounded) return;
-        float gravityValue = (-2f) / (timeToJumpApex * timeToJumpApex);
+        //if (isGrounded) return;
         float multiplier = rb.velocity.y > 0f ? (jumpHeld ? upwardMovementMultiplier : jumpCutOffMultiplier) : downwardMovementMultiplier;
-        rb.AddForce(Vector3.up * gravityValue * multiplier, ForceMode.Acceleration);
+        if(isGrounded)
+        {
+            //rb.AddForce(Vector3.up * gravityValue * multiplier / 3f, ForceMode.Acceleration);
+        }
+        else
+        {
+            rb.AddForce(Vector3.up * gravityValue * multiplier, ForceMode.Acceleration);
+        }
+            
     }
 
     private void ApplyPhysicsClamp()
