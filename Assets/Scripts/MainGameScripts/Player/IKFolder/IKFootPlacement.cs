@@ -19,7 +19,7 @@ public class IKFootPlacement : MonoBehaviour
     private Quaternion defaultLeftToeLocalRot, defaultRightToeLocalRot;
     private float hipOffset, goal, vel;
     private Vector3 footPos;
-
+    private float baseHipHeight;  // 원래 골반 높이 저장
     void Start()
     {
         
@@ -30,11 +30,11 @@ public class IKFootPlacement : MonoBehaviour
         defaultRightToeLocalRot = animator.GetBoneTransform(HumanBodyBones.RightToes).localRotation;
 
         // 머리 본도 추출해두면 직접 제어 가능 (필요 시)
-        
 
-        // 힙 오프셋 초기화
-        hipOffset = transform.localPosition.y;
-        goal = hipOffset;
+
+        baseHipHeight = transform.localPosition.y;
+        hipOffset = baseHipHeight;
+        goal = baseHipHeight;
         vel = 1f;
 
         // 초기 왼발 위치
@@ -47,7 +47,7 @@ public class IKFootPlacement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.K)) goal = hipOffset - 0.1f;
         if (Input.GetKeyDown(KeyCode.L)) goal = hipOffset + 0.1f;
         hipOffset = Mathf.SmoothDamp(hipOffset, goal, ref vel, 0.35f, Mathf.Infinity);
-        transform.localPosition = Vector3.up * hipOffset;
+        //transform.localPosition = Vector3.up * hipOffset;
         
     }
 
@@ -90,6 +90,7 @@ public class IKFootPlacement : MonoBehaviour
         {
             // 1) 위치 세팅 (기존 로직)
             Vector3 pos = hit.point;
+            yL = animator.GetIKPosition(AvatarIKGoal.LeftFoot).y - hit.point.y;
             pos.y += DistanceToGround;
             animator.SetIKPosition(AvatarIKGoal.LeftFoot, pos);
 
@@ -123,6 +124,7 @@ public class IKFootPlacement : MonoBehaviour
             && hit.transform.CompareTag("Ground"))
         {
             Vector3 pos = hit.point;
+            yR = animator.GetIKPosition(AvatarIKGoal.RightFoot).y - hit.point.y;
             pos.y += DistanceToGround;
             animator.SetIKPosition(AvatarIKGoal.RightFoot, pos);
 
@@ -136,7 +138,22 @@ public class IKFootPlacement : MonoBehaviour
             animator.SetIKRotation(AvatarIKGoal.RightFoot, slopeRot);
             animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultRightToeLocalRot);
         }
+        // —— OnAnimatorIK 끝에서 ——
+        float footOffset = Mathf.Max(yL, yR, 0f);
+        const float slopeThreshold = 0.012f;
+        if (Mathf.Abs(yL - yR) > slopeThreshold)
+        {
+            // slope: 원래 높이에서 내려준다
+            goal = baseHipHeight - footOffset;
+        }
+        else 
+        { 
+            goal = 0;
+        }
+
+            Debug.Log($"yL={yL:F3}, yR={yR:F3}, footOffset={footOffset:F3}, goal={goal:F3} {Mathf.Abs(yL - yR) > slopeThreshold}");
     }
+
 
     // —— 머리 LookAt IK 설정 —— 
     //animator.SetLookAtWeight(lookWeight, 0f, 1f, 1f, lookClamp);
