@@ -2492,13 +2492,10 @@ GameObject:
   m_Component:
   - component: {fileID: 508776098}
   - component: {fileID: 508776097}
-  - component: {fileID: 508776101}
   - component: {fileID: 508776106}
-  - component: {fileID: 508776105}
-  - component: {fileID: 508776104}
   - component: {fileID: 508776103}
-  - component: {fileID: 508776102}
   - component: {fileID: 508776107}
+  - component: {fileID: 508776108}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -2551,50 +2548,6 @@ Transform:
   - {fileID: 2007625943}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &508776101
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508776094}
-  m_Material: {fileID: 13400000, guid: 4a9855884e986144eb5a1cd57d36b1d4, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.3
-  m_Height: 1.5
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.75, z: 0}
---- !u!114 &508776102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508776094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e691713c9ba6dc4bb5f48deb92c6ced, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groundCheck: {fileID: 875880538}
-  boxX: 0.5
-  boxZ: 0.5
-  maxFallDistance: 0.2
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  checkRadius: 0.5
-  checkDistance: 0
 --- !u!114 &508776103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2616,52 +2569,6 @@ MonoBehaviour:
   chargeBar: {fileID: 313605542}
   chargeBarParent: {fileID: 1956644212}
   chargedValue: {fileID: 868125773}
---- !u!114 &508776104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508776094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5db40f1c54e6564abe67efa807d182a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxJumpHeight: 10
-  timeToJumpApex: 0.2
-  coyoteTime: 0.2
-  jumpBufferTime: 0.2
-  allowDoubleJump: 0
-  maxAirJumps: 0
-  upwardMovementMultiplier: 1.47
-  downwardMovementMultiplier: 1.5
-  jumpCutOffMultiplier: 2
-  speedLimit: 15
-  gravityValue: 0
-  gravity: 0
---- !u!114 &508776105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508776094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b07d7df21cf9f24b957f86f58e58a63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxWalkSpeed: 6
-  maxRunSpeed: 9
-  accelerationTime: 0.1
-  decelerationTime: 0.1
-  airControl: 1
-  rotationSpeed: 0.1
-  inputX: 0
-  isOnSlope: 0
-  newVelocity: {x: 0, y: 0, z: 0}
-  shift: 0
 --- !u!114 &508776106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2674,9 +2581,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 346bafeb223bcc64db57f35050773e7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerHp: {fileID: 0}
-  IsGrounded: 0
   IsEnabled: 1
+  IsGrounded: 0
 --- !u!114 &508776107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2690,6 +2596,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 100
+--- !u!143 &508776108
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508776094}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 1.5
+  m_Radius: 0.2
+  m_SlopeLimit: 50
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0.75, z: 0}
 --- !u!1 &510413944
 GameObject:
   m_ObjectHideFlags: 0
@@ -7220,6 +7152,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1566334875}
   - component: {fileID: 1566334874}
+  - component: {fileID: 1566334876}
   m_Layer: 0
   m_Name: ObjectPool
   m_TagString: Untagged
@@ -7258,6 +7191,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &1566334876
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566334873}
+  m_Material: {fileID: 13400000, guid: 4a9855884e986144eb5a1cd57d36b1d4, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 1.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.75, z: 0}
 --- !u!1 &1569022926
 GameObject:
   m_ObjectHideFlags: 0

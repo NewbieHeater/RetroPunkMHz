@@ -1,40 +1,42 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
-public class JumpController : MonoBehaviour
+public class JumpController
 {
-    [Header("Jump Settings")]
-    public float maxJumpHeight = 4f;
-    [Range(0.2f, 1.25f)] public float timeToJumpApex = 0.4f;
+    private CharacterController cc;
+    private Animator animator;
+
+    // 설정값
+    public float maxJumpHeight = 10f;
+    [Range(0.1f, 1f)] public float timeToJumpApex = 0.5f;
     public float coyoteTime = 0.2f;
     public float jumpBufferTime = 0.2f;
     public bool allowDoubleJump = false;
     public int maxAirJumps = 1;
     [Range(0f, 5f)] public float upwardMovementMultiplier = 1f;
     [Range(1f, 10f)] public float downwardMovementMultiplier = 6.17f;
-    [Range(2f, 8f)] public float jumpCutOffMultiplier = 2f;
-    public float speedLimit = 15f;
+    [Range(0.5f, 3f)] public float jumpCutOffMultiplier = 2f;
+    public float speedLimit = 20f;
 
-    private Rigidbody rb;
-    private Animator animator;
-    private GroundDetector groundDetector;
-
+    // 내부 상태
+    private float gravityValue;
+    private float verticalVelocity;
     private float coyoteTimer;
     private float jumpBufferCounter;
-    private bool jumpHeld;
     private bool desiredJump;
+    private bool jumpHeld;
     private bool cutOffApplied;
     private int airJumpsLeft;
-    private float inputJump;
-    public float gravityValue;
-    private float jumpVelocity;
-    public void Initialize(GroundDetector gd)
+
+    public JumpController(CharacterController controller)
     {
-        rb = GetComponent<Rigidbody>();
-        animator = GetComponentInChildren<Animator>();
-        groundDetector = gd;
+        cc = controller;
+        animator = controller.GetComponentInChildren<Animator>();
+    }
+
+    public void Initialize()
+    {
+        gravityValue = -2f * maxJumpHeight / (timeToJumpApex * timeToJumpApex);
         airJumpsLeft = maxAirJumps;
-        gravityValue = (-2f) / (timeToJumpApex * timeToJumpApex);
     }
 
     public void HandleInput()
@@ -42,35 +44,24 @@ public class JumpController : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             desiredJump = true;
-            cutOffApplied = false;
             jumpHeld = true;
+            cutOffApplied = false;
             jumpBufferCounter = jumpBufferTime;
         }
         if (Input.GetButtonUp("Jump"))
         {
             jumpHeld = false;
-            if (!cutOffApplied)
+            if (!cutOffApplied && verticalVelocity > 0)
             {
-                ApplyJumpCutOff();
+                verticalVelocity *= 0.5f;
                 cutOffApplied = true;
             }
         }
     }
 
-    public void ProcessJump(bool isGrounded)
+    public float ProcessJump(bool isGrounded, float dt)
     {
-        UpdateCoyoteTimer(isGrounded);
-        HandleJumpBuffer(isGrounded);
-        if (desiredJump && CanJump(isGrounded))
-            ExecuteJump();
-
-        ApplyGravity(isGrounded);
-        ApplyPhysicsClamp();
-
-    }
-
-    private void UpdateCoyoteTimer(bool isGrounded)
-    {
+        // Coyote timer
         if (isGrounded)
         {
             coyoteTimer = coyoteTime;
@@ -78,80 +69,51 @@ public class JumpController : MonoBehaviour
         }
         else
         {
-            coyoteTimer -= Time.fixedDeltaTime;
+            coyoteTimer -= dt;
         }
-    }
 
-    private void HandleJumpBuffer(bool isGrounded)
-    {
-        if (!isGrounded && desiredJump && jumpBufferCounter > 0f)
+        // Jump buffer
+        if (desiredJump)
         {
-            jumpBufferCounter -= Time.fixedDeltaTime;
+            jumpBufferCounter -= dt;
             if (jumpBufferCounter <= 0f)
-            {
-                jumpBufferCounter = 0f;
                 desiredJump = false;
-            }
         }
-        if (isGrounded && desiredJump && jumpBufferCounter > 0f)
+
+        // Execute jump
+        if (desiredJump && (isGrounded || coyoteTimer > 0f || (allowDoubleJump && airJumpsLeft > 0)))
         {
+            verticalVelocity = Mathf.Sqrt(-2f * gravityValue * maxJumpHeight);
+            animator.SetTrigger("JUMP");
             desiredJump = false;
-            jumpBufferCounter = 0f;
-            ExecuteJump();
+            coyoteTimer = 0f;
+            if (!isGrounded) airJumpsLeft--;
         }
-    }
 
-    private bool CanJump(bool isGrounded)
-    {
-        return isGrounded || coyoteTimer > 0f || (allowDoubleJump && airJumpsLeft > 0);
-    }
+        // Gravity
+        float multiplier = verticalVelocity > 0
+            ? (jumpHeld ? upwardMovementMultiplier : jumpCutOffMultiplier)
+            : downwardMovementMultiplier;
+        verticalVelocity += gravityValue * multiplier * dt;
 
-    private void ExecuteJump()
-    {
-        animator.SetTrigger("JUMP");
-        desiredJump = false;
-        coyoteTimer = 0f;
+        // Clamp fall speed
+        verticalVelocity = Mathf.Clamp(verticalVelocity, -speedLimit, float.MaxValue);
 
-        jumpVelocity = Mathf.Sqrt(-2f * gravityValue * maxJumpHeight);
-        rb.velocity = new Vector3(rb.velocity.x, jumpVelocity, 0f);
-        gravity = jumpVelocity;
-        if (!groundDetector.IsGrounded)
-            airJumpsLeft--;
-    }
-
-    private void ApplyJumpCutOff()
-    {
-        if (rb.velocity.y > 0f)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, 0f);
-        }
-    }
-    public float gravity;
-    private void ApplyGravity(bool isGrounded)
-    {
-        //if (isGrounded) return;
-        float multiplier = rb.velocity.y > 0f ? (jumpHeld ? upwardMovementMultiplier : jumpCutOffMultiplier) : downwardMovementMultiplier;
-        if(isGrounded)
-        {
-            //rb.AddForce(Vector3.up * gravityValue * multiplier / 3f, ForceMode.Acceleration);
-        }
-        else
-        {
-            rb.AddForce(Vector3.up * gravityValue * multiplier, ForceMode.Acceleration);
-        }
-            
-    }
-
-    private void ApplyPhysicsClamp()
-    {
-        rb.velocity = new Vector3(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, float.MaxValue), 0f);
-    }
-
-    public void UpdateAnimationStates()
-    {
-        bool isFalling = rb.velocity.y < -0.01f;
-        bool isGrounded = groundDetector.IsGrounded;
-        animator.SetBool("Fall", isFalling && !isGrounded);
+        // Animator
         animator.SetBool("Grounded", isGrounded);
+        animator.SetBool("Fall", verticalVelocity < -0.01f && !isGrounded);
+
+        return verticalVelocity;
+    }
+
+    public void UpdateAnimator()
+    {
+        // (좌우 이동 애니메이션과 혼합 시 필요하다면 여기에)
+    }
+
+    public void Reset()
+    {
+        verticalVelocity = 0f;
+        airJumpsLeft = maxAirJumps;
     }
 }

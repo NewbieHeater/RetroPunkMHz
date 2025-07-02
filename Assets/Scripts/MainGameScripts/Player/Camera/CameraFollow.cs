@@ -35,8 +35,9 @@ public class CameraFollow : MonoBehaviour
         if (player == null)
             player = GameManager.Instance.player.transform;
 
-        movementController  =   player.GetComponent<MovementController>();
+        
         playerMovement      =   player.GetComponent<PlayerManagement>();
+        movementController  =   playerMovement.movementController;
         playerRb            =   player.GetComponent<Rigidbody>();
 
         wasGrounded =   playerMovement.IsGrounded;
