@@ -49,6 +49,11 @@ public class PlayerManagement : MonoBehaviour
 
         Vector3 move = new Vector3(vX, vY, 0f);
         cc.Move(move * Time.fixedDeltaTime);
+
+        if ((cc.collisionFlags & CollisionFlags.Above) != 0 && vY > 0f)
+        {
+            jumpController.OnCeilingHit();
+        }
     }
 
     public void SetAblePlayer(bool set)

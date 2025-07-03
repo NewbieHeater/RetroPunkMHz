@@ -12,8 +12,8 @@ public class JumpController
     public float jumpBufferTime = 0.2f;
     public bool allowDoubleJump = false;
     public int maxAirJumps = 1;
-    [Range(0f, 5f)] public float upwardMovementMultiplier = 1f;
-    [Range(1f, 10f)] public float downwardMovementMultiplier = 6.17f;
+    [Range(0f, 5f)] public float upwardMovementMultiplier = 1.2f;
+    [Range(1f, 10f)] public float downwardMovementMultiplier = 0.8f;
     [Range(0.5f, 3f)] public float jumpCutOffMultiplier = 2f;
     public float speedLimit = 20f;
 
@@ -104,6 +104,12 @@ public class JumpController
         animator.SetBool("Fall", verticalVelocity < -0.01f && !isGrounded);
 
         return verticalVelocity;
+    }
+
+    public void OnCeilingHit()
+    {
+        verticalVelocity = 0f;
+        // (원하면 cutOffApplied = true; 도 여기서 걸어줄 수 있습니다)
     }
 
     public void UpdateAnimator()
