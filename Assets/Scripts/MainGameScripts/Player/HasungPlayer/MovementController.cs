@@ -1,4 +1,4 @@
-using Unity.Burst.CompilerServices;
+ï»¿using Unity.Burst.CompilerServices;
 using UnityEngine;
 
 public class MovementController
@@ -7,7 +7,7 @@ public class MovementController
     public float inputX;
     private float velocityX;
 
-    // ¼³Á¤°ª
+    // ì„¤ì •ê°’
     public Transform model;
     public float maxWalkSpeed = 5f;
     public float maxRunSpeed = 8f;
@@ -44,7 +44,7 @@ public class MovementController
         else
             velocityX = Mathf.MoveTowards(velocityX, 0f, decelRate * dt);
 
-        // È¸Àü
+        // íšŒì „
         if (Mathf.Abs(inputX) > 0.01f)
         {
             Vector3 dir = new Vector3(inputX, 0, 0);

@@ -1,161 +1,135 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
+[RequireComponent(typeof(Animator))]
 public class IKFootPlacement : MonoBehaviour
 {
-    Animator animator;
-    
-
     [Header("발 IK 설정")]
     public LayerMask layer;
-    [Range(0f, 1f)] public float DistanceToGround;
-    [Range(0f, 2f)] public float footRayExtraHeight;
-    public float footSpacing = 1f;
+    [Range(0f, 1f)] public float DistanceToGround = 0.1f;
+    [Range(0f, 8f)] public float footRayExtraHeight = 1f;
+    [Range(0f, 1f)] public float hipSmoothingTime = 0.3f;
 
-    
+    [Header("절벽에서 한쪽발만 있을 때 골반 드롭")]
+    [Range(0f, 0.5f)] public float cliffDropAmount = 0.15f;
 
-    // 내부 상태
+    private Animator animator;
     private Quaternion defaultLeftToeLocalRot, defaultRightToeLocalRot;
-    private float hipOffset, goal, vel;
-    private Vector3 footPos;
-    private float baseHipHeight;  // 원래 골반 높이 저장
+    private float baseHipHeight, hipOffset, hipVelocity, goalHipHeight;
+
     void Start()
     {
-        
         animator = GetComponent<Animator>();
 
-        // 토우 기본 회전값 저장
         defaultLeftToeLocalRot = animator.GetBoneTransform(HumanBodyBones.LeftToes).localRotation;
         defaultRightToeLocalRot = animator.GetBoneTransform(HumanBodyBones.RightToes).localRotation;
 
-        // 머리 본도 추출해두면 직접 제어 가능 (필요 시)
-
-
         baseHipHeight = transform.localPosition.y;
         hipOffset = baseHipHeight;
-        goal = baseHipHeight;
-        vel = 1f;
-
-        // 초기 왼발 위치
-        footPos = animator.GetIKPosition(AvatarIKGoal.LeftFoot);
+        goalHipHeight = baseHipHeight;
     }
 
     void Update()
     {
-        // 힙 높이 조절 (기존 로직 유지)
-        if (Input.GetKeyDown(KeyCode.K)) goal = hipOffset - 0.1f;
-        if (Input.GetKeyDown(KeyCode.L)) goal = hipOffset + 0.1f;
-        hipOffset = Mathf.SmoothDamp(hipOffset, goal, ref vel, 0.35f, Mathf.Infinity);
-        //transform.localPosition = Vector3.up * hipOffset;
-        
+        // goalHipHeight로 부드럽게 이동
+        hipOffset = Mathf.SmoothDamp(hipOffset, goalHipHeight, ref hipVelocity, hipSmoothingTime);
+        transform.localPosition = new Vector3(0f, hipOffset, 0f);
     }
 
-
-    //Ray ray1 = new Ray(body.position + (body.right * footSpacing) + body.forward * 0.5f + (body.up), Vector3.down);
-    //if (Physics.Raycast(ray1, out RaycastHit hit1, 10, layer))
-    //{ 
-    //    if(Mathf.Abs(hit1.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y) < 1)
-    //    {
-    //        hipOffset = Mathf.SmoothDamp(hipOffset, goal - Mathf.Abs(hit1.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y), ref vel, 0.35f, Mathf.Infinity);
-    //        transform.localPosition = Vector3.up * hipOffset;
-    //        Debug.Log("adsf");
-    //    }
-    //}
-    //animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, animator.GetFloat("LeftFootIKWeight"));
-    //animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, animator.GetFloat("LeftFootIKWeight"));
-    //animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, animator.GetFloat("RightFootIKWeight"));
-    //animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, animator.GetFloat("RightFootIKWeight"));
-    //animator.SetIKRotation(AvatarIKGoal.)
-    //if (Mathf.Abs(hit.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y) < 1)
-    //{
-    //    hipOffset = Mathf.SmoothDamp(hipOffset, goal + (hit.point.y - footPos.y), ref vel, 0.35f, Mathf.Infinity);
-    //    transform.localPosition = Vector3.up * hipOffset;
-    //    //Debug.Log(Mathf.Abs(hit.point.y - animator.GetIKPosition(AvatarIKGoal.LeftFoot).y));
-    //}
-    float yL = 0f, yR = 0f;
-    private void OnAnimatorIK(int layerIndex)
+    void OnAnimatorIK(int layerIndex)
     {
         if (animator == null) return;
+
+        // 항상 IK 가중치 100%
         animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
         animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
         animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
         animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
+
+        // LEFT FOOT
         RaycastHit hit;
+        Vector3 leftOrigin = animator.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up * 1;
+        bool leftHit = Physics.Raycast(
+            leftOrigin,
+            Vector3.down,
+            out hit,
+            footRayExtraHeight + DistanceToGround,
+            layer
+        );
 
-        // —— LEFT FOOT IK ——
-        Vector3 leftFootIKPos = animator.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up * footRayExtraHeight;
-        if (Physics.Raycast(leftFootIKPos, Vector3.down, out hit, DistanceToGround + footRayExtraHeight, layer)
-            && hit.transform.CompareTag("Ground"))
+        float yL = 0f;
+        if (leftHit && hit.transform.CompareTag("Ground"))
         {
-            // 1) 위치 세팅 (기존 로직)
-            Vector3 pos = hit.point;
-            yL = animator.GetIKPosition(AvatarIKGoal.LeftFoot).y - hit.point.y;
-            pos.y += DistanceToGround;
-            animator.SetIKPosition(AvatarIKGoal.LeftFoot, pos);
+            Vector3 p = hit.point + Vector3.up * DistanceToGround;
+            animator.SetIKPosition(AvatarIKGoal.LeftFoot, p);
 
-            // 2) 발 뼈대 원래 회전 & forward 가져오기
             Transform leftFootBone = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
             Quaternion originalRot = leftFootBone.rotation;
             Vector3 originalForward = leftFootBone.forward;
 
-            // 3) 원래 forward 를 경사면 평면에 투영
-            Vector3 slopeForward = Vector3.ProjectOnPlane(-originalForward, hit.normal).normalized;
-
-            // 4) 투영된 forward 와 hit.normal 로 회전 만들기
+            Vector3 slopeForward = Vector3.ProjectOnPlane(transform.forward, hit.normal).normalized;
             Quaternion slopeRot = Quaternion.LookRotation(slopeForward, hit.normal);
-
-            // 5) “경사 틸트”만 적용하고 싶으면 slopeRot 을 그대로, 
-            //    “원래 회전 보존 + 틸트”를 원하면 아래처럼 곱해줍니다:
-            // Quaternion finalRot = slopeRot * Quaternion.Inverse(
-            //     Quaternion.LookRotation(leftFootBone.forward, Vector3.up)
-            // ) * originalRot;
-            animator.SetIKPosition(AvatarIKGoal.LeftFoot, pos);
-            // 여기서는 전자(발이 slopeRot 그대로)를 사용
             animator.SetIKRotation(AvatarIKGoal.LeftFoot, slopeRot);
-
-            // 토우 회전은 초기값으로 복원
             animator.SetBoneLocalRotation(HumanBodyBones.LeftToes, defaultLeftToeLocalRot);
+            yL = hit.point.y;
+        }
+        else
+        {
+            // 절벽 등으로 레이 못 만나면 아래로 떨어진 것으로 간주
+            yL = leftOrigin.y - (footRayExtraHeight + DistanceToGround);
         }
 
-        // —— RIGHT FOOT IK ——
-        Vector3 rightFootIKPos = animator.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up * footRayExtraHeight;
-        if (Physics.Raycast(rightFootIKPos, Vector3.down, out hit, DistanceToGround + footRayExtraHeight, layer)
-            && hit.transform.CompareTag("Ground"))
+        // RIGHT FOOT
+        Vector3 rightOrigin = animator.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up * 1;
+        bool rightHit = Physics.Raycast(
+            rightOrigin,
+            Vector3.down,
+            out hit,
+            footRayExtraHeight + DistanceToGround,
+            layer
+        );
+
+        float yR = 0f;
+        if (rightHit && hit.transform.CompareTag("Ground"))
         {
-            Vector3 pos = hit.point;
-            yR = animator.GetIKPosition(AvatarIKGoal.RightFoot).y - hit.point.y;
-            pos.y += DistanceToGround;
-            animator.SetIKPosition(AvatarIKGoal.RightFoot, pos);
+            Vector3 p = hit.point + Vector3.up * DistanceToGround;
+            animator.SetIKPosition(AvatarIKGoal.RightFoot, p);
 
             Transform rightFootBone = animator.GetBoneTransform(HumanBodyBones.RightFoot);
             Quaternion originalRot = rightFootBone.rotation;
             Vector3 originalForward = rightFootBone.forward;
 
-            Vector3 slopeForward = Vector3.ProjectOnPlane(-originalForward, hit.normal).normalized;
+            Vector3 slopeForward = Vector3.ProjectOnPlane(transform.forward, hit.normal).normalized;
             Quaternion slopeRot = Quaternion.LookRotation(slopeForward, hit.normal);
-            animator.SetIKPosition(AvatarIKGoal.RightFoot, pos);
             animator.SetIKRotation(AvatarIKGoal.RightFoot, slopeRot);
-            animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultRightToeLocalRot);
+            animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultLeftToeLocalRot);
+            yR = hit.point.y;
         }
-        // —— OnAnimatorIK 끝에서 ——
-        float footOffset = Mathf.Max(yL, yR, 0f);
-        const float slopeThreshold = 0.012f;
-        if (Mathf.Abs(yL - yR) > slopeThreshold)
+        else
         {
-            // slope: 원래 높이에서 내려준다
-            goal = baseHipHeight - footOffset;
-        }
-        else 
-        { 
-            goal = 0;
+            yR = rightOrigin.y - (footRayExtraHeight + DistanceToGround);
         }
 
-            Debug.Log($"yL={yL:F3}, yR={yR:F3}, footOffset={footOffset:F3}, goal={goal:F3} {Mathf.Abs(yL - yR) > slopeThreshold}");
+        // 골반 드롭 계산
+        float footOffset;
+        if (leftHit && rightHit)
+        {
+            // 둘 다 닿으면 높이 차만큼
+            footOffset = Mathf.Abs(yL - yR) / 2;
+        }
+        else if (leftHit ^ rightHit)
+        {
+            // 한쪽만 닿으면 고정 cliffDropAmount
+            footOffset = cliffDropAmount;
+        }
+        else
+        {
+            // 둘 다 안 닿으면 평지 복귀
+            footOffset = 0f;
+        }
+
+        goalHipHeight = baseHipHeight - footOffset;
     }
-
-
-    // —— 머리 LookAt IK 설정 —— 
-    //animator.SetLookAtWeight(lookWeight, 0f, 1f, 1f, lookClamp);
-    //animator.SetLookAtPosition(target.position);
 }

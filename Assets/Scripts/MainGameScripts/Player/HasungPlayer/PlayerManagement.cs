@@ -22,6 +22,7 @@ public class PlayerManagement : MonoBehaviour
         // 초기화: maxJumpHeight, timeToJumpApex 등은 인스펙터에서 세팅하세요.
         jumpController.Initialize();
         movementController.Initialize();
+        
     }
 
     void Update()
