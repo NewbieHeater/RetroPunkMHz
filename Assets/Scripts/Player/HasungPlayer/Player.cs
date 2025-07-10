@@ -30,7 +30,10 @@ public class Player : MonoBehaviour
     [Tooltip("회전 속도")]
     public float rotationSpeed = 0.2f;
     #endregion
-
+    private float lastSpeed = 0f;
+    private float finalSpeed = 15f;
+    private bool isSpeedup = false;
+    private float timeSpeed = 2f;
     #region Jump Settings
     [Header("Jump Settings")]
     [Tooltip("최대 점프 높이")]
@@ -122,6 +125,8 @@ public class Player : MonoBehaviour
         allowDoubleJump = false;
         desiredJump = false;
         jumpHeld = false;
+        lastSpeed = maxSpeed;
+
     }
 
 
@@ -169,6 +174,7 @@ public class Player : MonoBehaviour
     #region Input Handling
     private void ProcessInput()
     {
+        
         velocity.x = rb.velocity.x;
         inputX = Input.GetAxisRaw("Horizontal");
         if (Mathf.Abs(inputX) > 0.001f)
@@ -213,6 +219,37 @@ public class Player : MonoBehaviour
             chargeBar.fillAmount = 0f;
             isCharging = false;
         }
+
+        if(Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            //Input.GetKeyDown(KeyCode.LeftShift)
+            //Input.GetButtonDown("Run")
+            Debug.Log("가속");
+            isSpeedup = !isSpeedup;
+            if (isSpeedup)
+            {
+                lastSpeed = maxSpeed;
+            }
+        }
+        if (isSpeedup && maxSpeed < finalSpeed)
+        {
+            maxSpeed = maxSpeed + (Time.deltaTime * timeSpeed);
+            Debug.Log(maxSpeed);
+            if(maxSpeed> finalSpeed)
+            {
+                maxSpeed = finalSpeed;
+            }
+        }
+        else if(!isSpeedup && maxSpeed > lastSpeed)
+        {
+            maxSpeed = maxSpeed - (Time.deltaTime * timeSpeed);
+            Debug.Log(maxSpeed);
+            if (maxSpeed < lastSpeed)
+            {
+                maxSpeed = lastSpeed;
+            }
+        }
+
     }
     #endregion
 
