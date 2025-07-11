@@ -1,14 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Door : MonoBehaviour, IExplosionInteract
 {
-    public int RequiredAmpPts => 0;
+    [SerializeField] TextMeshProUGUI RequireText;
 
-    public int RequiredPerPts => 0;
+    public int RequiredAmpPts => 2;
 
-    public int RequiredWavPts => 0;
+    public int RequiredPerPts => 3;
+
+    public int RequiredWavPts => 4;
+
+    private void Start()
+    {
+        RequireText.text = $"{RequiredAmpPts} {RequiredPerPts} {RequiredWavPts}";
+    }
 
     public void OnExplosionInteract(Channel channel)
     {

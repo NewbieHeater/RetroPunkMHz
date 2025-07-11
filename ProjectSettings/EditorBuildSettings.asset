@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/pong.unity
     guid: 23c4ebab3e6eb0b4e80d6c7b19ce6dda
+  - enabled: 1
+    path: Assets/Scenes/DinoGame.unity
+    guid: a563485129c1ceb40ad13c2d714e0e51
   m_configObjects: {}

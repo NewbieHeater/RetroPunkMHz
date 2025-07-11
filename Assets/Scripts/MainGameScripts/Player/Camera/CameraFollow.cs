@@ -7,7 +7,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform player;
     private MovementController movementController;
     private PlayerManagement playerMovement;
-    private Rigidbody playerRb;
+    private CharacterController playerCC;
 
     [Header("로컬 오프셋 범위")]
     [SerializeField] private float minX = -3f, maxX = 3f;
@@ -35,14 +35,16 @@ public class CameraFollow : MonoBehaviour
         if (player == null)
             player = GameManager.Instance.player.transform;
 
-        movementController  =   player.GetComponent<MovementController>();
+        
         playerMovement      =   player.GetComponent<PlayerManagement>();
-        playerRb            =   player.GetComponent<Rigidbody>();
+        movementController  =   playerMovement.movementController;
+        playerCC =   player.GetComponent<CharacterController>();
 
         wasGrounded =   playerMovement.IsGrounded;
         groundY     =   player.position.y;
         currentX    =   transform.localPosition.x;
         currentY    =   transform.localPosition.y;
+        velocity = Vector2.zero;
     }
 
     void LateUpdate()
@@ -55,7 +57,7 @@ public class CameraFollow : MonoBehaviour
         #region ModifyCamera
         bool grounded   = playerMovement.IsGrounded;
         float input     = movementController.inputX;
-        float vertVel   = playerRb.velocity.y;
+        float vertVel   = playerCC.velocity.y;
         bool isRising   = !grounded && vertVel > 0f;
         bool isFalling  = !grounded && vertVel < 0f;
 
@@ -101,7 +103,7 @@ public class CameraFollow : MonoBehaviour
         float speedNorm = Mathf.InverseLerp(
                               movementController.maxWalkSpeed,
                               movementController.maxRunSpeed,
-                              Mathf.Abs(playerRb.velocity.x)
+                              Mathf.Abs(playerCC.velocity.x)
                           );
         float xSmooth = Mathf.Lerp(walkSmoothTime, runSmoothTime, speedNorm);
 

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangeRobot : EnemyFSMBase<RangeRobot>, IFireable
+public class RangeRobot : EnemyFSMBase, IFireable
 {
     public override int RequiredAmpPts => 0;
     public override int RequiredPerPts => 0;
@@ -15,27 +15,27 @@ public class RangeRobot : EnemyFSMBase<RangeRobot>, IFireable
     {
         base.Awake();
 
-        stateMap = new Dictionary<State, BaseState<RangeRobot>>()
+        stateMap = new Dictionary<State, BaseState>()
         {
-            { State.Patrol,      new EnemyRobotState.PatrolState<RangeRobot>(this)      },
-            { State.Chase,       new EnemyRobotState.MoveState<RangeRobot>(this)        },
-            { State.Idle,        new EnemyRobotState.IdleState<RangeRobot>(this)        },
-            { State.RangeAttack, new EnemyRobotState.RangeAttackState<RangeRobot>(this) },
-            { State.Death,       new EnemyRobotState.DeathState<RangeRobot>(this)       },
+            { State.Patrol,      new EnemyRobotState.PatrolState(this)      },
+            { State.Chase,       new EnemyRobotState.MoveState(this)        },
+            { State.Idle,        new EnemyRobotState.IdleState(this)        },
+            { State.RangeAttack, new EnemyRobotState.RangeAttackState(this) },
+            { State.Death,       new EnemyRobotState.DeathState(this)       },
         };
-        transitions = new List<StateTransition<RangeRobot>>()
+        transitions = new List<StateTransition>()
         {
-            new StateTransition<RangeRobot>(
+            new StateTransition(
                 State.Patrol, State.RangeAttack,
                 () => (IsPlayerInSight(rangeAttackRange)
                     || Vector3.Distance(transform.position, player.transform.position) < findRange)
             ),
-            new StateTransition<RangeRobot>(
+            new StateTransition(
                 State.RangeAttack, State.Idle,
                 () => Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange
             ),
             // ANY ¡æ Death
-            new StateTransition<RangeRobot>(
+            new StateTransition(
                 State.ANY, State.Death,
                 () => currentHp <= 0
             ),

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ai
   m_EditorClassIdentifier: 
   id: ai
-  displayName: ai
+  displayName: "\uB3D9\uB124 \uCE5C\uAD6C2"
   expressions:
   - key: neutral
     sprite: {fileID: 21300000, guid: c8b527ea0abf79e429eae4704346dbb1, type: 3}

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeleeRobot : EnemyFSMBase<MeleeRobot>, IMeleeAttack
+public class MeleeRobot : EnemyFSMBase, IMeleeAttack
 {
     [SerializeField] public BoxCollider boxCollider { get; set; }
     public override int RequiredAmpPts => 0;
@@ -16,31 +16,31 @@ public class MeleeRobot : EnemyFSMBase<MeleeRobot>, IMeleeAttack
     {
         base.Awake();
 
-        stateMap = new Dictionary<State, BaseState<MeleeRobot>>()
+        stateMap = new Dictionary<State, BaseState>()
         {
-            { State.Patrol,      new EnemyRobotState.PatrolState<MeleeRobot>(this)      },
-            { State.Chase,       new EnemyRobotState.MoveState<MeleeRobot>(this)        },
-            { State.Idle,        new EnemyRobotState.IdleState<MeleeRobot>(this)        },
-            { State.MeleeAttack, new EnemyRobotState.AttackState<MeleeRobot>(this) },
-            { State.Death,       new EnemyRobotState.DeathState<MeleeRobot>(this)       },
+            { State.Patrol,      new EnemyRobotState.PatrolState(this)      },
+            { State.Chase,       new EnemyRobotState.MoveState(this)        },
+            { State.Idle,        new EnemyRobotState.IdleState(this)        },
+            { State.MeleeAttack, new EnemyRobotState.AttackState(this) },
+            { State.Death,       new EnemyRobotState.DeathState(this)       },
         };
-        transitions = new List<StateTransition<MeleeRobot>>()
+        transitions = new List<StateTransition>()
         {
-            new StateTransition<MeleeRobot>(
+            new StateTransition(
                 State.Patrol, State.MeleeAttack,
                 () => (IsPlayerInSight(rangeAttackRange)
                     || Vector3.Distance(transform.position, player.transform.position) < findRange)
             ),
-            new StateTransition<MeleeRobot>(
+            new StateTransition(
                 State.MeleeAttack, State.Idle,
                 () => Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange
             ),
-            new StateTransition<MeleeRobot>(
+            new StateTransition(
                 State.Idle, State.MeleeAttack,
                 () => Vector3.Distance(transform.position, player.transform.position) < meleeAttackRange
             ),
             // ANY ¡æ Death
-            new StateTransition<MeleeRobot>(
+            new StateTransition(
                 State.ANY, State.Death,
                 () => currentHp <= 0
             ),
