@@ -27,6 +27,10 @@ public class AttackController : MonoBehaviour
         cam = Camera.main;
         animator = GetComponentInChildren<Animator>();
     }
+    private void Update()
+    {
+        HandleInput();
+    }
 
     public void HandleInput()
     {
@@ -43,6 +47,7 @@ public class AttackController : MonoBehaviour
 
     private void PerformPrimaryAttack()
     {
+
         animator.SetTrigger("Attack");
         DamageInfo info = new DamageInfo { Amount = normalDamage, SourceDir = GetAttackDirection(), IsCharge = false, KnockbackForce = 0f };
         ExecuteAttack(info);

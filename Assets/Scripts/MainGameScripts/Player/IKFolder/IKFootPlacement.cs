@@ -60,7 +60,7 @@ public class IKFootPlacement : MonoBehaviour
         );
 
         float yL = 0f;
-        if (leftHit && hit.transform.CompareTag("Ground"))
+        if (leftHit)
         {
             Vector3 p = hit.point + Vector3.up * DistanceToGround;
             animator.SetIKPosition(AvatarIKGoal.LeftFoot, p);
@@ -69,7 +69,7 @@ public class IKFootPlacement : MonoBehaviour
             Quaternion originalRot = leftFootBone.rotation;
             Vector3 originalForward = leftFootBone.forward;
 
-            Vector3 slopeForward = Vector3.ProjectOnPlane(transform.forward, hit.normal).normalized;
+            Vector3 slopeForward = Vector3.ProjectOnPlane(-originalForward, hit.normal).normalized;
             Quaternion slopeRot = Quaternion.LookRotation(slopeForward, hit.normal);
             animator.SetIKRotation(AvatarIKGoal.LeftFoot, slopeRot);
             animator.SetBoneLocalRotation(HumanBodyBones.LeftToes, defaultLeftToeLocalRot);
@@ -90,9 +90,9 @@ public class IKFootPlacement : MonoBehaviour
             footRayExtraHeight + DistanceToGround,
             layer
         );
-
+        // && hit.transform.CompareTag("Ground")
         float yR = 0f;
-        if (rightHit && hit.transform.CompareTag("Ground"))
+        if (rightHit)
         {
             Vector3 p = hit.point + Vector3.up * DistanceToGround;
             animator.SetIKPosition(AvatarIKGoal.RightFoot, p);
@@ -101,7 +101,7 @@ public class IKFootPlacement : MonoBehaviour
             Quaternion originalRot = rightFootBone.rotation;
             Vector3 originalForward = rightFootBone.forward;
 
-            Vector3 slopeForward = Vector3.ProjectOnPlane(transform.forward, hit.normal).normalized;
+            Vector3 slopeForward = Vector3.ProjectOnPlane(-originalForward, hit.normal).normalized;
             Quaternion slopeRot = Quaternion.LookRotation(slopeForward, hit.normal);
             animator.SetIKRotation(AvatarIKGoal.RightFoot, slopeRot);
             animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultLeftToeLocalRot);

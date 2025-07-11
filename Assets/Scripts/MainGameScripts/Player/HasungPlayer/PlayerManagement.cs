@@ -1,14 +1,16 @@
+using TMPro;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerManagement : MonoBehaviour
 {
+    public Invoker invoker;
     // Sub-Components
     public MovementController movementController;
     public JumpController jumpController;
-
+    public AttackController attackController;
     private CharacterController cc;
     public bool IsEnabled = true;
     public bool IsGrounded = false;
@@ -22,13 +24,27 @@ public class PlayerManagement : MonoBehaviour
         // 초기화: maxJumpHeight, timeToJumpApex 등은 인스펙터에서 세팅하세요.
         jumpController.Initialize();
         movementController.Initialize();
-        
+        attackController.Initialize();
     }
 
     void Update()
     {
+        
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            invoker.Record();
+        }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            invoker.EndRecord();
+        }
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            invoker.Replay();
+        }
         if (!IsEnabled) return;
         IsGrounded = cc.isGrounded;
+        
         // 입력 처리
         jumpController.HandleInput();
         movementController.HandleInput();

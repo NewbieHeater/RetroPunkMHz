@@ -15,7 +15,7 @@ public class JumpController
     [Range(0f, 5f)] public float upwardMovementMultiplier = 1.2f;
     [Range(1f, 10f)] public float downwardMovementMultiplier = 0.8f;
     [Range(0.5f, 3f)] public float jumpCutOffMultiplier = 2f;
-    public float speedLimit = 20f;
+    public float speedLimit = 15f;
 
     // 내부 상태
     private float gravityValue;
@@ -91,9 +91,17 @@ public class JumpController
         }
 
         // Gravity
-        float multiplier = verticalVelocity > 0
-            ? (jumpHeld ? upwardMovementMultiplier : jumpCutOffMultiplier)
-            : downwardMovementMultiplier;
+        float multiplier;
+        if (verticalVelocity > 0f)
+        {
+            // 상승 중
+            multiplier = jumpHeld ? upwardMovementMultiplier : jumpCutOffMultiplier;
+        }
+        else
+        {
+            // 하강(점프 이후 또는 낭떠러지) 중
+            multiplier = downwardMovementMultiplier;
+        }
         verticalVelocity += gravityValue * multiplier * dt;
 
         // Clamp fall speed
