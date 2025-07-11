@@ -2293,6 +2293,7 @@ MonoBehaviour:
   chargeBar: {fileID: 313605542}
   chargeBarParent: {fileID: 1956644212}
   ChargedValue: {fileID: 868125773}
+  playerCollider: {fileID: 508776101}
   checkHeight: 0.1
   checkRadius: 0.25
   maxFallDistance: 0.3
@@ -2845,7 +2846,7 @@ GameObject:
   - component: {fileID: 681338666}
   m_Layer: 0
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

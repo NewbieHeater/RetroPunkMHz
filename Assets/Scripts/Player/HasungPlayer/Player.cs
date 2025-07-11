@@ -104,6 +104,8 @@ public class Player : MonoBehaviour
     private float gravityMultiplier;
     private float defaultGravityScale = 1f;
     private float newGravity;
+    private bool canPass = false; 
+
     #endregion
 
     public int maxHp = 100;
@@ -113,6 +115,9 @@ public class Player : MonoBehaviour
     public GameObject chargeBarParent;
     public TextMeshProUGUI ChargedValue;
     #region Unity Callbacks
+
+    public Collider playerCollider;
+    private HashSet<Collider> ignoredWalls = new HashSet<Collider>();
     void Start()
     {
         cap = GetComponent<CapsuleCollider>();
@@ -121,6 +126,7 @@ public class Player : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
         animator = GetComponentInChildren<Animator>();
+        playerCollider = GetComponent<Collider>();
 
         allowDoubleJump = false;
         desiredJump = false;
@@ -134,7 +140,7 @@ public class Player : MonoBehaviour
     {
         HandleRotation();
         ProcessInput();
-        
+        Wallpass();
         HandleJumpBuffer();
         if(!IsGrounded && rb.velocity.y < 0f)
         {
@@ -144,6 +150,7 @@ public class Player : MonoBehaviour
         {
             animator.SetBool("Fall", false);
         }
+        ResetWall();
     }
 
     void FixedUpdate()
@@ -234,19 +241,21 @@ public class Player : MonoBehaviour
         if (isSpeedup && maxSpeed < finalSpeed)
         {
             maxSpeed = maxSpeed + (Time.deltaTime * timeSpeed);
-            Debug.Log(maxSpeed);
+            
             if(maxSpeed> finalSpeed)
             {
                 maxSpeed = finalSpeed;
+                Debug.Log(maxSpeed);
             }
         }
         else if(!isSpeedup && maxSpeed > lastSpeed)
         {
             maxSpeed = maxSpeed - (Time.deltaTime * timeSpeed);
-            Debug.Log(maxSpeed);
+            
             if (maxSpeed < lastSpeed)
             {
                 maxSpeed = lastSpeed;
+                Debug.Log(maxSpeed);
             }
         }
 
@@ -254,6 +263,66 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Movement & Jump
+
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            
+            Collider wallCollider = collision.collider;
+            if (canPass)
+            {
+                
+                Physics.IgnoreCollision(playerCollider, wallCollider, true);
+                ignoredWalls.Add(wallCollider);
+                Debug.Log("벽 충돌 무시 - 통과 허용");
+                
+            }
+            else
+            {
+                Debug.Log("벽에 막힘");
+            }
+        }
+    }
+
+    private void Wallpass()
+    {
+        if (maxSpeed >= finalSpeed)
+        {
+            canPass = true;
+        }
+        else if(maxSpeed < finalSpeed)
+        {
+            canPass = false;
+        }
+    }
+
+    
+    void ResetWall()
+    {
+        if (!canPass && ignoredWalls.Count > 0)
+        {
+            List<Collider> wallsToRestore = new List<Collider>();
+
+            foreach (var wallCollider in ignoredWalls)
+            {
+                
+                if (!playerCollider.bounds.Intersects(wallCollider.bounds))
+                {
+                    Physics.IgnoreCollision(playerCollider, wallCollider, false);
+                    wallsToRestore.Add(wallCollider);
+                    Debug.Log("벽 충돌 재활성화: " + wallCollider.name);
+                }
+            }
+
+            
+            foreach (var col in wallsToRestore)
+            {
+                ignoredWalls.Remove(col);
+            }
+        }
+    }
 
     protected Vector3 AdjustDirectionToSlope(Vector3 direction, RaycastHit groundCheckResult)
     {
