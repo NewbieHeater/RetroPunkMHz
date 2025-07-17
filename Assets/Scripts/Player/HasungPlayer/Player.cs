@@ -114,10 +114,12 @@ public class Player : MonoBehaviour
     public Image chargeBar;
     public GameObject chargeBarParent;
     public TextMeshProUGUI ChargedValue;
+    public LayerMask wallLayer;
     #region Unity Callbacks
 
     public Collider playerCollider;
     private HashSet<Collider> ignoredWalls = new HashSet<Collider>();
+    
     void Start()
     {
         cap = GetComponent<CapsuleCollider>();
@@ -127,7 +129,6 @@ public class Player : MonoBehaviour
         cam = Camera.main;
         animator = GetComponentInChildren<Animator>();
         playerCollider = GetComponent<Collider>();
-
         allowDoubleJump = false;
         desiredJump = false;
         jumpHeld = false;
@@ -150,7 +151,7 @@ public class Player : MonoBehaviour
         {
             animator.SetBool("Fall", false);
         }
-        ResetWall();
+        
     }
 
     void FixedUpdate()
@@ -267,22 +268,32 @@ public class Player : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Wall"))
+        if (collision.gameObject.layer == LayerMask.NameToLayer("wall"))
         {
+            Transform wall = collision.transform;
+
             
-            Collider wallCollider = collision.collider;
-            if (canPass)
-            {
-                
-                Physics.IgnoreCollision(playerCollider, wallCollider, true);
-                ignoredWalls.Add(wallCollider);
-                Debug.Log("벽 충돌 무시 - 통과 허용");
-                
-            }
-            else
-            {
-                Debug.Log("벽에 막힘");
-            }
+            Vector3 contactPoint = collision.contacts[0].point;
+
+            
+            Bounds wallBounds = wall.GetComponent<Collider>().bounds;
+            float playerX = transform.position.x;
+
+            
+            float minX = wallBounds.min.x;
+            float maxX = wallBounds.max.x;
+
+            
+            float targetX = (Mathf.Abs(playerX - minX) < Mathf.Abs(playerX - maxX)) ? maxX : minX;
+
+            
+            Vector3 teleportPos = new Vector3(targetX, transform.position.y, transform.position.z);
+
+            
+            teleportPos.x += (playerX < targetX) ? 1f : -1f;
+
+            
+            transform.position = teleportPos;
         }
     }
 
@@ -297,9 +308,8 @@ public class Player : MonoBehaviour
             canPass = false;
         }
     }
-
     
-    void ResetWall()
+    /*void ResetWall()
     {
         if (!canPass && ignoredWalls.Count > 0)
         {
@@ -312,7 +322,7 @@ public class Player : MonoBehaviour
                 {
                     Physics.IgnoreCollision(playerCollider, wallCollider, false);
                     wallsToRestore.Add(wallCollider);
-                    Debug.Log("벽 충돌 재활성화: " + wallCollider.name);
+                    
                 }
             }
 
@@ -322,7 +332,7 @@ public class Player : MonoBehaviour
                 ignoredWalls.Remove(col);
             }
         }
-    }
+    }*/
 
     protected Vector3 AdjustDirectionToSlope(Vector3 direction, RaycastHit groundCheckResult)
     {
