@@ -1,40 +1,42 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Recordable))]
 public class Box : MonoBehaviour, IAttackable
 {
-    [Header("녹화/재생용 Invoker")]
     public Invoker invoker;
+    Recordable rec;
 
-    [Header("프리팹")]
-    public GameObject boxPrefab;
-
-    [Header("발사 설정")]
+    [Header("발사 세팅")]
     public float forceMagnitude = 5f;
     public Vector3 forceDirection = Vector3.up + Vector3.right;
 
-    // 이 메서드는 플레이어의 공격 콜백에서 호출된다고 가정
-    public void OnHitByPlayer()
+    void OnEnable()
     {
-        
+        rec = GetComponent<Recordable>();
+        invoker = GameObject.Find("Invoker").GetComponent<Invoker>();
     }
 
     public void TakeDamage(in DamageInfo info)
     {
-        Debug.Log("attakc");
-        // 1) 명령객체 생성
-        var cmd = new ThrowCommand(
-            boxPrefab: boxPrefab,
-            spawnPosition: transform.position,
-            spawnRotation: transform.rotation,
-            launchForce: forceDirection.normalized * forceMagnitude,
-            forceMode: ForceMode.Impulse
+        // 1) 원본 파괴
+        var destroyCmd = new DestroyCommand(rec.InstanceID);
+        invoker.Record(destroyCmd);
+
+        // 2) 새 박스 스폰
+        var spawnCmd = new SpawnCommand(
+            rec.InstanceID,
+            rec.prefabPath,
+            transform.position,
+            transform.rotation
         );
+        invoker.Record(spawnCmd);
 
-        // 2) Invoker 에 실행 및 녹화 요청
-        invoker.ExecuteCommand(cmd);
-
-        // 3) 원래 상자는 녹화·실행 시에만 파괴
-        if (!invoker.isReplaying)  // (IsReplaying 프로퍼티는 Invoker 에 구현해 두세요)
-            Destroy(gameObject);
+        // 3) 새 박스에 힘 가하기
+        Vector3 launchForce = forceDirection.normalized * forceMagnitude;
+        var rb = this.GetComponent<Rigidbody>();
+        if (rb != null)
+            rb.AddForce(launchForce, ForceMode.Impulse);
+        //var throwCmd = new ThrowCommand(rec.InstanceID, launchForce);
+        //invoker.RecordAndExecute(throwCmd);
     }
 }

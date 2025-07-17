@@ -32,15 +32,15 @@ public class PlayerManagement : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.K))
         {
-            invoker.Record();
+            invoker.StartRecording();
         }
         if (Input.GetKeyDown(KeyCode.L))
         {
-            invoker.EndRecord();
+            invoker.StopRecording();
         }
         if (Input.GetKeyDown(KeyCode.O))
         {
-            invoker.Replay();
+            invoker.StartReplay();
         }
         if (!IsEnabled) return;
         IsGrounded = cc.isGrounded;

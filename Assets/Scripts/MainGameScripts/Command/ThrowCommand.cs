@@ -1,40 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
+[Serializable]
 public class ThrowCommand : Command
 {
-    public GameObject BoxPrefab { get; private set; }
-    public Vector3 SpawnPosition { get; private set; }
-    public Quaternion SpawnRotation { get; private set; }
-    public Vector3 LaunchForce { get; private set; }
-    public ForceMode ForceMode { get; private set; }
+    public string instanceID;
+    public Vector3 launchForce;
+    public ForceMode forceMode;
 
-    public ThrowCommand(
-        GameObject boxPrefab,
-        Vector3 spawnPosition,
-        Quaternion spawnRotation,
-        Vector3 launchForce,
-        ForceMode forceMode = ForceMode.Impulse
-    )
+    public ThrowCommand(string instanceID, Vector3 launchForce, ForceMode forceMode = ForceMode.Impulse)
     {
-        BoxPrefab = boxPrefab;
-        SpawnPosition = spawnPosition;
-        SpawnRotation = spawnRotation;
-        LaunchForce = launchForce;
-        ForceMode = forceMode;
+        this.instanceID = instanceID;
+        this.launchForce = launchForce;
+        this.forceMode = forceMode;
     }
 
     public override void Execute()
     {
-        GameObject box = GameObject.Instantiate(
-            BoxPrefab,
-            SpawnPosition,
-            SpawnRotation
-        );
-
-        Rigidbody rb = box.GetComponent<Rigidbody>();
-        if (rb != null)
-            rb.AddForce(LaunchForce, ForceMode);
+        if (ReplayRegistry.TryGetInstance(instanceID, out var obj) && obj != null)
+        {
+            var rb = obj.GetComponent<Rigidbody>();
+            if (rb != null)
+                rb.AddForce(launchForce, forceMode);
+        }
     }
 }
