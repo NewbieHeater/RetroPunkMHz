@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Invoker : MonoBehaviour
 {
+    public static Invoker Instance { get; private set; }
     public bool IsRecording { get; private set; }
     public bool IsReplaying { get; private set; }
 
@@ -15,6 +16,15 @@ public class Invoker : MonoBehaviour
 
     // 녹화 중인 경우: recordingTime, 재생 중인 경우: replayTime
     public float CurrentTime => IsRecording ? recordingTime : replayTime;
+    // Record 시작 시 플레이어 위치
+    Vector3 recordPlayerStartPos;
+    // Replay 시작 시점의 오프셋
+    Vector3 replayOffset;
+    public Vector3 ReplayOffset => replayOffset;
+    void Awake()
+    {
+        Instance = this;
+    }
 
     void Update()
     {
@@ -36,6 +46,10 @@ public class Invoker : MonoBehaviour
         IsRecording = true;
         IsReplaying = false;
         Debug.Log("녹화 시작");
+
+        // 플레이어 녹화 시작 위치 기록
+        recordPlayerStartPos = GameManager.Instance.player.transform.position;
+        replayOffset = Vector3.zero;
     }
 
     public void StopRecording()
@@ -46,6 +60,10 @@ public class Invoker : MonoBehaviour
 
     public void StartReplay()
     {
+        // 재생 시작 시 현재 플레이어 위치와 녹화 시작 위치 차이
+        replayOffset = GameManager.Instance.player.transform.position - recordPlayerStartPos;
+        Debug.Log($"재생 시작, Offset = {replayOffset}");
+
         replayTime = 0f;
         IsReplaying = true;
         IsRecording = false;

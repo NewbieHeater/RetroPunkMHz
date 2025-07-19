@@ -29,6 +29,11 @@ public class IKFootPlacement : MonoBehaviour
         baseHipHeight = transform.localPosition.y;
         hipOffset = baseHipHeight;
         goalHipHeight = baseHipHeight;
+
+        animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
+        animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
+        animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
+        animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
     }
 
     void Update()
@@ -43,10 +48,7 @@ public class IKFootPlacement : MonoBehaviour
         if (animator == null) return;
 
         // 항상 IK 가중치 100%
-        animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
-        animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
-        animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
-        animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
+        
 
         // LEFT FOOT
         RaycastHit hit;
@@ -62,6 +64,8 @@ public class IKFootPlacement : MonoBehaviour
         float yL = 0f;
         if (leftHit)
         {
+            animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
+            animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
             Vector3 p = hit.point + Vector3.up * DistanceToGround;
             animator.SetIKPosition(AvatarIKGoal.LeftFoot, p);
 
@@ -75,8 +79,15 @@ public class IKFootPlacement : MonoBehaviour
             animator.SetBoneLocalRotation(HumanBodyBones.LeftToes, defaultLeftToeLocalRot);
             yL = hit.point.y;
         }
+        else if (!GameManager.Instance.player.IsGrounded) 
+        {
+            animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 0f);
+            animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 0f);
+        }
         else
         {
+            animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
+            animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
             // 절벽 등으로 레이 못 만나면 아래로 떨어진 것으로 간주
             yL = leftOrigin.y - (footRayExtraHeight + DistanceToGround);
         }
@@ -94,6 +105,8 @@ public class IKFootPlacement : MonoBehaviour
         float yR = 0f;
         if (rightHit)
         {
+            animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
+            animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
             Vector3 p = hit.point + Vector3.up * DistanceToGround;
             animator.SetIKPosition(AvatarIKGoal.RightFoot, p);
 
@@ -107,8 +120,15 @@ public class IKFootPlacement : MonoBehaviour
             animator.SetBoneLocalRotation(HumanBodyBones.RightToes, defaultLeftToeLocalRot);
             yR = hit.point.y;
         }
+        else if (!GameManager.Instance.player.IsGrounded)
+        {
+            animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 0f);
+            animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 0f);
+        }
         else
         {
+            animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
+            animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
             yR = rightOrigin.y - (footRayExtraHeight + DistanceToGround);
         }
 

@@ -26,7 +26,7 @@ public class Box : MonoBehaviour, IAttackable
         var spawnCmd = new SpawnCommand(
             rec.InstanceID,
             rec.prefabPath,
-            transform.position,
+            transform.position - GameManager.Instance.player.transform.position,
             transform.rotation
         );
         invoker.Record(spawnCmd);

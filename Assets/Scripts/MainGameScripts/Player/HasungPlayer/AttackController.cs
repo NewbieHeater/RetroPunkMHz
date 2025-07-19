@@ -20,7 +20,7 @@ public class AttackController : MonoBehaviour
     private bool isCharging;
     private float chargeTimer;
     private Camera cam;
-    private Animator animator;
+    [SerializeField] private Animator animator;
     private Collider[] overlapResults = new Collider[16];
     private float attackCapsuleHeight = 1f;
 

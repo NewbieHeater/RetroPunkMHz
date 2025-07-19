@@ -15,6 +15,10 @@ public class TransformCommands : Command
     public override void Execute()
     {
         if (ReplayRegistry.TryGetInstance(instanceID, out var obj) && obj != null)
-            obj.transform.SetPositionAndRotation(position, rotation);
+        {
+            // 플레이어 기준 오프셋 적용
+            var targetPos = position + Invoker.Instance.ReplayOffset;
+            obj.transform.SetPositionAndRotation(targetPos, rotation);
+        }
     }
 }

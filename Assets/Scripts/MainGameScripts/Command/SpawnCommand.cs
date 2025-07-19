@@ -26,7 +26,8 @@ public class SpawnCommand : Command
             return;
         }
 
-        var obj = GameObject.Instantiate(prefab, position, rotation);
+        Vector3 spawnPos = position + Invoker.Instance.ReplayOffset;
+        var obj = GameObject.Instantiate(prefab, spawnPos, rotation);
         var rec = obj.GetComponent<Recordable>();
         if (rec != null)
         {
