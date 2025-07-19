@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -29,6 +30,8 @@ public class Player : MonoBehaviour
     public float airControl = 0.5f;
     [Tooltip("회전 속도")]
     public float rotationSpeed = 0.2f;
+    [Tooltip("벽통과 거리")]
+    public float teleportSpace;
     #endregion
     private float lastSpeed = 0f;
     private float finalSpeed = 15f;
@@ -268,33 +271,38 @@ public class Player : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("wall"))
+        Transform wall = collision.transform;
+
+
+        Bounds wallBounds = wall.GetComponent<Collider>().bounds;
+        float playerX = transform.position.x;
+
+
+        float minX = wallBounds.min.x;
+        float maxX = wallBounds.max.x;
+
+        if (maxX < teleportSpace)
         {
-            Transform wall = collision.transform;
+            Debug.Log(teleportSpace);
+            Debug.Log(maxX);
+            if (collision.gameObject.layer == LayerMask.NameToLayer("wall") && canPass)
+            {
 
-            
-            Vector3 contactPoint = collision.contacts[0].point;
 
-            
-            Bounds wallBounds = wall.GetComponent<Collider>().bounds;
-            float playerX = transform.position.x;
+                float targetX = (Mathf.Abs(playerX - minX) < Mathf.Abs(playerX - maxX)) ? maxX : minX;
 
-            
-            float minX = wallBounds.min.x;
-            float maxX = wallBounds.max.x;
 
-            
-            float targetX = (Mathf.Abs(playerX - minX) < Mathf.Abs(playerX - maxX)) ? maxX : minX;
+                Vector3 teleportPos = new Vector3(targetX, transform.position.y, transform.position.z);
 
-            
-            Vector3 teleportPos = new Vector3(targetX, transform.position.y, transform.position.z);
 
-            
-            teleportPos.x += (playerX < targetX) ? 1f : -1f;
+                teleportPos.x += (playerX < targetX) ? 1f : -1f;
 
-            
-            transform.position = teleportPos;
+
+                transform.position = teleportPos;
+
+            }
         }
+        
     }
 
     private void Wallpass()

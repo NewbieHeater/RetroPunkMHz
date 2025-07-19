@@ -2264,6 +2264,7 @@ MonoBehaviour:
   decelerationTime: 0.2
   airControl: 1
   rotationSpeed: 0.2
+  teleportSpace: 15
   maxJumpHeight: 15
   timeToJumpApex: 0.2
   coyoteTime: 0.1
