@@ -280,11 +280,11 @@ public class Player : MonoBehaviour
 
         float minX = wallBounds.min.x;
         float maxX = wallBounds.max.x;
-
-        if (maxX < teleportSpace)
+        float Absmax = Mathf.Abs(maxX);
+        if (Absmax < teleportSpace)
         {
             Debug.Log(teleportSpace);
-            Debug.Log(maxX);
+            Debug.Log(Absmax);
             if (collision.gameObject.layer == LayerMask.NameToLayer("wall") && canPass)
             {
 
