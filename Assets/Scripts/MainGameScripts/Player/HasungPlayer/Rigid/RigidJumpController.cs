@@ -128,16 +128,9 @@ public class RigidJumpController : MonoBehaviour
     public float gravity;
     private void ApplyGravity(bool isGrounded)
     {
-        //if (isGrounded) return;
+        if (isGrounded) return;
         float multiplier = rb.velocity.y > 0f ? (jumpHeld ? upwardMovementMultiplier : jumpCutOffMultiplier) : downwardMovementMultiplier;
-        if (isGrounded)
-        {
-            //rb.AddForce(Vector3.up * gravityValue * multiplier / 3f, ForceMode.Acceleration);
-        }
-        else
-        {
-            rb.AddForce(Vector3.up * gravityValue * multiplier, ForceMode.Acceleration);
-        }
+        rb.AddForce(Vector3.up * gravityValue * multiplier, ForceMode.Acceleration);
 
     }
 

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class RangeRobot : EnemyFSMBase, IFireable
 {
+    
     public override int RequiredAmpPts => 0;
     public override int RequiredPerPts => 0;
     public override int RequiredWavPts => 0;

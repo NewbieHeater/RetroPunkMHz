@@ -36,14 +36,19 @@ public class Robot : EnemyFSMBase, IFireable, IMeleeAttack
     [SerializeField] protected GameObject questionMark;
     [SerializeField] protected GameObject bullet;
 
+    
+
+    
+
     protected override void Awake()
     {
         base.Awake();
 
+        
+
         stateMap = new Dictionary<State, BaseState>()
         {
             { State.Patrol,      new EnemyRobotState.PatrolState(this)      },
-            { State.Chase,       new EnemyRobotState.MoveState(this)        },
             { State.Idle,        new EnemyRobotState.IdleState(this)        },
             { State.Search,      new EnemyRobotState.SearchState(this)      },
             { State.MeleeAttack, new EnemyRobotState.AttackState(this)      },
@@ -52,61 +57,61 @@ public class Robot : EnemyFSMBase, IFireable, IMeleeAttack
         };
         transitions = new List<StateTransition>()
         {
-            new StateTransition(
-                State.Patrol, State.RangeAttack,
-                () => (IsPlayerInSight(rangeAttackRange)
-                    || (Vector3.Distance(transform.position, player.transform.position) < findRange
-                        && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange))
-            ),
-            new StateTransition(
-                State.RangeAttack, State.MeleeAttack,
-                () => IsPlayerInSight(meleeAttackRange)
-            ),
-            new StateTransition(
-                State.Patrol, State.MeleeAttack,
-                () => IsPlayerInSight(meleeAttackRange)
-                    || Vector3.Distance(transform.position, player.transform.position) < findRange
-            ),
-            new StateTransition(
-                State.MeleeAttack, State.RangeAttack,
-                () => Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange
-            ),
-            new StateTransition(
-                State.RangeAttack, State.Search,
-                () => Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange || !IsPlayerInSight(rangeAttackRange)
-            ),
-            new StateTransition(
-                State.MeleeAttack, State.Search,
-                () => Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange || !IsPlayerInSight(meleeAttackRange)
-            ),
-            // ANY ¡æ Death
-            new StateTransition(
-                State.ANY, State.Death,
-                () => currentHp <= 0
-            ),
-            new StateTransition(
-                State.Search, State.RangeAttack,
-                () => (IsPlayerInSight(rangeAttackRange)
-                    || (Vector3.Distance(transform.position, player.transform.position) < findRange
-                        && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange))
-            ),
-            new StateTransition(
-                State.Search, State.MeleeAttack,
-                () => IsPlayerInSight(meleeAttackRange)
-                    || Vector3.Distance(transform.position, player.transform.position) < findRange
-            ),
-            new StateTransition(
-                State.Idle, State.Patrol,
-                () => !stop
-            ),
-            new StateTransition(
-                State.Idle, State.RangeAttack,
-                () => (IsPlayerInSight(rangeAttackRange)
-                    || (Vector3.Distance(transform.position, player.transform.position) < findRange
-                        && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange))
-            ),
+            //new StateTransition(
+            //    State.Patrol, State.RangeAttack,
+            //    () => (IsPlayerInSight(rangeAttackRange)
+            //        || (Vector3.Distance(transform.position, player.transform.position) < findRange
+            //            && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange))
+            //),
+            //new StateTransition(
+            //    State.RangeAttack, State.MeleeAttack,
+            //    () => IsPlayerInSight(meleeAttackRange)
+            //),
+            //new StateTransition(
+            //    State.Patrol, State.MeleeAttack,
+            //    () => IsPlayerInSight(meleeAttackRange)
+            //        || Vector3.Distance(transform.position, player.transform.position) < findRange
+            //),
+            //new StateTransition(
+            //    State.MeleeAttack, State.RangeAttack,
+            //    () => Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange
+            //),
+            //new StateTransition(
+            //    State.RangeAttack, State.Search,
+            //    () => Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange || !IsPlayerInSight(rangeAttackRange)
+            //),
+            //new StateTransition(
+            //    State.MeleeAttack, State.Search,
+            //    () => Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange || !IsPlayerInSight(meleeAttackRange)
+            //),
+            //// ANY ¡æ Death
+            //new StateTransition(
+            //    State.ANY, State.Death,
+            //    () => currentHp <= 0
+            //),
+            //new StateTransition(
+            //    State.Search, State.RangeAttack,
+            //    () => (IsPlayerInSight(rangeAttackRange)
+            //        || (Vector3.Distance(transform.position, player.transform.position) < findRange
+            //            && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange))
+            //),
+            //new StateTransition(
+            //    State.Search, State.MeleeAttack,
+            //    () => IsPlayerInSight(meleeAttackRange)
+            //        || Vector3.Distance(transform.position, player.transform.position) < findRange
+            //),
+            //new StateTransition(
+            //    State.Idle, State.Patrol,
+            //    () => !stop
+            //),
+            //new StateTransition(
+            //    State.Idle, State.RangeAttack,
+            //    () => (IsPlayerInSight(rangeAttackRange)
+            //        || (Vector3.Distance(transform.position, player.transform.position) < findRange
+            //            && Vector3.Distance(transform.position, player.transform.position) > meleeAttackRange))
+            //),
         };
-        fsm = new DataStateMachine(State.Idle, stateMap, transitions);
+        
 
         boxCollider = GetComponentInChildren<BoxCollider>();
     }
@@ -118,9 +123,9 @@ public class Robot : EnemyFSMBase, IFireable, IMeleeAttack
 
     protected override void Start()
     {
-        
         base.Start();
-        
+
+        fsm = new DataStateMachine(State.Patrol, stateMap, transitions);
         CurrentState = State.Patrol;
     }
 

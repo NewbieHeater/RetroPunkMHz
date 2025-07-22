@@ -553,6 +553,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1379709997423617245}
   - component: {fileID: 110789832776512034}
+  - component: {fileID: 7656398348040131433}
   - component: {fileID: 3310748675227252366}
   - component: {fileID: 5337067924840425218}
   - component: {fileID: 1608733982256331978}
@@ -597,10 +598,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4749f4cea4464c14f816b5b6c3d3ad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyIdleBase: {fileID: 11400000, guid: eeb7a05c142883245af4eae2706b4721, type: 2}
+  enemyAttackBase: {fileID: 11400000, guid: 6cc5e5b36e8b1084d859d395b656cd9c, type: 2}
+  enemyPatrolBase: {fileID: 11400000, guid: 5a280b2772b72cf45afea8ea19e35b26, type: 2}
+  enemyIdleBaseInstance: {fileID: 0}
+  enemyAttackBaseInstance: {fileID: 0}
+  enemyPatrolBaseInstance: {fileID: 0}
   stop: 0
   HpBar: {fileID: 3129958531061675061}
   maxHp: 100
   currentHp: 0
+  isDead: 0
   defaultApexHeight: 2
   getBackAvailable: 1
   explodeOnWall: 0
@@ -629,9 +637,22 @@ MonoBehaviour:
     needJump: 0
     jumpPower: 0
   cap: {fileID: 0}
+  rigidNav: {fileID: 0}
   player: {fileID: 0}
   questionMark: {fileID: 3714204440217862717}
   bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
+--- !u!114 &7656398348040131433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874187368424205674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83b4a053ae93c464299969d5a89ec838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!195 &3310748675227252366
 NavMeshAgent:
   m_ObjectHideFlags: 0

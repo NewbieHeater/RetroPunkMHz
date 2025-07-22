@@ -5398,7 +5398,7 @@ MonoBehaviour:
   jumpBufferTime: 0.1
   allowDoubleJump: 0
   maxAirJumps: 1
-  upwardMovementMultiplier: 3.09
+  upwardMovementMultiplier: 3.43
   downwardMovementMultiplier: 3.9
   jumpCutOffMultiplier: 6.79
   speedLimit: 15
@@ -12223,7 +12223,8 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Untagged
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 3310748675227252366, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
     m_RemovedGameObjects:
     - {fileID: 4247890687296156951, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
     - {fileID: 7693739229794702009, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}

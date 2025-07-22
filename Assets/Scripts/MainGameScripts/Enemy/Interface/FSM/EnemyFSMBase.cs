@@ -26,6 +26,14 @@ public struct PatrolPoint
 
 public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInteract
 {
+    [SerializeField] private EnemyIdleSOBase    enemyIdleBase;
+    [SerializeField] private EnemyAttackSOBase  enemyAttackBase;
+    [SerializeField] private EnemyPatrolSOBase  enemyPatrolBase;
+
+    [HideInInspector] public EnemyIdleSOBase enemyIdleBaseInstance;
+    [HideInInspector] public EnemyAttackSOBase enemyAttackBaseInstance;
+    [HideInInspector] public EnemyPatrolSOBase enemyPatrolBaseInstance;
+
     public bool stop;
     [Header("½ºÅÈ ¼³Á¤")]
     [SerializeField] protected TextMeshProUGUI HpBar;
@@ -62,6 +70,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public Rigidbody        rigid { get; protected set; }
     public NavMeshAgent     agent { get; protected set; }
     public Animator         anime { get; protected set; }
+    public RigidNavigation  rigidNav;
 
     public virtual int RequiredAmpPts => 0;
     public virtual int RequiredPerPts => 0;
@@ -78,13 +87,18 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     protected virtual void Awake()
     {
+        enemyIdleBaseInstance = Instantiate(enemyIdleBase);
+        enemyAttackBaseInstance = Instantiate(enemyAttackBase);
+        enemyPatrolBaseInstance = Instantiate(enemyPatrolBase);
+
         maxDist = aggroRange + 1f;
 
         rigid = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         anime = GetComponentInChildren<Animator>();
         cap   = GetComponent<CapsuleCollider>();
-        
+        rigidNav = GetComponent<RigidNavigation>();
+
         currentHp = maxHp;
         UpdateHpBarText();
         
@@ -92,8 +106,9 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     protected virtual void Start()
     {
-        //player = GameManager.Instance.player;
-        //fsm = new DataStateMachine<TSelf>(CurrentState, stateMap, transitions);
+        enemyIdleBaseInstance.Initialize(gameObject, this);
+        enemyAttackBaseInstance.Initialize(gameObject, this);
+        enemyPatrolBaseInstance.Initialize(gameObject, this);
     }
 
     protected virtual void OnEnable()

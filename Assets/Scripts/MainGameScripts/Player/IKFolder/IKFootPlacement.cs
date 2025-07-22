@@ -30,10 +30,7 @@ public class IKFootPlacement : MonoBehaviour
         hipOffset = baseHipHeight;
         goalHipHeight = baseHipHeight;
 
-        animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
-        animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
-        animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
-        animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);
+        
     }
 
     void Update()
@@ -62,7 +59,7 @@ public class IKFootPlacement : MonoBehaviour
         );
 
         float yL = 0f;
-        if (leftHit)
+        if (leftHit && GameManager.Instance.player.IsGrounded)
         {
             animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
             animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1f);
@@ -103,7 +100,7 @@ public class IKFootPlacement : MonoBehaviour
         );
         // && hit.transform.CompareTag("Ground")
         float yR = 0f;
-        if (rightHit)
+        if (rightHit && GameManager.Instance.player.IsGrounded)
         {
             animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
             animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1f);

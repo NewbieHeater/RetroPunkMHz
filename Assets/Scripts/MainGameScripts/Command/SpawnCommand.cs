@@ -35,6 +35,7 @@ public class SpawnCommand : Command
             rec.prefabPath = prefabPath;
             rec.InstanceID = instanceID;
         }
+        obj.layer = 12;
         ReplayRegistry.RegisterInstance(instanceID, obj);
     }
 }

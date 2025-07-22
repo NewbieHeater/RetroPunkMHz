@@ -32,157 +32,23 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            enemy.anime.Play("Move");
-            agent.isStopped = false;
-            agent.speed = patrolSpeed;
-
-            if (enemy.patrolPoints == null || enemy.patrolPoints.Length <= 1)
-            {
-                if (enemy.patrolPoints != null && enemy.patrolPoints.Length == 1)
-                    agent.SetDestination(enemy.patrolPoints[0].point.position);
-                return;
-            }
-
-            if (!agent.hasPath)
-                agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
+            enemy.enemyPatrolBaseInstance.OperateEnter();
         }
 
         public override void OperateUpdate()
         {
-            if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0 || stop)
-                return;
-
-            if (enemy.patrolPoints.Length == 1)
-            {
-                if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
-                {
-                    enemy.stop = true;
-                    agent.isStopped = true;
-                    enemy.ChangeState(State.Idle);
-                }
-                return;
-            }
-
-            if (isWaiting)
-            {
-                if (Time.time - waitStartTime >= enemy.patrolPoints[patrolIndex].dwellTime)
-                {
-                    isWaiting = false;
-                    AdvanceIndex();
-                    agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
-                }
-            }
-            else
-            {
-                if (Mathf.Abs(enemy.patrolPoints[patrolIndex].point.position.x - transform.position.x) < 0.05f)
-                {
-                    agent.ResetPath();
-                    agent.velocity = Vector3.zero;
-
-                    if (enemy.patrolPoints[patrolIndex].needJump && isGoingForward)
-                    {
-                        agent.ResetPath();
-                        agent.enabled = false;
-                        enemyCap.enabled = true;
-                        float apexH = enemy.patrolPoints[patrolIndex].jumpPower > 0
-                                      ? enemy.patrolPoints[patrolIndex].jumpPower
-                                      : enemy.defaultApexHeight;
-                        AdvanceIndex();
-                        Vector3 nextPos = enemy.patrolPoints[patrolIndex].point.position;
-                        Vector3 launch = CalculateLaunchVelocity(transform.position, nextPos, apexH);
-                        enemyRigid.useGravity = true;
-                        enemyRigid.velocity = launch;
-                        enemy.patrolPoints[patrolIndex].needJump = false;
-                        stop = true;
-                        enemy.StartCoroutine(ResumeAfterJump(nextPos));
-                    }
-                    else
-                    {
-                        if (enemy.patrolPoints[patrolIndex].dwellTime > 0f)
-                        {
-                            isWaiting = true;
-                            waitStartTime = Time.time;
-                        }
-                        else
-                        {
-                            AdvanceIndex();
-                            agent.SetDestination(enemy.patrolPoints[patrolIndex].point.position);
-                        }
-                    }
-                }
-            }
+            enemy.enemyPatrolBaseInstance.OperateUpdate();
         }
 
         public override void OperateExit()
         {
-            agent.isStopped = true;
+            enemy.enemyPatrolBaseInstance.OperateExit();
         }
 
-        public override void OperateFixedUpdate() { }
-
-        private void AdvanceIndex()
+        public override void OperateFixedUpdate() 
         {
-            int len = enemy.patrolPoints.Length;
-            if (len <= 1)
-            {
-                patrolIndex = 0;
-                isWaiting = false;
-                return;
-            }
-
-            if (enemy.getBackAvailable)
-            {
-                if (isGoingForward)
-                {
-                    patrolIndex++;
-                    if (patrolIndex >= len)
-                    {
-                        patrolIndex = len - 2;
-                        isGoingForward = false;
-                    }
-                }
-                else
-                {
-                    patrolIndex--;
-                    if (patrolIndex <= 0)
-                    {
-                        patrolIndex = 1;
-                        isGoingForward = true;
-                    }
-                }
-            }
-            else
-            {
-                patrolIndex = (patrolIndex + 1) % len;
-            }
-
-            Debug.Log(patrolIndex);
-        }
-
-        private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
-        {
-            float g = Physics.gravity.y;
-            float vUp = Mathf.Sqrt(-2f * g * apexHeight);
-            float tUp = vUp / -g;
-            float ¥äH = apexHeight - (end.y - start.y);
-            float tDown = Mathf.Sqrt(2f * ¥äH / -g);
-            float totalT = tUp + tDown;
-            Vector3 horiz = end - start;
-            horiz.y = 0;
-            Vector3 vHoriz = horiz / totalT;
-            return vHoriz + Vector3.up * vUp;
-        }
-
-        private IEnumerator ResumeAfterJump(Vector3 resumePos)
-        {
-            yield return new WaitForSeconds(2f);
-            enemyRigid.velocity = Vector3.zero;
-            agent.enabled = true;
-            agent.updatePosition = true;
-            agent.isStopped = false;
-            stop = false;
-            agent.SetDestination(resumePos);
-        }
+            enemy.enemyPatrolBaseInstance.OperateFixedUpdate();
+        }    
     }
 
     public class MoveState : BaseState
@@ -203,21 +69,23 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            enemy.anime.Play("Idle");
-            curTime = 0f;
+            enemy.enemyIdleBaseInstance.OperateEnter();
         }
 
         public override void OperateUpdate()
         {
-            enemy.anime.Play("Idle");
+            enemy.enemyIdleBaseInstance.OperateUpdate();
         }
 
         public override void OperateExit()
         {
-            curTime = 0f;
+            enemy.enemyIdleBaseInstance.OperateExit();
         }
 
-        public override void OperateFixedUpdate() { }
+        public override void OperateFixedUpdate() 
+        {
+            enemy.enemyIdleBaseInstance.OperateFixedUpdate();
+        }
     }
 
 
