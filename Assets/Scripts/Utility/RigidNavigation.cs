@@ -12,10 +12,10 @@ public class RigidNavigation : MonoBehaviour
 
     private float Speed;
     private Vector3 targetPos;
-    private Rigidbody rigid;
-    
-    
+
     public Vector3 velocity { get; set; }
+
+    private Rigidbody rigid;
 
 
     private void Awake()
@@ -33,10 +33,7 @@ public class RigidNavigation : MonoBehaviour
         hasPath = true;
         isStopped = false;
     }
-    public void SetSpeed(float newSpeed)
-    {
-        Speed = newSpeed;
-    }
+    public void SetSpeed(float s) => Speed = s;
     public float RemainingDistance()
     {
         return Mathf.Abs(targetPos.x - transform.position.x);
@@ -70,7 +67,11 @@ public class RigidNavigation : MonoBehaviour
 
     private void Locate()
     {
-        if (!hasPath || isStopped) return;
+        if (!hasPath || isStopped)
+        {
+            velocity = Vector3.zero;
+            return;
+        }
         velocity = transform.position.x < targetPos.x ? Vector3.right * Speed : Vector3.left * Speed;
     }
 

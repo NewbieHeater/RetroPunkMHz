@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EnemyAttackSOBase", menuName = "SOStae/Attack")]
-public class EnemyAttackSOBase : ScriptableObject
+public class EnemyIdleSOBase : ScriptableObject
 {
     protected EnemyFSMBase enemy;
     protected Transform transform;
@@ -19,23 +18,24 @@ public class EnemyAttackSOBase : ScriptableObject
         playerTransform = GameManager.Instance.player.transform;
     }
 
-    public virtual void OperateEnter()
+    public virtual void OperateEnter() 
     {
-        enemy.anime.Play("Idle");
+        
     }
 
-    public virtual void OperateUpdate()
+    public virtual void OperateUpdate() 
     {
-        enemy.anime.Play("Idle");
+        
     }
 
-    public virtual void OperateFixedUpdate()
+    public virtual void OperateFixedUpdate() 
     {
 
     }
 
     public virtual void OperateExit()
-    {
+    { 
 
     }
+    
 }

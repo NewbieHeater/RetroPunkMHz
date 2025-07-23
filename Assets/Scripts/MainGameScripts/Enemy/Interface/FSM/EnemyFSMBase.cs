@@ -12,7 +12,7 @@ public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death
 public struct PatrolPoint
 {
     [Tooltip("순찰할 위치")]
-    public Transform point;
+    public Vector3 relativeMovePoint;
 
     [Tooltip("이 위치에서 기다릴 시간(초)")]
     public float dwellTime;
@@ -26,6 +26,9 @@ public struct PatrolPoint
 
 public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInteract
 {
+    public GameObject bullet;
+    public BoxCollider meleeAttackCollider;
+
     [SerializeField] private EnemyIdleSOBase    enemyIdleBase;
     [SerializeField] private EnemyAttackSOBase  enemyAttackBase;
     [SerializeField] private EnemyPatrolSOBase  enemyPatrolBase;
@@ -82,7 +85,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     protected Dictionary<State, BaseState> stateMap;
     protected List<StateTransition> transitions;
 
-    public PlayerManagement player;
+    public RigidPlayerManagement player;
 
 
     protected virtual void Awake()
@@ -106,6 +109,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     protected virtual void Start()
     {
+        player = GameManager.Instance.player;
         enemyIdleBaseInstance.Initialize(gameObject, this);
         enemyAttackBaseInstance.Initialize(gameObject, this);
         enemyPatrolBaseInstance.Initialize(gameObject, this);

@@ -1,11 +1,9 @@
-using EnemyRobotState;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RangeRobot : EnemyFSMBase, IFireable
+public class Climber : EnemyFSMBase
 {
-    
     public override int RequiredAmpPts => 0;
     public override int RequiredPerPts => 0;
     public override int RequiredWavPts => 0;
@@ -41,22 +39,18 @@ public class RangeRobot : EnemyFSMBase, IFireable
                 () => currentHp <= 0
             ),
         };
-        
+
     }
 
     protected override void Start()
     {
-        
-        
+
+
         base.Start();
 
-        
+
     }
-    public GameObject bullet;
-    public void Fire()
-    {
-        Instantiate(bullet, transform.position + Vector3.up * 1f, transform.rotation);
-    }
+
 
     public override void SetQuestionMark(bool active)
     {

@@ -31,7 +31,7 @@ public class AttackController : MonoBehaviour
     }
     private void Update()
     {
-        HandleInput();
+        
     }
 
     public void HandleInput()

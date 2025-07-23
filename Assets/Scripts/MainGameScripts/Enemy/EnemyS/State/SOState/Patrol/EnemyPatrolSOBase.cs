@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EnemyIdleSOBase", menuName = "SOStae/Idle")]
-public class EnemyIdleSOBase : ScriptableObject
+public class EnemyPatrolSOBase : ScriptableObject
 {
     protected EnemyFSMBase enemy;
+    protected Rigidbody rigid;
     protected Transform transform;
     protected GameObject gameObject;
+    protected RigidNavigation nav;
 
     protected Transform playerTransform;
 
@@ -16,27 +17,28 @@ public class EnemyIdleSOBase : ScriptableObject
         this.gameObject = gameObject;
         transform = gameObject.transform;
         this.enemy = enemy;
+        this.rigid = enemy.rigid;
+        this.nav = enemy.rigidNav;
         playerTransform = GameManager.Instance.player.transform;
     }
 
-    public virtual void OperateEnter() 
+    public virtual void OperateEnter()
     {
-        enemy.anime.Play("Idle");
+
     }
 
-    public virtual void OperateUpdate() 
+    public virtual void OperateUpdate()
     {
-        enemy.anime.Play("Idle");
+
     }
 
-    public virtual void OperateFixedUpdate() 
+    public virtual void OperateFixedUpdate()
     {
 
     }
 
     public virtual void OperateExit()
-    { 
+    {
 
     }
-    
 }

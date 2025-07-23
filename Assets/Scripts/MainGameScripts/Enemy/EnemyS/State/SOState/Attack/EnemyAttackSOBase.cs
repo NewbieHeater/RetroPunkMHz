@@ -2,35 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "EnemyPatrolSOBase", menuName = "SOStae/Patrol")]
-public class EnemyPatrolSOBase : ScriptableObject
+public class EnemyAttackSOBase : ScriptableObject
 {
     protected EnemyFSMBase enemy;
-    protected Rigidbody rigid;
     protected Transform transform;
     protected GameObject gameObject;
-    protected RigidNavigation nav;
+    protected Animator animator;
 
     protected Transform playerTransform;
-
+    public float rotationSpeed = 360f;
     public virtual void Initialize(GameObject gameObject, EnemyFSMBase enemy)
     {
         this.gameObject = gameObject;
         transform = gameObject.transform;
         this.enemy = enemy;
-        this.rigid = enemy.rigid;
-        this.nav = enemy.rigidNav;
+        this.animator = enemy.anime;
         playerTransform = GameManager.Instance.player.transform;
     }
 
     public virtual void OperateEnter()
     {
-
+        
     }
 
     public virtual void OperateUpdate()
     {
-
+        
     }
 
     public virtual void OperateFixedUpdate()
@@ -41,5 +38,16 @@ public class EnemyPatrolSOBase : ScriptableObject
     public virtual void OperateExit()
     {
 
+    }
+
+    protected void RotateTowardPlayer()
+    {
+        Vector3 dir = (enemy.player.transform.position - transform.position).normalized;
+        Quaternion tgt = Quaternion.LookRotation(dir);
+        float newY = Mathf.MoveTowardsAngle(
+            transform.eulerAngles.y,
+            tgt.eulerAngles.y,
+            rotationSpeed * Time.deltaTime);
+        transform.eulerAngles = new Vector3(transform.eulerAngles.x, newY, transform.eulerAngles.z);
     }
 }
