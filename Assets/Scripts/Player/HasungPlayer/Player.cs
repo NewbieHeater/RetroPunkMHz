@@ -154,7 +154,7 @@ public class Player : MonoBehaviour
         {
             animator.SetBool("Fall", false);
         }
-        
+        ClickInteraction();
     }
 
     void FixedUpdate()
@@ -316,7 +316,7 @@ public class Player : MonoBehaviour
             canPass = false;
         }
     }
-    
+
     /*void ResetWall()
     {
         if (!canPass && ignoredWalls.Count > 0)
@@ -342,6 +342,27 @@ public class Player : MonoBehaviour
         }
     }*/
 
+
+    private void ClickInteraction()
+    {
+        if (Input.GetKeyDown(KeyCode.E)) 
+        {
+            
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                
+                Interactable interactable = hit.collider.GetComponent<Interactable>();
+                if (interactable != null)
+                {
+                    
+                    interactable.Interact(); 
+                }
+            }
+        }
+    }
     protected Vector3 AdjustDirectionToSlope(Vector3 direction, RaycastHit groundCheckResult)
     {
         return Vector3.ProjectOnPlane(direction, groundCheckResult.normal).normalized;
