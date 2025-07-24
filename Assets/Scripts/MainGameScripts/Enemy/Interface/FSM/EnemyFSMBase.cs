@@ -1,9 +1,10 @@
-using UnityEngine;
-using UnityEngine.AI;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Rendering.VirtualTexturing;
 
 public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death, ANY }
 
@@ -79,6 +80,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public virtual int RequiredPerPts => 0;
     public virtual int RequiredWavPts => 0;
 
+    [SerializeField] private bool debugLine = false;
     public State CurrentState { get; protected set; }
 
     protected DataStateMachine fsm;
@@ -125,7 +127,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
             return false;
 
         Vector3 toPlayer = (player.transform.position - transform.position).normalized;
-        float angle = Vector3.Angle(transform.forward, toPlayer);
+        float angle = Vector3.Angle(anime.transform.forward, toPlayer);
         Debug.DrawRay(transform.position + Vector3.up, toPlayer * dist, Color.green, 0.1f);
         if (angle > viewAngle)
         {
@@ -133,7 +135,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
             return false;
         }
 
-        Vector3 origin = transform.position;
+        Vector3 origin = transform.position + Vector3.up;
         Vector3 target = player.transform.position + Vector3.up;
         Vector3 dir = target - origin;
         Debug.DrawRay(origin, dir.normalized * range, Color.red, 0.1f);
@@ -258,5 +260,19 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public virtual void SetQuestionMark(bool active)
     {
         
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!debugLine || patrolPoints.Length <= 0)
+            return; Vector3 t1, t2;
+        t1 = t2 = transform.position + Vector3.up;
+        for (int i = 0; i < patrolPoints.Length; i++)
+        {
+            t2 += transform.TransformDirection(patrolPoints[i].relativeMovePoint);
+            if (0 < i)
+                t1 += transform.TransformDirection(patrolPoints[i - 1].relativeMovePoint);
+            Debug.DrawLine(t1, t2, Color.red);
+        }
     }
 }

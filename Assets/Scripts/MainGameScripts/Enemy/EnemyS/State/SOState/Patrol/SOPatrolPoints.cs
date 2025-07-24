@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SOPatrolPoints", menuName = "Enemy Logic/Patrol Logic/PointPatrol")]
@@ -75,12 +74,10 @@ public class SOPatrolPoints : EnemyPatrolSOBase
             if (Mathf.Abs(Pos[patrolIndex].x - transform.position.x) < 0.05f)
             {
                 nav.ResetPath();
-                nav.velocity = Vector3.zero;
 
                 if (enemy.patrolPoints[patrolIndex].needJump && isGoingForward)
                 {
                     nav.ResetPath();
-                    nav.enabled = false;
                     float apexH = enemy.patrolPoints[patrolIndex].jumpPower > 0
                                   ? enemy.patrolPoints[patrolIndex].jumpPower
                                   : enemy.defaultApexHeight;

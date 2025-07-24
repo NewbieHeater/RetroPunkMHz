@@ -10,7 +10,7 @@ public class EnemyAttackSOBase : ScriptableObject
     protected Animator animator;
 
     protected Transform playerTransform;
-    public float rotationSpeed = 360f;
+    [SerializeField] private float rotationSpeedDegPerSec = 360f;
     public virtual void Initialize(GameObject gameObject, EnemyFSMBase enemy)
     {
         this.gameObject = gameObject;
@@ -42,12 +42,16 @@ public class EnemyAttackSOBase : ScriptableObject
 
     protected void RotateTowardPlayer()
     {
-        Vector3 dir = (enemy.player.transform.position - transform.position).normalized;
-        Quaternion tgt = Quaternion.LookRotation(dir);
-        float newY = Mathf.MoveTowardsAngle(
-            transform.eulerAngles.y,
-            tgt.eulerAngles.y,
-            rotationSpeed * Time.deltaTime);
-        transform.eulerAngles = new Vector3(transform.eulerAngles.x, newY, transform.eulerAngles.z);
+        Vector3 dir = playerTransform.position - transform.position;
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.001f)
+            return;
+        Quaternion targetRot = Quaternion.LookRotation(dir);
+        Debug.Log(targetRot);
+        animator.transform.rotation = Quaternion.RotateTowards(
+            animator.transform.rotation,
+            targetRot,
+            rotationSpeedDegPerSec * Time.deltaTime
+        );
     }
 }

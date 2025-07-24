@@ -25,12 +25,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1109651807614902758}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1379709997423617245}
+  m_Father: {fileID: 7042058637773636835}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &7736656576922526044
 BoxCollider:
@@ -582,7 +582,6 @@ Transform:
   - {fileID: 434929562312366034}
   - {fileID: 7383677792423800605}
   - {fileID: 9080946445321832034}
-  - {fileID: 1068239445041866391}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &110789832776512034
@@ -597,6 +596,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4749f4cea4464c14f816b5b6c3d3ad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
+  meleeAttackCollider: {fileID: 0}
   enemyIdleBase: {fileID: 11400000, guid: eeb7a05c142883245af4eae2706b4721, type: 2}
   enemyAttackBase: {fileID: 11400000, guid: 6cc5e5b36e8b1084d859d395b656cd9c, type: 2}
   enemyPatrolBase: {fileID: 11400000, guid: 5a280b2772b72cf45afea8ea19e35b26, type: 2}
@@ -623,23 +624,23 @@ MonoBehaviour:
   aggroRange: 8
   maxDist: 0
   patrolPoints:
-  - point: {fileID: 0}
+  - relativeMovePoint: {x: 0, y: 0, z: 0}
     dwellTime: 0
     needJump: 0
     jumpPower: 0
-  - point: {fileID: 0}
+  - relativeMovePoint: {x: 0, y: 0, z: 0}
     dwellTime: 0
     needJump: 0
     jumpPower: 0
-  - point: {fileID: 0}
+  - relativeMovePoint: {x: 0, y: 0, z: 0}
     dwellTime: 0
     needJump: 0
     jumpPower: 0
   cap: {fileID: 0}
   rigidNav: {fileID: 0}
+  debugLine: 0
   player: {fileID: 0}
   questionMark: {fileID: 3714204440217862717}
-  bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
 --- !u!114 &7656398348040131433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -652,6 +653,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83b4a053ae93c464299969d5a89ec838, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 3
+  stoppingDistance: 0.01
+  climbableLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallDetectDistance: 0.5
+  climbSpeed: 2
+  jumpApexHeight: 2
 --- !u!54 &5337067924840425218
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -925,7 +934,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 578376449398627443, guid: 6dc4cf4496348884d8ee27743ae38562, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1068239445041866391}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6dc4cf4496348884d8ee27743ae38562, type: 3}
 --- !u!4 &7042058637773636835 stripped
