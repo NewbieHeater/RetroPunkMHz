@@ -28,7 +28,7 @@ public struct PatrolPoint
 
 public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInteract
 {
-    public GameObject bullet;
+    public string bullet;
     public BoxCollider meleeAttackCollider;
 
     [SerializeField] private EnemyIdleSOBase    enemyIdleBase;

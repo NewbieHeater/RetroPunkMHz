@@ -881,6 +881,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 421399045000893183, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1246414349334220906, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
       propertyPath: mItemDataManager
       value: 
@@ -1253,6 +1257,10 @@ PrefabInstance:
       propertyPath: mItemActionManager
       value: 
       objectReference: {fileID: 1164566891}
+    - target: {fileID: 9206851549073978524, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1914923396464958068, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
     - {fileID: 908131542468411183, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
@@ -3246,12 +3254,12 @@ GameObject:
   - component: {fileID: 530960475}
   - component: {fileID: 530960474}
   m_Layer: 8
-  m_Name: GameObject
+  m_Name: Climber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!54 &530960474
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3314,7 +3322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd347473f2d6ccf4ba3040a02430252a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
+  bullet: 
   meleeAttackCollider: {fileID: 0}
   enemyIdleBase: {fileID: 11400000, guid: 0b705d5d39f0ecb47b85076e682cebc2, type: 2}
   enemyAttackBase: {fileID: 11400000, guid: 2f207651054125e4c92561af1f0d3759, type: 2}
@@ -7497,7 +7505,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1236453757
 MonoBehaviour:
@@ -9218,10 +9226,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1236453756}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1546454387
 MonoBehaviour:
@@ -9252,8 +9260,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -9270,15 +9278,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 65.6
+  m_fontSizeBase: 55
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -9286,7 +9294,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -10446,6 +10454,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 110789832776512034, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
+      propertyPath: bullet
+      value: NormalBullet
+      objectReference: {fileID: 0}
+    - target: {fileID: 110789832776512034, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 0}
@@ -10471,7 +10483,7 @@ PrefabInstance:
       objectReference: {fileID: 1442239285}
     - target: {fileID: 110789832776512034, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
       propertyPath: obstacleMask.m_Bits
-      value: 1216
+      value: 3264
       objectReference: {fileID: 0}
     - target: {fileID: 110789832776512034, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
       propertyPath: patrolPoints.Array.size
@@ -12637,6 +12649,7 @@ SceneRoots:
   - {fileID: 1187366673}
   - {fileID: 281182944}
   - {fileID: 181809462}
+  - {fileID: 1049561819}
   - {fileID: 859057850}
   - {fileID: 1725580494}
   - {fileID: 9168394672882995917}
@@ -12657,4 +12670,3 @@ SceneRoots:
   - {fileID: 446462850}
   - {fileID: 1566334875}
   - {fileID: 1164566894}
-  - {fileID: 1049561819}

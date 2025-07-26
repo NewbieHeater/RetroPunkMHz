@@ -48,7 +48,6 @@ public class ItemDescription : MonoBehaviour
         mStringBuilder.Append("</b>");
 
         //설명 가져오기
-        mStringBuilder.AppendLine();
         mStringBuilder.AppendLine(Description);
 
         //텍스트 replace
