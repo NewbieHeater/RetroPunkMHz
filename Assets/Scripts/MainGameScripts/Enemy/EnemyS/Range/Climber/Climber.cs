@@ -48,7 +48,8 @@ public class Climber : EnemyFSMBase
 
         base.Start();
 
-
+        fsm = new DataStateMachine(State.Patrol, stateMap, transitions);
+        CurrentState = State.Patrol;
     }
 
 

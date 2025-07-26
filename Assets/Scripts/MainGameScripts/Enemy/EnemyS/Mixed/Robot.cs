@@ -41,7 +41,7 @@ public class Robot : EnemyFSMBase
             ),
             new StateTransition(
                 State.MeleeAttack, State.Search,
-                () => Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange || !IsPlayerInSight(rangeAttackRange)
+                () => (Vector3.Distance(transform.position, player.transform.position) > rangeAttackRange || !IsPlayerInSight(rangeAttackRange)) && Vector3.Distance(transform.position, player.transform.position) > findRange
             ),
             // ANY ¡æ Death
             new StateTransition(

@@ -1,5 +1,7 @@
 ﻿using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.UI.Image;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RigidNavigation : MonoBehaviour
@@ -8,23 +10,29 @@ public class RigidNavigation : MonoBehaviour
     private MoveMode mode;
 
     [Header("공통 설정")]
-    [SerializeField] float speed = 3f;
+    [SerializeField] private float speed = 3f;
     [SerializeField] public float stoppingDistance = 0.01f;
 
     [Header("Climb 설정")]
-    [SerializeField] LayerMask climbableLayer;
-    [SerializeField] float wallDetectDistance = 0.5f;
-    [SerializeField] float climbSpeed = 2f;
+    [SerializeField] private LayerMask climbableLayer;
+    [SerializeField] private float wallDetectDistance = 0.1f;
+    [SerializeField] private float climbSpeed = 2f;
 
     [Header("Jump 설정")]
-    [SerializeField] float jumpApexHeight = 2f;
+    [SerializeField] private float jumpApexHeight = 30f;
 
+    //플래그 변수
     public bool hasPath { get; private set; }
     public bool isStopped { get; set; }
-
-    private Vector3 targetPos;
-    private Rigidbody rigid;
+    public bool isGrounded { get; private set; }
     private bool jumpLaunched;
+
+    //내부 변수
+    private Vector3 resetVector = Vector3.zero;
+    private Vector3 targetPos;
+
+    private Rigidbody rigid;
+    
 
     private void Awake()
     {
@@ -40,36 +48,40 @@ public class RigidNavigation : MonoBehaviour
         speed = newSpeed;
     }
 
-    // — 일반 걷기
-    public void SetDestination(Vector3 dst)
+    private void SetDestination(Vector3 dst, MoveMode moveMode, System.Action extraSetup = null)
     {
         ResetState();
-        mode = MoveMode.Walk;
+        mode = moveMode;
         targetPos = dst;
-        hasPath = true;
+        extraSetup?.Invoke();
+        ResetOnMove();
     }
 
-    // — 벽 감지 후 자동 등반
+    public void SetDestinationWalk(Vector3 dst)
+    {
+        SetDestination(dst, MoveMode.Walk);
+    }
+
     public void SetDestinationClimb(Vector3 dst)
     {
-        ResetState();
-        mode = MoveMode.Climb;
-        targetPos = dst;
-        hasPath = true;
+        SetDestination(dst, MoveMode.Climb);
     }
 
-    // — 포물선을 그리며 점프
     public void SetDestinationJump(Vector3 dst)
     {
-        ResetState();
-        mode = MoveMode.Jump;
-        targetPos = dst;
+        SetDestination(dst, MoveMode.Jump, () => jumpLaunched = false);
+    }
+
+
+    private void ResetOnMove()
+    {
         hasPath = true;
-        jumpLaunched = false;
+        isStopped = false;
+        isReset = false;
     }
 
     public float RemainingDistance()
-        => Vector3.Distance(transform.position, targetPos);
+        => Mathf.Abs(transform.position.x - targetPos.x);
 
     public void ResetPath()
     {
@@ -79,27 +91,40 @@ public class RigidNavigation : MonoBehaviour
 
     private void ResetState()
     {
-        rigid.velocity = Vector3.zero;
+        //rigid.velocity = resetVector;
         rigid.useGravity = true;
         jumpLaunched = false;
+        isReset = true;
     }
+    [SerializeField] private bool isReset = false;
 
     private void Update()
     {
+        resetVector = new Vector3(0,rigid.velocity.y,0);
+        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out var hit, 0.2f, climbableLayer))
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+
         if (!hasPath || isStopped) return;
 
         // 도착 처리
-        if (RemainingDistance() <= stoppingDistance && mode != MoveMode.Jump)
+        if (RemainingDistance() <= stoppingDistance && mode != MoveMode.Jump && !isReset && isGrounded)
         {
+            
             ResetPath();
         }
     }
-
+    
     private void FixedUpdate()
     {
         if (!hasPath || isStopped)
         {
-            rigid.velocity = Vector3.zero;
+            rigid.velocity = resetVector;
             return;
         }
 
@@ -129,7 +154,7 @@ public class RigidNavigation : MonoBehaviour
         Vector3 forward = Vector3.right * dir;
 
         // 벽 감지
-        if (Physics.Raycast(transform.position, forward, out var hit, wallDetectDistance, climbableLayer))
+        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, forward, out var hit, wallDetectDistance, climbableLayer))
         {
             // 등반 중
             rigid.useGravity = false;
@@ -147,8 +172,8 @@ public class RigidNavigation : MonoBehaviour
     {
         if (!jumpLaunched)
         {
-            // 첫 FixedUpdate에서만 발사
             Vector3 launch = CalculateLaunchVelocity(transform.position, targetPos, jumpApexHeight);
+
             rigid.velocity = launch;
             jumpLaunched = true;
             rigid.useGravity = true;
@@ -156,25 +181,38 @@ public class RigidNavigation : MonoBehaviour
         else
         {
             // 공중에서 목표 지점 근처로 오면 경로 종료
-            if (RemainingDistance() <= stoppingDistance && Mathf.Abs(rigid.velocity.y) < 0.1f)
+            if (RemainingDistance() <= stoppingDistance && isGrounded)
                 ResetPath();
+            else if(RemainingDistance() >= stoppingDistance)
+                SetDestinationWalk(targetPos);
         }
     }
 
     // 포물선 계산 (수직+수평 속도)
-    private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
+    private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float heightBias = 1.5f)
     {
         float g = Physics.gravity.y;
+
+        // 시작점과 도착점의 높이 차이
+        float deltaY = end.y - start.y;
+
+        // 최고점 높이 계산: 더 높은 곳을 향할수록 더 높은 점프가 필요함
+        float apexHeight = Mathf.Max(deltaY + heightBias, heightBias); // 항상 최소 heightBias 이상
+
+        // 수직 속도 및 상승 시간 계산
         float vUp = Mathf.Sqrt(-2f * g * apexHeight);
         float tUp = vUp / -g;
-        float deltaH = apexHeight - (end.y - start.y);
-        float tDown = Mathf.Sqrt(2f * deltaH / -g);
+
+        // 하강 거리와 시간 계산
+        float tDown = Mathf.Sqrt(2f * Mathf.Max(apexHeight - deltaY, 0.01f) / -g);
         float totalT = tUp + tDown;
 
-        Vector3 horiz = end - start;
-        horiz.y = 0f;
-        Vector3 vHoriz = horiz / totalT;
+        // 수평 속도 계산
+        Vector3 horizontal = end - start;
+        horizontal.y = 0f;
+        Vector3 vHoriz = horizontal / totalT;
 
         return vHoriz + Vector3.up * vUp;
     }
+
 }

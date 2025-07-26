@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffb6abd4e32dd314eb6468dcca57f883, type: 3}
-  m_Name: SOPatrolPoint
+  m_Script: {fileID: 11500000, guid: def47b5a3942142488b7810a3d913710, type: 3}
+  m_Name: SOClimber
   m_EditorClassIdentifier: 
-  patrolSpeed: 2
-  rotationSpeedDegPerSec: 270
+  patrolSpeed: 4
+  rotationSpeedDegPerSec: 180
   isGoingForward: 1

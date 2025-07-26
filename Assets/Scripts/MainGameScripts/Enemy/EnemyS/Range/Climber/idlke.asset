@@ -9,9 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffb6abd4e32dd314eb6468dcca57f883, type: 3}
-  m_Name: SOPatrolPoint
+  m_Script: {fileID: 11500000, guid: c54283967a7af304eb9ec1b2a35e995b, type: 3}
+  m_Name: idlke
   m_EditorClassIdentifier: 
-  patrolSpeed: 2
-  rotationSpeedDegPerSec: 270
-  isGoingForward: 1

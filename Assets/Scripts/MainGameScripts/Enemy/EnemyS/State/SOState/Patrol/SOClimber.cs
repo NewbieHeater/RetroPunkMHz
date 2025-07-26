@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SOPatrolPoints", menuName = "Enemy Logic/Patrol Logic/PointPatrol")]
-public class SOPatrolPoints : EnemyPatrolSOBase
+[CreateAssetMenu(fileName = "SOClimber", menuName = "Enemy Logic/Patrol Logic/Climber")]
+public class SOClimber : EnemyPatrolSOBase
 {
     private int patrolIndex = 0;
     [SerializeField] private float patrolSpeed = 0.1f;
@@ -25,8 +25,8 @@ public class SOPatrolPoints : EnemyPatrolSOBase
         Pos = new Vector3[enemy.patrolPoints.Length + 1];
         Pos[0] = transform.position + transform.TransformDirection(enemy.patrolPoints[0].relativeMovePoint);
         for (int i = 1; i < enemy.patrolPoints.Length; i++)  //0번은 이미 채웠으므로 1번부터 채운다.        
-        {            
-            Pos[i] = Pos[i - 1] + transform.TransformDirection(enemy.patrolPoints[i].relativeMovePoint);  
+        {
+            Pos[i] = Pos[i - 1] + transform.TransformDirection(enemy.patrolPoints[i].relativeMovePoint);
         }
     }
 
@@ -37,15 +37,15 @@ public class SOPatrolPoints : EnemyPatrolSOBase
         nav.SetSpeed(patrolSpeed);
         nav.ResetPath();
 
-        
+
         isWaiting = false;
-        nav.SetDestinationWalk(Pos[patrolIndex]);
-        
+        nav.SetDestinationClimb(Pos[patrolIndex]);
+
     }
-    
+
     public override void OperateUpdate()
     {
-        
+
 
         if (enemy.patrolPoints == null || enemy.patrolPoints.Length == 0)
             return;
@@ -62,13 +62,13 @@ public class SOPatrolPoints : EnemyPatrolSOBase
 
         if (isWaiting)
         {
-            
+
             if (Time.time - waitStartTime >= enemy.patrolPoints[patrolIndex].dwellTime)
             {
-                
+
                 isWaiting = false;
                 AdvanceIndex();
-                nav.SetDestinationWalk(Pos[patrolIndex]);
+                nav.SetDestinationClimb(Pos[patrolIndex]);
             }
         }
         else
@@ -90,20 +90,20 @@ public class SOPatrolPoints : EnemyPatrolSOBase
                     //rigid.velocity = launch;
                     Debug.Log("jump");
                     nav.SetDestinationJump(nextPos);
-                    
+                    enemy.StartCoroutine(ResumeAfterJump(nextPos));
                 }
                 else
                 {
                     if (enemy.patrolPoints[patrolIndex].dwellTime > 0f)
                     {
                         isWaiting = true;
-                        
+
                         waitStartTime = Time.time;
                     }
                     else
                     {
                         AdvanceIndex();
-                        nav.SetDestinationWalk(Pos[patrolIndex]);
+                        nav.SetDestinationClimb(Pos[patrolIndex]);
                     }
                 }
             }
@@ -167,5 +167,29 @@ public class SOPatrolPoints : EnemyPatrolSOBase
         {
             patrolIndex = (patrolIndex + 1) % len;
         }
+    }
+
+    private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
+    {
+        float g = Physics.gravity.y;
+        float vUp = Mathf.Sqrt(-2f * g * apexHeight);
+        float tUp = vUp / -g;
+        float δH = apexHeight - (end.y - start.y);
+        float tDown = Mathf.Sqrt(2f * δH / -g);
+        float totalT = tUp + tDown;
+        Vector3 horiz = end - start;
+        horiz.y = 0;
+        Vector3 vHoriz = horiz / totalT;
+        return vHoriz + Vector3.up * vUp;
+    }
+
+    private IEnumerator ResumeAfterJump(Vector3 resumePos)
+    {
+        yield return new WaitForSeconds(2f);
+        rigid.velocity = Vector3.zero;
+        nav.enabled = true;
+
+        nav.isStopped = false;
+        nav.SetDestinationWalk(resumePos);
     }
 }

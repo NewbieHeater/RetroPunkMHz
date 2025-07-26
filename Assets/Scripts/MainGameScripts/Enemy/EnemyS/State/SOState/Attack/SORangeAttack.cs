@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SOMeleeAttack", menuName = "Enemy Logic/Attack Logic/Range")]
+[CreateAssetMenu(fileName = "SORangeAttack", menuName = "Enemy Logic/Attack Logic/Range")]
 public class SORangeAttack : EnemyAttackSOBase
 {
     enum Phase { Windup, Strike, Cooldown }
@@ -94,7 +94,6 @@ public class SORangeAttack : EnemyAttackSOBase
         // 3) 회전(방향) 설정
         Quaternion rot = Quaternion.LookRotation(dir);
 
-        // 4) 총알 인스턴스화
-        Instantiate(enemy.bullet, spawnPos, rot);
+        ObjectPooler.SpawnFromPool("NormalBullet", spawnPos, rot);
     }
 }

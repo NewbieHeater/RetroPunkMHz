@@ -47,7 +47,6 @@ public class EnemyAttackSOBase : ScriptableObject
         if (dir.sqrMagnitude < 0.001f)
             return;
         Quaternion targetRot = Quaternion.LookRotation(dir);
-        Debug.Log(targetRot);
         animator.transform.rotation = Quaternion.RotateTowards(
             animator.transform.rotation,
             targetRot,

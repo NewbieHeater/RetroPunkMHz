@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering.VirtualTexturing;
+using static UnityEngine.UI.Image;
 
 public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death, ANY }
 
@@ -143,11 +144,11 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
         return IsRayHitOnPlayer(origin, dir);
     }
 
-    public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir)
+    public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir, float distance)
     {
-        Debug.DrawRay(origin, dir.normalized * maxDist, Color.red, 0.1f);
+        Debug.DrawRay(origin, dir.normalized * distance, Color.red, 0.1f);
 
-        if (Physics.Raycast(origin, dir, out var hit, maxDist, obstacleMask))
+        if (Physics.Raycast(origin, dir, out var hit, distance, obstacleMask))
         {
             return hit;
         }
@@ -157,14 +158,14 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     public bool IsRayHitOnPlayer(Vector3 origin, Vector3 dir)
     {
-        if (GetRaycastHit(origin, dir) is RaycastHit hit)
+        if (GetRaycastHit(origin, dir, maxDist) is RaycastHit hit)
         {
             return hit.collider.CompareTag("Player");
         }
         return false;
     }
 
-
+    public bool isGrounded => rigidNav.isGrounded;
     #region StateUpdate
 
     private void Update()
