@@ -1,12 +1,17 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
+
+    public uiMangers uiMangers;
     public void Interact()
     {
-        Debug.Log("»óÈ£ÀÛ¿ë");
+        Debug.Log("ìƒí˜¸ì‘ìš©");
+
+        uiMangers.showUI();
+
     }
 
 

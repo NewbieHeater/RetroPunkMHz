@@ -107,8 +107,8 @@ public class Player : MonoBehaviour
     private float gravityMultiplier;
     private float defaultGravityScale = 1f;
     private float newGravity;
-    private bool canPass = false; 
-
+    private bool canPass = false;
+    public GameObject uiPanel;
     #endregion
 
     public int maxHp = 100;
@@ -136,7 +136,7 @@ public class Player : MonoBehaviour
         desiredJump = false;
         jumpHeld = false;
         lastSpeed = maxSpeed;
-
+        uiPanel.SetActive(false);
     }
 
 
