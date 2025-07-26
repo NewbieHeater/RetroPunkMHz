@@ -2,13 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : Singleton<DialogueManager>
 {
-    private static DialogueManager instance;
-    public static DialogueManager Instance
-    {
-        get { return instance; }
-    }
 
     public DialogueLoader dialogueLoader;  // DialogueLoader는 JSON 파일을 파싱해 여러 그룹을 관리함
     public DialogueUI dialogueUI;          // 대화 텍스트, 선택지, 초상화 등 UI를 제어하는 스크립트
@@ -33,19 +28,6 @@ public class DialogueManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             ProceedToNext();
-        }
-    }
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(this.gameObject);
         }
     }
 

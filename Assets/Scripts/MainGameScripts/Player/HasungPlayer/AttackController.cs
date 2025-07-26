@@ -4,6 +4,8 @@ using TMPro;
 
 public class AttackController : MonoBehaviour
 {
+    [Header("Attackable Layer")]
+    [SerializeField] private LayerMask attackableLayer;
     [Header("Attack Settings")]
     [SerializeField] private int normalDamage = 10;
     [SerializeField] private float minChargeTime = 0.2f, maxChargeTime = 1f;
@@ -18,7 +20,7 @@ public class AttackController : MonoBehaviour
     private bool isCharging;
     private float chargeTimer;
     private Camera cam;
-    private Animator animator;
+    [SerializeField] private Animator animator;
     private Collider[] overlapResults = new Collider[16];
     private float attackCapsuleHeight = 1f;
 
@@ -29,7 +31,7 @@ public class AttackController : MonoBehaviour
     }
     private void Update()
     {
-        HandleInput();
+        
     }
 
     public void HandleInput()
@@ -95,8 +97,7 @@ public class AttackController : MonoBehaviour
         float halfHeight = attackCapsuleHeight * 0.5f;
         Vector3 pointA = tipCenter + perp * halfHeight;
         Vector3 pointB = tipCenter - perp * halfHeight;
-        int mask = LayerMask.GetMask("Enemy", "Destructible");
-        int hitCount = Physics.OverlapCapsuleNonAlloc(pointA, pointB, attackRadius, overlapResults, mask, QueryTriggerInteraction.Collide);
+        int hitCount = Physics.OverlapCapsuleNonAlloc(pointA, pointB, attackRadius, overlapResults, attackableLayer, QueryTriggerInteraction.Collide);
         for (int i = 0; i < hitCount; i++) if (overlapResults[i].TryGetComponent<IAttackable>(out var atk)) atk.TakeDamage(info);
     }
 

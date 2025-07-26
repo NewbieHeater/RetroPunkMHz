@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public PlayerManagement player;
+    public RigidPlayerManagement player;
 
 
 
@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
     {
         var go = GameObject.FindWithTag("Player");
         if (go != null)
-            player = go.GetComponent<PlayerManagement>();
+            player = go.GetComponent<RigidPlayerManagement>();
         else
             player = null;
     }

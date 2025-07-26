@@ -1,9 +1,11 @@
-using UnityEngine;
-using UnityEngine.AI;
 using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.Rendering.VirtualTexturing;
+using static UnityEngine.UI.Image;
 
 public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death, ANY }
 
@@ -12,7 +14,7 @@ public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death
 public struct PatrolPoint
 {
     [Tooltip("순찰할 위치")]
-    public Transform point;
+    public Vector3 relativeMovePoint;
 
     [Tooltip("이 위치에서 기다릴 시간(초)")]
     public float dwellTime;
@@ -26,6 +28,17 @@ public struct PatrolPoint
 
 public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInteract
 {
+    public string bullet;
+    public BoxCollider meleeAttackCollider;
+
+    [SerializeField] private EnemyIdleSOBase    enemyIdleBase;
+    [SerializeField] private EnemyAttackSOBase  enemyAttackBase;
+    [SerializeField] private EnemyPatrolSOBase  enemyPatrolBase;
+
+    [HideInInspector] public EnemyIdleSOBase enemyIdleBaseInstance;
+    [HideInInspector] public EnemyAttackSOBase enemyAttackBaseInstance;
+    [HideInInspector] public EnemyPatrolSOBase enemyPatrolBaseInstance;
+
     public bool stop;
     [Header("스탯 설정")]
     [SerializeField] protected TextMeshProUGUI HpBar;
@@ -62,29 +75,36 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public Rigidbody        rigid { get; protected set; }
     public NavMeshAgent     agent { get; protected set; }
     public Animator         anime { get; protected set; }
+    public RigidNavigation  rigidNav;
 
     public virtual int RequiredAmpPts => 0;
     public virtual int RequiredPerPts => 0;
     public virtual int RequiredWavPts => 0;
 
+    [SerializeField] private bool debugLine = false;
     public State CurrentState { get; protected set; }
 
     protected DataStateMachine fsm;
     protected Dictionary<State, BaseState> stateMap;
     protected List<StateTransition> transitions;
 
-    public PlayerManagement player;
+    public RigidPlayerManagement player;
 
 
     protected virtual void Awake()
     {
+        enemyIdleBaseInstance = Instantiate(enemyIdleBase);
+        enemyAttackBaseInstance = Instantiate(enemyAttackBase);
+        enemyPatrolBaseInstance = Instantiate(enemyPatrolBase);
+
         maxDist = aggroRange + 1f;
 
         rigid = GetComponent<Rigidbody>();
         agent = GetComponent<NavMeshAgent>();
         anime = GetComponentInChildren<Animator>();
         cap   = GetComponent<CapsuleCollider>();
-        
+        rigidNav = GetComponent<RigidNavigation>();
+
         currentHp = maxHp;
         UpdateHpBarText();
         
@@ -92,8 +112,10 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     protected virtual void Start()
     {
-        //player = GameManager.Instance.player;
-        //fsm = new DataStateMachine<TSelf>(CurrentState, stateMap, transitions);
+        player = GameManager.Instance.player;
+        enemyIdleBaseInstance.Initialize(gameObject, this);
+        enemyAttackBaseInstance.Initialize(gameObject, this);
+        enemyPatrolBaseInstance.Initialize(gameObject, this);
     }
 
     protected virtual void OnEnable()
@@ -106,7 +128,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
             return false;
 
         Vector3 toPlayer = (player.transform.position - transform.position).normalized;
-        float angle = Vector3.Angle(transform.forward, toPlayer);
+        float angle = Vector3.Angle(anime.transform.forward, toPlayer);
         Debug.DrawRay(transform.position + Vector3.up, toPlayer * dist, Color.green, 0.1f);
         if (angle > viewAngle)
         {
@@ -114,7 +136,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
             return false;
         }
 
-        Vector3 origin = transform.position;
+        Vector3 origin = transform.position + Vector3.up;
         Vector3 target = player.transform.position + Vector3.up;
         Vector3 dir = target - origin;
         Debug.DrawRay(origin, dir.normalized * range, Color.red, 0.1f);
@@ -122,11 +144,11 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
         return IsRayHitOnPlayer(origin, dir);
     }
 
-    public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir)
+    public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir, float distance)
     {
-        Debug.DrawRay(origin, dir.normalized * maxDist, Color.red, 0.1f);
+        Debug.DrawRay(origin, dir.normalized * distance, Color.red, 0.1f);
 
-        if (Physics.Raycast(origin, dir, out var hit, maxDist, obstacleMask))
+        if (Physics.Raycast(origin, dir, out var hit, distance, obstacleMask))
         {
             return hit;
         }
@@ -136,14 +158,14 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     public bool IsRayHitOnPlayer(Vector3 origin, Vector3 dir)
     {
-        if (GetRaycastHit(origin, dir) is RaycastHit hit)
+        if (GetRaycastHit(origin, dir, maxDist) is RaycastHit hit)
         {
             return hit.collider.CompareTag("Player");
         }
         return false;
     }
 
-
+    public bool isGrounded => rigidNav.isGrounded;
     #region StateUpdate
 
     private void Update()
@@ -239,5 +261,19 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public virtual void SetQuestionMark(bool active)
     {
         
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!debugLine || patrolPoints.Length <= 0)
+            return; Vector3 t1, t2;
+        t1 = t2 = transform.position + Vector3.up;
+        for (int i = 0; i < patrolPoints.Length; i++)
+        {
+            t2 += transform.TransformDirection(patrolPoints[i].relativeMovePoint);
+            if (0 < i)
+                t1 += transform.TransformDirection(patrolPoints[i - 1].relativeMovePoint);
+            Debug.DrawLine(t1, t2, Color.red);
+        }
     }
 }

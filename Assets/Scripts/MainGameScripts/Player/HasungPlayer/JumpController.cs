@@ -8,8 +8,8 @@ public class JumpController
     // ¼³Á¤°ª
     public float maxJumpHeight = 10f;
     [Range(0.1f, 1f)] public float timeToJumpApex = 0.5f;
-    public float coyoteTime = 0.2f;
-    public float jumpBufferTime = 0.2f;
+    public float coyoteTime = 0.1f;
+    public float jumpBufferTime = 0.1f;
     public bool allowDoubleJump = false;
     public int maxAirJumps = 1;
     [Range(0f, 5f)] public float upwardMovementMultiplier = 1.2f;
