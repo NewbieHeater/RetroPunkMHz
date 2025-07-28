@@ -15,4 +15,9 @@ public class uiMangers : MonoBehaviour
     {
         uiobjects.SetActive(false);
     }
+
+    public void ShowandHideUI()
+    {
+        uiobjects.SetActive(!uiobjects.activeSelf);
+    }
 }

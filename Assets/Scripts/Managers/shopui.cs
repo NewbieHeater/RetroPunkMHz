@@ -13,7 +13,7 @@ public class NewBehaviourScript : MonoBehaviour
     private int item = 10;
     private void Start()
     {
-        itemname.text = "potion";
+        itemname.text = "포션";
         UpdatecountText();
 
         buybutton.onClick.AddListener(Onbuybutton);
@@ -34,6 +34,6 @@ public class NewBehaviourScript : MonoBehaviour
 
     private void UpdatecountText()
     {
-        itemcount.text = item+"gae";
+        itemcount.text = item+"개";
     }
 }
