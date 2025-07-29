@@ -1,0 +1,102 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Cinemachine;
+
+[RequireComponent(typeof(CinemachineVirtualCamera))]
+public class CinemachineCameraController : MonoBehaviour
+{
+    [Header("타겟")]
+    public Transform target;
+    public Transform groundCheck;
+    public LayerMask groundLayer;
+
+    [Header("카메라 설정")]
+    public float leadDistance = 2f;
+    public float fallYOffset = 1f;
+    public bool ignoreJump = true;
+    public float groundCheckRadius = 0.2f;
+
+    [Header("속도 기반 Damping")]
+    public float walkSmooth = 0.3f;
+    public float runSmooth = 0.1f;
+    public float maxWalkSpeed = 3f;
+    public float maxRunSpeed = 6f;
+
+    public GameObject Player;
+
+    private CinemachineVirtualCamera vcam;
+    private PlayerManagement playerMgmt;
+    private CinemachineFramingTransposer transposer;
+    private Rigidbody rb;
+    private MovementController movementCtrl;
+
+    private float groundY;
+    private bool wasGrounded;
+
+    void Start()
+    {
+        vcam = GetComponent<CinemachineVirtualCamera>();
+        playerMgmt = Player.GetComponent<PlayerManagement>();
+        transposer = vcam.GetCinemachineComponent<CinemachineFramingTransposer>();
+
+        if (target == null)
+            target = vcam.Follow;
+
+        rb = Player.GetComponent<Rigidbody>();
+        movementCtrl = Player.GetComponent<MovementController>();
+
+        groundY = Player.transform.position.y;
+        wasGrounded = true;
+    }
+
+    private void LateUpdate()
+    {
+        if (target == null || transposer == null) return;
+
+        bool grounded = playerMgmt.IsGrounded;
+        float inputX = movementCtrl.inputX;
+        float horizontalSpeed = Mathf.Abs(rb.velocity.x);
+        float verticalSpeed = rb.velocity.y;
+
+        //리드 거리 적용 (이동 방향에 따른 카메라 선행)
+        float leadOffset = Mathf.Abs(inputX) > 0.1f ? Mathf.Sign(inputX) * leadDistance : 0f;
+        transposer.m_TrackedObjectOffset.x = leadOffset;
+
+        //점프 무시 기능 + 낙하 offset 적용
+        float targetYOffset = 0f;
+
+        if (ignoreJump)
+        {
+            if (!wasGrounded && grounded)
+                groundY = Player.transform.position.y;
+            
+            if (grounded)
+                groundY = Player.transform.position.y;
+            
+            else if (Player.transform.position.y < groundY)
+                groundY = Player.transform.position.y;
+
+
+        }
+        else { targetYOffset = 0f; }
+
+        if (!grounded && verticalSpeed < 0f)
+            targetYOffset -= fallYOffset;
+
+        transposer.m_TrackedObjectOffset.y = targetYOffset;
+
+        //속도 기반 Damping 조절
+        float t = Mathf.InverseLerp(maxWalkSpeed, maxRunSpeed, horizontalSpeed);
+        float smooth = Mathf.Lerp(walkSmooth, runSmooth, t);
+        transposer.m_XDamping = smooth;
+        transposer.m_YDamping = smooth;
+
+        wasGrounded = grounded;
+    }
+
+    void Update()
+    {
+        
+    }
+}
