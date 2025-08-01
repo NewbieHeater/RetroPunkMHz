@@ -65,7 +65,10 @@ public class InventoryMain : InventoryBase
     {
 
     }
-
+    public InventorySlot[] GetAllItems()
+    {
+        return null;
+    }
 
     /// <summary>
     /// 특정 아이템 슬롯에 아이템을 등록시킨다

@@ -38,7 +38,7 @@ public class RangeRobot : EnemyFSMBase
             // ANY ¡æ Death
             new StateTransition(
                 State.ANY, State.Death,
-                () => currentHp <= 0
+                () => mCurrentHp <= 0
             ),
         };
         

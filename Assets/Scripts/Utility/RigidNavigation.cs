@@ -101,7 +101,7 @@ public class RigidNavigation : MonoBehaviour
     private void Update()
     {
         resetVector = new Vector3(0,rigid.velocity.y,0);
-        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out var hit, 0.2f, climbableLayer))
+        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out var hit, 0.7f, climbableLayer))
         {
             isGrounded = true;
         }
@@ -145,26 +145,48 @@ public class RigidNavigation : MonoBehaviour
     private void DoWalk()
     {
         float dir = Mathf.Sign(targetPos.x - transform.position.x);
-        rigid.velocity = new Vector3(dir * speed, rigid.velocity.y, 0f);
+        Vector3 move = new Vector3(dir * speed * Time.fixedDeltaTime, 0f, 0f);
+        rigid.MovePosition(rigid.position + move);
     }
-
+    private float rotationSpeed = 180f;
+    [SerializeField] float wallOffset = 0.05f;
     private void DoClimb()
     {
         float dir = Mathf.Sign(targetPos.x - transform.position.x);
         Vector3 forward = Vector3.right * dir;
-
+        Debug.Log(forward);
+        
         // 벽 감지
-        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, forward, out var hit, wallDetectDistance, climbableLayer))
+        if (Physics.Raycast(transform.position + Vector3.down * 0.5f, forward, out var hit, wallDetectDistance, climbableLayer))
         {
-            // 등반 중
+            
+            Quaternion targetRot = Quaternion.Euler(0f, 0f, Vector3.ProjectOnPlane(forward, hit.normal).z + 90);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                targetRot,
+                rotationSpeed * Time.deltaTime
+            );
+
             rigid.useGravity = false;
-            rigid.velocity = Vector3.up * climbSpeed;
+            float newY = Mathf.MoveTowards(
+                transform.position.y,
+                targetPos.y,
+                climbSpeed * Time.fixedDeltaTime
+            );
+            float fixX = hit.point.x - forward.x * wallOffset;
+            Vector3 newPos = new Vector3(fixX, newY, 0f);
+            rigid.MovePosition(newPos);
         }
         else
         {
-            // 등반 끝나면 다시 걷기
-            rigid.useGravity = true;
-            rigid.velocity = new Vector3(dir * speed, rigid.velocity.y, 0f);
+            Debug.Log("ADF");
+            transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            Quaternion.identity,         // 세계 기준 앞(필요하면 originalRotation으로)
+            rotationSpeed * Time.deltaTime
+            );
+            //rigid.useGravity = true;
+            DoWalk();
         }
     }
 
