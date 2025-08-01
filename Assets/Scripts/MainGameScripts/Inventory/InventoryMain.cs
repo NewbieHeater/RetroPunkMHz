@@ -67,7 +67,7 @@ public class InventoryMain : InventoryBase
     }
     public InventorySlot[] GetAllItems()
     {
-        return null;
+        return mSlots;
     }
 
     /// <summary>
