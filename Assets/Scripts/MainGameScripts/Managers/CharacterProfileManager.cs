@@ -1,25 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class CharacterProfileManager : MonoBehaviour
+public class CharacterProfileManager : Singleton<CharacterProfileManager>
 {
-    public static CharacterProfileManager Instance;
     public List<CharacterProfile> profiles; // 에디터에서 할당하거나 Resources.LoadAll<CharacterProfile>("Profiles") 등을 이용
 
     private Dictionary<string, CharacterProfile> profileDictionary = new Dictionary<string, CharacterProfile>();
 
-    private void Awake()
+    protected override void Initialize()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(this.gameObject);
-            InitializeProfiles();
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
+        InitializeProfiles();
     }
 
     private void InitializeProfiles()

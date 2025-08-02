@@ -12,10 +12,10 @@ public class ItemActionManager : MonoBehaviour
     /// </summary>
     public static string _SkillMessage = "ActiveSkill";
 
-    [SerializeField] private RigidPlayerManagement mPlayerController;
+    [SerializeField] private RigidPlayerManagement _playerController;
 
     [Header("Preloaded objects into the scene")]
-    [SerializeField] private GameObject[] mObjects;
+    [SerializeField] private GameObject[] _objects;
 
     /// <summary>
     /// 아이템 사용 이벤트 호출

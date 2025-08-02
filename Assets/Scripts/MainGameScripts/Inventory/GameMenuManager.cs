@@ -2,18 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameMenuManager : MonoBehaviour
+public class GameMenuManager : Singleton<GameMenuManager>
 {
-    public static GameMenuManager instance;
-    public static bool IsOptionActive { get; private set; }
-    void Start()
-    {
-        instance = this;
-    }
+    public static bool IsOptionActive = false;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

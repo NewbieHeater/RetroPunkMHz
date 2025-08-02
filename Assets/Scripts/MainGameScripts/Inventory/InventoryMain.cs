@@ -39,7 +39,7 @@ public class InventoryMain : InventoryBase
     /// </summary>
     private void OpenInventory()
     {
-        mInventoryBase.SetActive(true);
+        _inventoryBase.SetActive(true);
         IsInventoryActive = true;
 
         //커서 활성화
@@ -51,7 +51,7 @@ public class InventoryMain : InventoryBase
     /// </summary>
     public void CloseInventory()
     {
-        mInventoryBase.SetActive(false);
+        _inventoryBase.SetActive(false);
         IsInventoryActive = false;
 
         //커서 비활성화
@@ -65,7 +65,10 @@ public class InventoryMain : InventoryBase
     {
 
     }
-
+    public InventorySlot[] GetAllItems()
+    {
+        return _slots;
+    }
 
     /// <summary>
     /// 특정 아이템 슬롯에 아이템을 등록시킨다
@@ -100,15 +103,15 @@ public class InventoryMain : InventoryBase
         //중첩이 가능하다면?
         if (item.CanOverlap)
         {
-            for (int i = 0; i < mSlots.Length; i++)
+            for (int i = 0; i < _slots.Length; i++)
             {
                 //마스크를 사용하여 해당 슬롯이 마스크에 허용되는 위치인경우에만 아이템을 집어넣도록 한다.
-                if (mSlots[i].Item != null && mSlots[i].IsMask(item))
+                if (_slots[i].Item != null && _slots[i].IsMask(item))
                 {
-                    if (mSlots[i].Item.ItemID == item.ItemID)
+                    if (_slots[i].Item.ItemID == item.ItemID)
                     {
                         //현재 슬롯의 아이템 개수(Count)를 갱신한다.
-                        mSlots[i].UpdateSlotCount(count);
+                        _slots[i].UpdateSlotCount(count);
                         return;
                     }
                 }
@@ -116,11 +119,11 @@ public class InventoryMain : InventoryBase
         }
 
         //장비 아이템이 아닌경우 새로운 슬롯에 놓는다.
-        for (int i = 0; i < mSlots.Length; i++)
+        for (int i = 0; i < _slots.Length; i++)
         {
-            if (mSlots[i].Item == null && mSlots[i].IsMask(item))
+            if (_slots[i].Item == null && _slots[i].IsMask(item))
             {
-                mSlots[i].AddItem(item, count);
+                _slots[i].AddItem(item, count);
                 return;
             }
         }

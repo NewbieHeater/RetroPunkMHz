@@ -8,7 +8,7 @@ public class Climber : EnemyFSMBase
     public override int RequiredPerPts => 0;
     public override int RequiredWavPts => 0;
 
-    [SerializeField] protected GameObject questionMark;
+    [SerializeField] protected GameObject mQuestionMark;
 
     protected override void Awake()
     {
@@ -36,7 +36,7 @@ public class Climber : EnemyFSMBase
             // ANY ¡æ Death
             new StateTransition(
                 State.ANY, State.Death,
-                () => currentHp <= 0
+                () => mCurrentHp <= 0
             ),
         };
 
@@ -55,6 +55,6 @@ public class Climber : EnemyFSMBase
 
     public override void SetQuestionMark(bool active)
     {
-        questionMark.SetActive(active);
+        mQuestionMark.SetActive(active);
     }
 }

@@ -31,19 +31,19 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public string bullet;
     public BoxCollider meleeAttackCollider;
 
-    [SerializeField] private EnemyIdleSOBase    enemyIdleBase;
-    [SerializeField] private EnemyAttackSOBase  enemyAttackBase;
-    [SerializeField] private EnemyPatrolSOBase  enemyPatrolBase;
+    [SerializeField] private EnemyIdleSOBase    mEnemyIdleBase;
+    [SerializeField] private EnemyAttackSOBase mEnemyAttackBase;
+    [SerializeField] private EnemyPatrolSOBase mEnemyPatrolBase;
 
-    [HideInInspector] public EnemyIdleSOBase enemyIdleBaseInstance;
-    [HideInInspector] public EnemyAttackSOBase enemyAttackBaseInstance;
-    [HideInInspector] public EnemyPatrolSOBase enemyPatrolBaseInstance;
+    [HideInInspector] public EnemyIdleSOBase EnemyIdleBaseInstance;
+    [HideInInspector] public EnemyAttackSOBase EnemyAttackBaseInstance;
+    [HideInInspector] public EnemyPatrolSOBase EnemyPatrolBaseInstance;
 
     public bool stop;
     [Header("스탯 설정")]
-    [SerializeField] protected TextMeshProUGUI HpBar;
-    [SerializeField] protected int          maxHp = 100;
-    [SerializeField] protected int          currentHp;
+    [SerializeField] protected TextMeshProUGUI mHpBar;
+    [SerializeField] protected int          mMaxHp = 100;
+    [SerializeField] protected int          mCurrentHp;
     public bool                          isDead;
 
     [Header("점프 설정")]
@@ -93,9 +93,9 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     protected virtual void Awake()
     {
-        enemyIdleBaseInstance = Instantiate(enemyIdleBase);
-        enemyAttackBaseInstance = Instantiate(enemyAttackBase);
-        enemyPatrolBaseInstance = Instantiate(enemyPatrolBase);
+        EnemyIdleBaseInstance = Instantiate(mEnemyIdleBase);
+        EnemyAttackBaseInstance = Instantiate(mEnemyAttackBase);
+        EnemyPatrolBaseInstance = Instantiate(mEnemyPatrolBase);
 
         maxDist = aggroRange + 1f;
 
@@ -105,7 +105,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
         cap   = GetComponent<CapsuleCollider>();
         rigidNav = GetComponent<RigidNavigation>();
 
-        currentHp = maxHp;
+        mCurrentHp = mMaxHp;
         UpdateHpBarText();
         
     }
@@ -113,9 +113,9 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     protected virtual void Start()
     {
         player = GameManager.Instance.player;
-        enemyIdleBaseInstance.Initialize(gameObject, this);
-        enemyAttackBaseInstance.Initialize(gameObject, this);
-        enemyPatrolBaseInstance.Initialize(gameObject, this);
+        EnemyIdleBaseInstance.Initialize(gameObject, this);
+        EnemyAttackBaseInstance.Initialize(gameObject, this);
+        EnemyPatrolBaseInstance.Initialize(gameObject, this);
     }
 
     protected virtual void OnEnable()
@@ -227,11 +227,11 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     {
         if (isDead) return;
 
-        currentHp -= info.Amount;
+        mCurrentHp -= info.Amount;
         Debug.Log("hit");
-        if (currentHp <= 0)
+        if (mCurrentHp <= 0)
         {
-            currentHp = 0;
+            mCurrentHp = 0;
             isDead = true;
 
             if (info.IsCharge)
@@ -249,7 +249,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
 
     private void UpdateHpBarText()
     {
-        HpBar.text = $"Hp : {currentHp}";
+        mHpBar.text = $"Hp : {mCurrentHp}";
     }
 
     private void DieInstant()
@@ -263,11 +263,11 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
         
     }
 
-    void OnDrawGizmos()
+    public void OnDrawGizmos()
     {
         if (!debugLine || patrolPoints.Length <= 0)
             return; Vector3 t1, t2;
-        t1 = t2 = transform.position + Vector3.up;
+        t1 = t2 = transform.position;
         for (int i = 0; i < patrolPoints.Length; i++)
         {
             t2 += transform.TransformDirection(patrolPoints[i].relativeMovePoint);

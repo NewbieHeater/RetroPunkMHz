@@ -169,20 +169,6 @@ public class SOClimber : EnemyPatrolSOBase
         }
     }
 
-    private Vector3 CalculateLaunchVelocity(Vector3 start, Vector3 end, float apexHeight)
-    {
-        float g = Physics.gravity.y;
-        float vUp = Mathf.Sqrt(-2f * g * apexHeight);
-        float tUp = vUp / -g;
-        float δH = apexHeight - (end.y - start.y);
-        float tDown = Mathf.Sqrt(2f * δH / -g);
-        float totalT = tUp + tDown;
-        Vector3 horiz = end - start;
-        horiz.y = 0;
-        Vector3 vHoriz = horiz / totalT;
-        return vHoriz + Vector3.up * vUp;
-    }
-
     private IEnumerator ResumeAfterJump(Vector3 resumePos)
     {
         yield return new WaitForSeconds(2f);

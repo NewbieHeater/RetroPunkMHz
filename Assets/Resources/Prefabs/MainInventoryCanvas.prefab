@@ -166,13 +166,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 6271693829414092550}
-  mCooltimeImage: {fileID: 4958319622604468944}
-  mTextCount: {fileID: 3142795431653715305}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!1 &722685246222189416
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,13 +338,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 5487604777274447087}
-  mCooltimeImage: {fileID: 9208766185814846516}
-  mTextCount: {fileID: 7874501882615224159}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!1 &1324208638220622526
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,13 +662,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 1305443280249610743}
-  mCooltimeImage: {fileID: 1529859414204694108}
-  mTextCount: {fileID: 5763858419113206350}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!1 &2483243295873487544
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,13 +835,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 2122630648786594094}
-  mCooltimeImage: {fileID: 7958941714722911770}
-  mTextCount: {fileID: 7419608868776665542}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!1 &2685814967644796821
 GameObject:
   m_ObjectHideFlags: 0
@@ -1393,13 +1393,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 6977669678749964786}
-  mCooltimeImage: {fileID: 4509842056983757354}
-  mTextCount: {fileID: 2749159026407604552}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!1 &4720713404452247999
 GameObject:
   m_ObjectHideFlags: 0
@@ -1705,13 +1705,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 421399045000893183}
-  mCooltimeImage: {fileID: 9206851549073978524}
-  mTextCount: {fileID: 5543965412569609438}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!225 &1382801675154111877
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2389,13 +2389,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 3446248987433611992}
-  mCooltimeImage: {fileID: 1182186530296771585}
-  mTextCount: {fileID: 7063618691541846499}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}
 --- !u!1 &7193530783816734506
 GameObject:
   m_ObjectHideFlags: 0
@@ -2713,7 +2713,7 @@ GameObject:
   - component: {fileID: 703241571792439240}
   - component: {fileID: 1274682517624695417}
   m_Layer: 5
-  m_Name: MainCanvas
+  m_Name: MainInventoryCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2893,10 +2893,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 561f2c17e8c509249a65e53bf4c13c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mSlotMask: 128
-  mItemImage: {fileID: 4807224318564783980}
-  mCooltimeImage: {fileID: 3761264712122685496}
-  mTextCount: {fileID: 9792655577482441}
-  mItemActionManager: {fileID: 0}
-  mItemDataManager: {fileID: 0}
-  mItemDescription: {fileID: 0}
+  _slotMask: 0
+  _itemImage: {fileID: 0}
+  _cooltimeImage: {fileID: 0}
+  _textCount: {fileID: 0}
+  _itemActionManager: {fileID: 0}
+  _itemDataManager: {fileID: 0}
+  _itemDescription: {fileID: 0}

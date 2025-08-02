@@ -46,7 +46,7 @@ public class Robot : EnemyFSMBase
             // ANY ¡æ Death
             new StateTransition(
                 State.ANY, State.Death,
-                () => currentHp <= 0
+                () => mCurrentHp <= 0
             ),
             new StateTransition(
                 State.Search, State.MeleeAttack,

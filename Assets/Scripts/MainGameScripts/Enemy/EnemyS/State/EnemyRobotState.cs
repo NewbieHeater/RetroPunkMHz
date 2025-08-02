@@ -16,22 +16,22 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            enemy.enemyPatrolBaseInstance.OperateEnter();
+            enemy.EnemyPatrolBaseInstance.OperateEnter();
         }
 
         public override void OperateUpdate()
         {
-            enemy.enemyPatrolBaseInstance.OperateUpdate();
+            enemy.EnemyPatrolBaseInstance.OperateUpdate();
         }
 
         public override void OperateExit()
         {
-            enemy.enemyPatrolBaseInstance.OperateExit();
+            enemy.EnemyPatrolBaseInstance.OperateExit();
         }
 
         public override void OperateFixedUpdate() 
         {
-            enemy.enemyPatrolBaseInstance.OperateFixedUpdate();
+            enemy.EnemyPatrolBaseInstance.OperateFixedUpdate();
         }    
     }
 
@@ -50,22 +50,22 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            enemy.enemyIdleBaseInstance.OperateEnter();
+            enemy.EnemyIdleBaseInstance.OperateEnter();
         }
 
         public override void OperateUpdate()
         {
-            enemy.enemyIdleBaseInstance.OperateUpdate();
+            enemy.EnemyIdleBaseInstance.OperateUpdate();
         }
 
         public override void OperateExit()
         {
-            enemy.enemyIdleBaseInstance.OperateExit();
+            enemy.EnemyIdleBaseInstance.OperateExit();
         }
 
         public override void OperateFixedUpdate() 
         {
-            enemy.enemyIdleBaseInstance.OperateFixedUpdate();
+            enemy.EnemyIdleBaseInstance.OperateFixedUpdate();
         }
     }
 
@@ -110,22 +110,22 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            enemy.enemyAttackBaseInstance.OperateEnter();
+            enemy.EnemyAttackBaseInstance.OperateEnter();
         }
 
         public override void OperateUpdate()
         {
-            enemy.enemyAttackBaseInstance.OperateUpdate();
+            enemy.EnemyAttackBaseInstance.OperateUpdate();
         }
 
         public override void OperateExit()
         {
-            enemy.enemyAttackBaseInstance.OperateExit();
+            enemy.EnemyAttackBaseInstance.OperateExit();
         }
 
         public override void OperateFixedUpdate() 
         {
-            enemy.enemyAttackBaseInstance.OperateFixedUpdate();
+            enemy.EnemyAttackBaseInstance.OperateFixedUpdate();
         }
 
         
@@ -142,22 +142,22 @@ namespace EnemyRobotState
 
         public override void OperateEnter()
         {
-            enemy.enemyAttackBaseInstance.OperateEnter();
+            enemy.EnemyAttackBaseInstance.OperateEnter();
         }
 
         public override void OperateUpdate()
         {
-            enemy.enemyAttackBaseInstance.OperateUpdate();
+            enemy.EnemyAttackBaseInstance.OperateUpdate();
         }
 
         public override void OperateExit()
         {
-            enemy.enemyAttackBaseInstance.OperateExit();
+            enemy.EnemyAttackBaseInstance.OperateExit();
         }
 
         public override void OperateFixedUpdate()
         {
-            enemy.enemyAttackBaseInstance.OperateFixedUpdate();
+            enemy.EnemyAttackBaseInstance.OperateFixedUpdate();
         }
 
 
