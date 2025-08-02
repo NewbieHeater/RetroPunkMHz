@@ -8,25 +8,23 @@ using TMPro;
 public class ItemDescription : MonoBehaviour
 {
     [Header("텍스트 관련 오브젝트")]
-    [SerializeField] private GameObject mToolTipObj;
-    [SerializeField] private Canvas mCanvas;
+    [SerializeField] private GameObject _toolTipObj;
+    [SerializeField] private Canvas _canvas;
 
-    [Header("매니저")]
-    [SerializeField] private ItemDataManager mItemDataManager;
 
-    private TextMeshProUGUI mTextArea; //텍스트 라벨
-    private RectTransform mRectTransform; //UI 트랜스폼
+    private TextMeshProUGUI _textArea; //텍스트 라벨
+    private RectTransform _rectTransform; //UI 트랜스폼
 
-    private StringBuilder mStringBuilder; //스트링 빌더
+    private StringBuilder _stringBuilder; //스트링 빌더
 
     private void Start()
     {
-        mTextArea = mToolTipObj.GetComponentInChildren<TextMeshProUGUI>();
-        mRectTransform = mCanvas.GetComponent<RectTransform>();
+        _textArea = _toolTipObj.GetComponentInChildren<TextMeshProUGUI>();
+        _rectTransform = _canvas.GetComponent<RectTransform>();
 
-        mStringBuilder = new StringBuilder();
+        _stringBuilder = new StringBuilder();
 
-        mToolTipObj.SetActive(false);
+        _toolTipObj.SetActive(false);
     }
 
     public void LateUpdate()
@@ -40,19 +38,19 @@ public class ItemDescription : MonoBehaviour
     /// <param name="id"></param>
     public void OpenUI(string name, string Description)
     {
-        mStringBuilder.Clear();
+        _stringBuilder.Clear();
 
         //이름 가져오기
-        mStringBuilder.Append("<b>");
-        mStringBuilder.AppendLine(name);
-        mStringBuilder.Append("</b>");
+        _stringBuilder.Append("<b>");
+        _stringBuilder.AppendLine(name);
+        _stringBuilder.Append("</b>");
 
         //설명 가져오기
-        mStringBuilder.AppendLine(Description);
+        _stringBuilder.AppendLine(Description);
 
         //텍스트 replace
-        mTextArea.SetText(mStringBuilder.ToString());
-        mToolTipObj.SetActive(true);
+        _textArea.SetText(_stringBuilder.ToString());
+        _toolTipObj.SetActive(true);
     }
     //public void OpenUI(int id)
     //{
@@ -76,7 +74,7 @@ public class ItemDescription : MonoBehaviour
     /// </summary>
     public void CloseUI()
     {
-        mToolTipObj.SetActive(false);
+        _toolTipObj.SetActive(false);
     }
 
     /// <summary>

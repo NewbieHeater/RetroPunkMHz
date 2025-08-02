@@ -54,7 +54,7 @@ public class ShopSlot : MonoBehaviour
         }
         else
         {
-            //인벤토리에 아이템을 못넣는 상황에 할일
+            //인벤토리에 아이템을 못넣는 상황에 할일(에러창을 띄운다거나등등)
         }
     }
 

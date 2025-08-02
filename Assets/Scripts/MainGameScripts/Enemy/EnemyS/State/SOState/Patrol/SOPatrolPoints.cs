@@ -88,7 +88,7 @@ public class SOPatrolPoints : EnemyPatrolSOBase
                     //Vector3 launch = CalculateLaunchVelocity(transform.position, nextPos, apexH);
                     //rigid.useGravity = true;
                     //rigid.velocity = launch;
-                    Debug.Log("jump");
+                    
                     nav.SetDestinationJump(nextPos);
                     
                 }
@@ -109,16 +109,16 @@ public class SOPatrolPoints : EnemyPatrolSOBase
             }
         }
 
-        float vx = rigid.velocity.x;
-        if (Mathf.Abs(vx) < 0.01f) return;
 
-        Quaternion targetRot = Quaternion.Euler(0f, vx > 0f ? 90f : 270f, 0f);
+
+        Quaternion targetRot = Quaternion.Euler(0f, Pos[patrolIndex].x - transform.position.x > 0f ? 90f : 270f, 0f);
 
         animator.transform.rotation = Quaternion.RotateTowards(
             animator.transform.rotation,
             targetRot,
             rotationSpeedDegPerSec * Time.deltaTime
         );
+        
     }
 
     public override void OperateFixedUpdate()

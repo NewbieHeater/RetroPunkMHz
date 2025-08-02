@@ -154,7 +154,6 @@ public class RigidNavigation : MonoBehaviour
     {
         float dir = Mathf.Sign(targetPos.x - transform.position.x);
         Vector3 forward = Vector3.right * dir;
-        Debug.Log(forward);
         
         // 벽 감지
         if (Physics.Raycast(transform.position + Vector3.down * 0.5f, forward, out var hit, wallDetectDistance, climbableLayer))
@@ -179,7 +178,6 @@ public class RigidNavigation : MonoBehaviour
         }
         else
         {
-            Debug.Log("ADF");
             transform.rotation = Quaternion.RotateTowards(
             transform.rotation,
             Quaternion.identity,         // 세계 기준 앞(필요하면 originalRotation으로)

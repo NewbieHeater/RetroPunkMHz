@@ -8,19 +8,19 @@ using UnityEngine;
 /// </summary>
 abstract public class InventoryBase : MonoBehaviour
 {
-    [SerializeField] protected GameObject mInventoryBase; // Inventory 최상위 부모(활성/비활성 목적)
-    [SerializeField] protected GameObject mInventorySlotsParent;  // Slot들을 담을 부모 게임오브젝트
-    [SerializeField] protected InventorySlot[] mSlots;
+    [SerializeField] protected GameObject _inventoryBase; // Inventory 최상위 부모(활성/비활성 목적)
+    [SerializeField] protected GameObject _inventorySlotsParent;  // Slot들을 담을 부모 게임오브젝트
+    [SerializeField] protected InventorySlot[] _slots;
     /// <summary>
     /// 인벤토리 베이스를 초기화 시킨다.
     /// </summary>
     protected void Awake()
     {
-        if (mInventoryBase.activeSelf)
+        if (_inventoryBase.activeSelf)
         {
-            mInventoryBase.SetActive(false);
+            _inventoryBase.SetActive(false);
         }
-
-        mSlots = mInventorySlotsParent.GetComponentsInChildren<InventorySlot>();
+        
+        _slots = _inventorySlotsParent.GetComponentsInChildren<InventorySlot>();
     }
 }
