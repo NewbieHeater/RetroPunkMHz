@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Guard
   m_EditorClassIdentifier: 
   id: Guard
-  displayName: "\uACBD\uBE44\uBCD1"
+  displayName: "\uB3D9\uB124\uCE5C\uAD6C"
   expressions:
   - key: neutral
-    sprite: {fileID: 21300000, guid: ed5d4ef8e6e2ee143ad112d3b2a204e2, type: 3}
+    sprite: {fileID: 685736931, guid: ed5d4ef8e6e2ee143ad112d3b2a204e2, type: 3}

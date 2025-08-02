@@ -6,52 +6,74 @@
         {
           "id": "1",
           "speaker": "Guard",
-          "nameTag": "성문 경비병",
+          "nameTag": "동네 친구",
           "sprite": "neutral",
-          "text": "퀘스트 1, 인삿말입니다.",
+          "text": "조심히 들어가.",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Guard",
+          "nameTag": "동네 친구",
+          "sprite": "neutral",
+          "text": "어디가?",
           "next": "",
           "eventKey": "",
           "choices": [
             {
-              "choiceText": "마을로 간다",
-              "next": "2",
+              "choiceText": "마을로 가고있어",
+              "next": "11",
+              "sprite": "neutral",
               "events": [
               ]
             },
             {
-              "choiceText": "숲으로 간다",
-              "next": "3",
+              "choiceText": "숲으로 가고있어",
+              "next": "21",
+              "sprite": "neutral",
               "events": []
             }
           ]
 
         },
         {
-          "id": "2",
+          "id": "11",
+          "speaker": "Guard",
+          "nameTag": "동네 친구",
+          "sprite": "neutral",
+          "text": "조심히 들어가.",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "21",
+          "speaker": "ai",
+          "nameTag": "동네 친구2",
+          "sprite": "neutral",
+          "text": "그거 알아? 밤이 되면 숲에서 무서운 굇수가 나온데",
+          "next": "22",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "22",
+          "speaker": "ai",
+          "nameTag": "동네 친구2",
+          "sprite": "neutral",
+          "text": "잡아먹히지 않게 조심하라고",
+          "next": "23",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "23",
           "speaker": "Eto",
           "nameTag": "Eto",
           "sprite": "surprise",
-          "text": "그게 무슨소리야!!",
-          "next": "3",
-          "eventKey": "",
-          "choices": null
-        },
-        {
-          "id": "3",
-          "speaker": "ai",
-          "nameTag": "ai",
-          "sprite": "neutral",
-          "text": "퀘스트 1, 인삿말",
-          "next": "4",
-          "eventKey": "",
-          "choices": null
-        },
-        {
-          "id": "4",
-          "speaker": "Eto",
-          "nameTag": "Eto",
-          "sprite": "neutral",
-          "text": "퀘스트 1, 인삿말",
+          "text": "소름돋게 그게 무슨소리야!!",
           "next": "end",
           "eventKey": "",
           "choices": null
@@ -66,17 +88,17 @@
           "speaker": "Guard",
           "nameTag": "성문 경비병",
           "sprite": "neutral",
-          "text": "퀘스트 1, 퀘스트 받은 후 대화입니다.",
+          "text": "왜 애를 놀래키고 그래",
           "next": "2",
           "eventKey": "",
           "choices": null
         },
         {
           "id": "2",
-          "speaker": "Eto",
+          "speaker": "ai",
           "nameTag": "Eto",
           "sprite": "neutral",
-          "text": "퀘스트 1, 여기서는 해야할 일을 간략히 말합니다.",
+          "text": "나도 그냥 들은걸 말했을 뿐인걸?",
           "next": "end",
           "eventKey": "",
           "choices": null

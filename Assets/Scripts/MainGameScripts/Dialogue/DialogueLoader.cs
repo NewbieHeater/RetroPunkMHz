@@ -20,6 +20,7 @@ public class Choice
 {
     public string choiceText;   // 선택지 텍스트
     public string next;         // 선택 후 진행할 대사 노드 ID
+    public string sprite;       // 선택 후 캐릭터 표정
     public EventInfo[] events;  // 선택 시 발생하는 이벤트 목록
 }
 

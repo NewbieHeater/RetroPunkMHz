@@ -7,6 +7,7 @@ TagManager:
   - Ground
   - EnemyAttackCollider
   - Obstacle
+  - Wall
   layers:
   - Default
   - TransparentFX
@@ -15,12 +16,12 @@ TagManager:
   - Water
   - UI
   - Ground
-  - Player
-  - Enemy
+  - Wall
+  - EnemyHitBox
   - EnemyAttackCollider
-  - 
-  - 
-  - 
+  - PlayerHitBox
+  - Objects
+  - ReplayObjects
   - 
   - 
   - 

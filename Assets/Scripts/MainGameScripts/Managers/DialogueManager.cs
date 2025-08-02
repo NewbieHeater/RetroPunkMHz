@@ -2,13 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : Singleton<DialogueManager>
 {
-    private static DialogueManager instance;
-    public static DialogueManager Instance
-    {
-        get { return instance; }
-    }
 
     public DialogueLoader dialogueLoader;  // DialogueLoader는 JSON 파일을 파싱해 여러 그룹을 관리함
     public DialogueUI dialogueUI;          // 대화 텍스트, 선택지, 초상화 등 UI를 제어하는 스크립트
@@ -33,19 +28,6 @@ public class DialogueManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             ProceedToNext();
-        }
-    }
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(this.gameObject);
-        }
-        else
-        {
-            Destroy(this.gameObject);
         }
     }
 
@@ -229,17 +211,24 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        // 선택된 선택지를 가져옴
-        Choice selectedChoice = currentLine.choices[choiceIndex];
-
+        // 1) 선택지 UI 제거
         dialogueUI.ClearChoices();
         isWaitingForChoice = false;
 
-        // 여기서 선택지 이벤트 처리(있는 경우)도 할 수 있습니다.
-        // 예: foreach(EventInfo evt in selectedChoice.events) { ProcessEvent(evt); }
-
-        // 선택지에 따른 다음 대사 노드 ID를 가져오고 이동
+        // 2) 선택된 선택지 정보 획득
+        Choice selectedChoice = currentLine.choices[choiceIndex];
         string nextId = selectedChoice.next;
+
+        DialogueLine choiceLine = new DialogueLine
+        {
+            speaker = "Eto",                       // 플레이어 프로필 ID
+            sprite = "neutral",                   // 기본 표정 키
+            text = selectedChoice.choiceText,   // 실제 선택지 텍스트
+            next = selectedChoice.next,         // 클릭 시 이어질 노드
+            eventKey = "",
+            choices = null
+        };
+
         if (string.IsNullOrEmpty(nextId) || nextId.ToLower() == "end")
         {
             EndDialogue();
@@ -247,8 +236,8 @@ public class DialogueManager : MonoBehaviour
         }
         else if (currentLineMap.TryGetValue(nextId, out DialogueLine nextLine))
         {
-            // 선택지로 인해 다음 대사로 진행
-            DisplayDialogueNode(nextLine);
+            dialogueUI.ShowDialoguePanel(true);
+            DisplayDialogueNode(choiceLine);
         }
         else
         {

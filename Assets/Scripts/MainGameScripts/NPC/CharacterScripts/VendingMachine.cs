@@ -27,7 +27,7 @@ public class VendingMachine : InteractableNPCBase
 
     public override string GetInteractPrompt()
     {
-        return "[E] 대화하기";
+        return "[F] 대화하기";
     }
 
     public override void Interact()
