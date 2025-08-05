@@ -42,7 +42,7 @@ public class InteractionHandler : MonoBehaviour
     {
         if (currentTarget != null && Input.GetKeyDown(interactKey))
         {
-            if (promptUI) promptUI.SetActive(false);
+            if (promptUI) promptUI.SetActive(!promptUI.activeSelf);
             currentTarget.Interact();
         }
             
