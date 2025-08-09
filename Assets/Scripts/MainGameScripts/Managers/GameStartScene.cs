@@ -6,14 +6,16 @@ using UnityEngine.UI;
 
 public class GameStartScene : MonoBehaviour
 {
-    public GameObject GameStart;
-    public Button StartButton;
-    public Button LoadButton;
-    public Button SettingButton;
-    public Button EndButton;
-    public GameObject EndChoice;
-    public Button YesButton;
-    public Button NoButton;
+    [SerializeField] private GameObject GameStart;
+    [SerializeField] private GameObject EndChoice;
+
+    [SerializeField] private Button StartButton;
+    [SerializeField] private Button LoadButton;
+    [SerializeField] private Button SettingButton;
+    [SerializeField] private Button EndButton;
+    [SerializeField] private Button YesButton;
+    [SerializeField] private Button NoButton;
+
     private void Start()
     {
         StartButton.onClick.AddListener(StartNewGame);
@@ -45,8 +47,6 @@ public class GameStartScene : MonoBehaviour
     {
         GameStart.SetActive(false);
         EndChoice.SetActive(true);
-           
-        
     }
 
     private void EndGame()
