@@ -16,7 +16,7 @@ public class Interactable : MonoBehaviour, IInteractable
     {
         Debug.Log("상호작용");
 
-        uiMangers.ShowAndHideUI();
+        uiMangers.TogleUI();
 
     }
 
