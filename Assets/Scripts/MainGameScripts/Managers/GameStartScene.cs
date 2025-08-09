@@ -58,6 +58,7 @@ public class GameStartScene : MonoBehaviour
     private void ReturnGame()
     {
         EndChoice.SetActive(false);
-        SceneManager.LoadScene("GameStart");
+        GameStart.SetActive(true);
+        //SceneManager.LoadScene("GameStart");
     }
 }
