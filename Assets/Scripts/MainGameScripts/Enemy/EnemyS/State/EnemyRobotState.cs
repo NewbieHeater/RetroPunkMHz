@@ -170,7 +170,7 @@ namespace EnemyRobotState
         public override void OperateEnter()
         {
             enemy.isDead = true;
-            enemy.agent.enabled = false;
+            enemy.rigidNav.IsEnabled = false;
         }
 
         public override void OperateUpdate()
