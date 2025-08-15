@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Decorators
+namespace Composites
 {
     public abstract class Composite : BTNode
     {
