@@ -6,25 +6,25 @@ using UnityEngine.UI;
 
 public class GameStartScene : MonoBehaviour
 {
-    [SerializeField] private GameObject GameStart;
-    [SerializeField] private GameObject EndChoice;
+    [SerializeField] private GameObject _gameStart;
+    [SerializeField] private GameObject _endChoice;
 
-    [SerializeField] private Button StartButton;
-    [SerializeField] private Button LoadButton;
-    [SerializeField] private Button SettingButton;
-    [SerializeField] private Button EndButton;
-    [SerializeField] private Button YesButton;
-    [SerializeField] private Button NoButton;
+    [SerializeField] private Button _startButton;
+    [SerializeField] private Button _loadButton;
+    [SerializeField] private Button _settingButton;
+    [SerializeField] private Button _endButton;
+    [SerializeField] private Button _yesButton;
+    [SerializeField] private Button _noButton;
 
     private void Start()
     {
-        StartButton.onClick.AddListener(StartNewGame);
-        LoadButton.onClick.AddListener(LoadGame);
-        SettingButton.onClick.AddListener(OpenSettings);
-        EndButton.onClick.AddListener(QuitGame);
-        EndChoice.SetActive(false);
-        YesButton.onClick.AddListener(EndGame);
-        NoButton.onClick.AddListener(ReturnGame);
+        _startButton.onClick.AddListener(StartNewGame);
+        _loadButton.onClick.AddListener(LoadGame);
+        _settingButton.onClick.AddListener(OpenSettings);
+        _endButton.onClick.AddListener(QuitGame);
+        _endChoice.SetActive(false);
+        _yesButton.onClick.AddListener(EndGame);
+        _noButton.onClick.AddListener(ReturnGame);
     }
 
     private void StartNewGame()
@@ -45,8 +45,8 @@ public class GameStartScene : MonoBehaviour
 
     private void QuitGame()
     {
-        GameStart.SetActive(false);
-        EndChoice.SetActive(true);
+        _gameStart.SetActive(false);
+        _endChoice.SetActive(true);
     }
 
     private void EndGame()
@@ -57,8 +57,8 @@ public class GameStartScene : MonoBehaviour
 
     private void ReturnGame()
     {
-        EndChoice.SetActive(false);
-        GameStart.SetActive(true);
+        _endChoice.SetActive(false);
+        _gameStart.SetActive(true);
         //SceneManager.LoadScene("GameStart");
     }
 }

@@ -8,6 +8,7 @@ TagManager:
   - EnemyAttackCollider
   - Obstacle
   - Wall
+  - Glitch
   layers:
   - Default
   - TransparentFX

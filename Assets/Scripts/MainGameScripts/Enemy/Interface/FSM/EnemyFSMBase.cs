@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
@@ -13,16 +13,16 @@ public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death
 [System.Serializable]
 public struct PatrolPoint
 {
-    [Tooltip("¼øÂûÇÒ À§Ä¡")]
+    [Tooltip("ìˆœì°°í•  ìœ„ì¹˜")]
     public Vector3 relativeMovePoint;
 
-    [Tooltip("ÀÌ À§Ä¡¿¡¼­ ±â´Ù¸± ½Ã°£(ÃÊ)")]
+    [Tooltip("ì´ ìœ„ì¹˜ì—ì„œ ê¸°ë‹¤ë¦´ ì‹œê°„(ì´ˆ)")]
     public float dwellTime;
 
-    [Tooltip("ÀÌ À§Ä¡·Î ÀÌµ¿ÇÒ ¶§ Á¡ÇÁ°¡ ÇÊ¿äÇÑ°¡?")]
+    [Tooltip("ì´ ìœ„ì¹˜ë¡œ ì´ë™í•  ë•Œ ì í”„ê°€ í•„ìš”í•œê°€?")]
     public bool needJump;
 
-    [Tooltip("Á¡ÇÁ ³ôÀÌ (needJump == true ÀÏ ¶§¸¸)")]
+    [Tooltip("ì í”„ ë†’ì´ (needJump == true ì¼ ë•Œë§Œ)")]
     public float jumpPower;
 }
 
@@ -40,25 +40,25 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     [HideInInspector] public EnemyPatrolSOBase EnemyPatrolBaseInstance;
 
     public bool stop;
-    [Header("½ºÅÈ ¼³Á¤")]
+    [Header("ìŠ¤íƒ¯ ì„¤ì •")]
     [SerializeField] protected TextMeshProUGUI mHpBar;
     [SerializeField] protected int          mMaxHp = 100;
     [SerializeField] protected int          mCurrentHp;
     public bool                          isDead;
 
-    [Header("Á¡ÇÁ ¼³Á¤")]
-    [Tooltip("Æ÷¹°¼± ÃÖ°íÁ¡±îÁö ³ôÀÌ")]
+    [Header("ì í”„ ì„¤ì •")]
+    [Tooltip("í¬ë¬¼ì„  ìµœê³ ì ê¹Œì§€ ë†’ì´")]
     [SerializeField] public float        defaultApexHeight = 2f;
-    [Tooltip("¿Õº¹¿©ºÎ(False½Ã ¼øÈ¯)")]
+    [Tooltip("ì™•ë³µì—¬ë¶€(Falseì‹œ ìˆœí™˜)")]
     [SerializeField] public bool         getBackAvailable = false;
 
-    [Header("³Ë¹é/Æø¹ß ¼³Á¤")]
+    [Header("ë„‰ë°±/í­ë°œ ì„¤ì •")]
     [SerializeField] protected bool         explodeOnWall;
     [SerializeField] protected float        collisionDetectionSpeedThreshold = 5f;
     [SerializeField] protected float        explosionRadius = 3f;
 
-    [Header("½Ã¾ß ¼³Á¤")]
-    [Tooltip("¿¡³Ê¹Ì°¡ ÇÃ·¹ÀÌ¾î¸¦ º¼ ¼ö ÀÖ´Â ÃÖ´ë °¢µµ(µµ)")]
+    [Header("ì‹œì•¼ ì„¤ì •")]
+    [Tooltip("ì—ë„ˆë¯¸ê°€ í”Œë ˆì´ì–´ë¥¼ ë³¼ ìˆ˜ ìˆëŠ” ìµœëŒ€ ê°ë„(ë„)")]
     [SerializeField] protected float        viewAngle = 45f;
     [SerializeField] protected LayerMask    obstacleMask;
     
@@ -222,7 +222,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     }
     #endregion
 
-    #region µ¥¹ÌÁöÃ³¸®
+    #region ë°ë¯¸ì§€ì²˜ë¦¬
     public void TakeDamage(in DamageInfo info)
     {
         if (isDead) return;

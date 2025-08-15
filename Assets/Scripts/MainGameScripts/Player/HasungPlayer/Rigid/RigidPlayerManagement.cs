@@ -1,9 +1,9 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using static UnityEngine.UI.Image;
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 /// <surmmery>
-/// ÇÃ·¹ÀÌ¾î °ü·Ã ½ºÅ©¸³Æ®¸¦ ¸ğµÎ °ü¸®ÇÏ´Â °ü¸® ½ºÅ©¸³Æ®
+/// í”Œë ˆì´ì–´ ê´€ë ¨ ìŠ¤í¬ë¦½íŠ¸ë¥¼ ëª¨ë‘ ê´€ë¦¬í•˜ëŠ” ê´€ë¦¬ ìŠ¤í¬ë¦½íŠ¸
 /// </surmmery>
 public class RigidPlayerManagement : MonoBehaviour
 {
