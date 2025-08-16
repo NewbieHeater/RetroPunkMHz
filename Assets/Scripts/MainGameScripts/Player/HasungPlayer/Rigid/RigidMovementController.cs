@@ -39,6 +39,7 @@ public class RigidMovementController : MonoBehaviour
             _isSpeedup = true;
             _canPass = true;
         }
+
     }
 
     public void ProcessMovement(bool isGrounded, RaycastHit groundHit, float dt)
@@ -121,7 +122,7 @@ public class RigidMovementController : MonoBehaviour
         xxxxxx = targetVx;
 
     }
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)  
     {
         if (collision.gameObject.CompareTag("Glitch"))
         {

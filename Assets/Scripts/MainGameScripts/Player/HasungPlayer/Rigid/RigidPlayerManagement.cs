@@ -49,6 +49,7 @@ public class RigidPlayerManagement : MonoBehaviour
 
         _jumpController.UpdateAnimationStates();
         _movementController.UpdateAnimationStates();
+
     }
 
     void FixedUpdate()
