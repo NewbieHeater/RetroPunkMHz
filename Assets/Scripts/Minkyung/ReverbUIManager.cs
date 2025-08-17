@@ -5,32 +5,36 @@ public class ReverbUIManager : MonoBehaviour
 {
     public static ReverbUIManager Instance;
 
-    public GameObject reverbPanel;
-    public Button playButton;
-    public Button cancelButton;
+    public GameObject reverbPanel; 
+    public Button yesButton;
+    public Button noButton;
 
-    private void Awake()
+    public ReverbData currentReverbData; 
+
+    void Awake()
     {
         Instance = this;
+        reverbPanel.SetActive(false);
     }
 
-    public void ShowReverbOptions(System.Action onPlay, System.Action onCancel)
+    public void ShowAndHideUI()
     {
         reverbPanel.SetActive(true);
 
-        playButton.onClick.RemoveAllListeners();
-        cancelButton.onClick.RemoveAllListeners();
+        yesButton.onClick.RemoveAllListeners();
+        noButton.onClick.RemoveAllListeners();
 
-        playButton.onClick.AddListener(() =>
+        yesButton.onClick.AddListener(() =>
         {
             reverbPanel.SetActive(false);
-            onPlay?.Invoke();
+            if (currentReverbData != null)
+                ReverbDialogueManager.Instance.PlayDialogue(currentReverbData.lines);
         });
 
-        cancelButton.onClick.AddListener(() =>
+        noButton.onClick.AddListener(() =>
         {
             reverbPanel.SetActive(false);
-            onCancel?.Invoke();
+            Debug.Log("재생 취소됨");
         });
     }
 }

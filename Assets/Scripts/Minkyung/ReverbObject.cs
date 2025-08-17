@@ -2,24 +2,14 @@
 
 public class ReverbObject : MonoBehaviour
 {
-
     public ReverbData reverbData;
-
 
     public void Interact()
     {
-        ReverbUIManager.Instance.ShowReverbOptions(() =>
-        {
-            PlayReverb();
-        },
-        () =>
-        {
-            Debug.Log("��� ��ҵ�");
-        });
-    }
+        Debug.Log("상호작용");
 
-    void PlayReverb()
-    {
-        ReverbDialogueManager.Instance.PlayDialogue(reverbData.dialogue);
+
+        ReverbUIManager.Instance.currentReverbData = reverbData;
+        ReverbUIManager.Instance.ShowAndHideUI();
     }
 }

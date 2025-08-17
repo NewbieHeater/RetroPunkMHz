@@ -1,9 +1,11 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ReverbData", menuName = "Reverb/Create New Reverb Data")]
+[CreateAssetMenu(fileName = "ReverbData", menuName = "Reverb/New Reverb Data")]
 public class ReverbData : ScriptableObject
 {
     public string id;
-    [TextArea(3, 10)]
-    public string dialogue;
+    public string title;
+    public ReverbLine[] lines;
+    public bool loop = false;
+    public AudioReverbPreset reverbPreset = AudioReverbPreset.Off;
 }

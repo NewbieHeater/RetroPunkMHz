@@ -1,34 +1,61 @@
 ﻿using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class ReverbDialogueManager : MonoBehaviour
 {
     public static ReverbDialogueManager Instance;
 
-    public GameObject dialoguePanel;
-    public TMP_Text dialogueText;
+    [SerializeField] private GameObject dialoguePanel;        
+    [SerializeField] private TextMeshProUGUI speakerText;        
+    [SerializeField] private TextMeshProUGUI dialogueText;      
+    [SerializeField] private Button nextButton;                   
+
+    private ReverbLine[] currentLines;
+    private int currentIndex = 0;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+
+        dialoguePanel.SetActive(false);
+
+        nextButton.onClick.AddListener(OnNextClicked);
     }
 
-    public void PlayDialogue(string text)
+    public void PlayDialogue(ReverbLine[] lines)
     {
+        currentLines = lines;
+        currentIndex = 0;
         dialoguePanel.SetActive(true);
-        dialogueText.text = text;
-
-        Invoke(nameof(HideDialogue), 5f);
+        ShowCurrentLine();
     }
 
-    private void HideDialogue()
+    private void ShowCurrentLine()
+    {
+        if (currentIndex < currentLines.Length)
+        {
+            speakerText.text = currentLines[currentIndex].speaker;
+            dialogueText.text = currentLines[currentIndex].text;
+        }
+        else
+        {
+            EndDialogue();
+        }
+    }
+
+    private void OnNextClicked()
+    {
+        currentIndex++;
+        ShowCurrentLine();
+    }
+
+    private void EndDialogue()
     {
         dialoguePanel.SetActive(false);
+        speakerText.text = "";
+        dialogueText.text = "";
+        currentLines = null;
+        currentIndex = 0;
     }
 }
