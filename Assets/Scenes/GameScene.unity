@@ -6151,7 +6151,9 @@ MonoBehaviour:
   decelerationTime: 0.1
   airControl: 1
   rotationSpeed: 10
-  _teleportSpace: 10
+  _teleportSpace: 5
+  _postTeleportOffset: 1.2
+  _teleportCooldown: 0.08
   inputX: 0
   isOnSlope: 0
   newVelocity: {x: 0, y: 0, z: 0}
@@ -15112,5 +15114,4 @@ SceneRoots:
   - {fileID: 530960477}
   - {fileID: 367288719}
   - {fileID: 288425505}
-  - {fileID: 479678905}
   - {fileID: 728305596}
