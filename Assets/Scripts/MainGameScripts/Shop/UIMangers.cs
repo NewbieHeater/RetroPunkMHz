@@ -16,7 +16,7 @@ public class UIMangers : MonoBehaviour
         UIObjects.SetActive(false);
     }
 
-    public void ShowAndHideUI()
+    public void TogleUI()
     {
         UIObjects.SetActive(!UIObjects.activeSelf);
     }
