@@ -119,9 +119,13 @@ public class RigidNavigation : MonoBehaviour
             ResetPath();
         }
     }
-    
+    public bool IsEnabled = true;
     private void FixedUpdate()
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
         if (!hasPath || isStopped)
         {
             rigid.velocity = resetVector;
