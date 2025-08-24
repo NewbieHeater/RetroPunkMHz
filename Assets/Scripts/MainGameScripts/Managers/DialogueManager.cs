@@ -9,6 +9,10 @@ public class DialogueManager : Singleton<DialogueManager>
     public DialogueUI dialogueUI;          // 대화 텍스트, 선택지, 초상화 등 UI를 제어하는 스크립트
 
     private bool isAuto = false;
+    public void TogleAuto()
+    {
+        isAuto = !isAuto;
+    }
     private bool isWaitingForChoice = false;
     private bool isDialogueActive = false;
     public bool IsDialogueActive => isDialogueActive;
@@ -35,32 +39,46 @@ public class DialogueManager : Singleton<DialogueManager>
     public void StartDialogue(string fileName, string groupName)
     {
         if (isDialogueActive) return;
+
+        // 상태 리셋
+        isAuto = false;
+        isWaitingForChoice = false;
+        isWaitingForEvent = false;
+        eventResumeNodeId = null;
+        currentLine = null;
+        currentLineMap.Clear();
+        if (autoAdvanceCoroutine != null) { StopCoroutine(autoAdvanceCoroutine); autoAdvanceCoroutine = null; }
+
         isDialogueActive = true;
         dialogueUI.InitCharacters();
-        // JSON 파일을 로드하고, 지정한 그룹의 대화 데이터를 가져옴
-        if (dialogueLoader.LoadDialogueData(fileName))
-        {
-            currentDialogue = dialogueLoader.GetDialogueGroup(groupName);
-            if (currentDialogue == null)
-            {
-                Debug.LogError("대화 그룹을 찾을 수 없습니다: " + groupName);
-                return;
-            }
-            // 현재 그룹의 모든 대사 노드들을 id로 매핑하는 Dictionary를 구성
-            BuildCurrentLineMap();
-            isDialogueActive = true;
-            dialogueUI.ShowDialoguePanel(true);
 
-            // 일반적으로 시작은 id "1"인 대사부터 진행한다고 가정
-            if (currentLineMap.TryGetValue("1", out DialogueLine firstLine))
-            {
-                DisplayDialogueNode(firstLine);
-            }
-            else
-            {
-                Debug.LogError("시작 대사 (id: \"1\")가 존재하지 않습니다.");
-                EndDialogue();
-            }
+        if (!dialogueLoader.LoadDialogueData(fileName))
+        {
+            isDialogueActive = false; // 로드 실패 시 되돌리기
+            return;
+        }
+
+        // JSON 파일을 로드하고, 지정한 그룹의 대화 데이터를 가져옴
+        currentDialogue = dialogueLoader.GetDialogueGroup(groupName);
+        if (currentDialogue == null)
+        {
+            Debug.LogError("대화 그룹을 찾을 수 없습니다: " + groupName);
+            return;
+        }
+        // 현재 그룹의 모든 대사 노드들을 id로 매핑하는 Dictionary를 구성
+        BuildCurrentLineMap();
+        isDialogueActive = true;
+        dialogueUI.ShowDialoguePanel(true);
+
+        // 일반적으로 시작은 id "1"인 대사부터 진행한다고 가정
+        if (currentLineMap.TryGetValue("1", out DialogueLine firstLine))
+        {
+            DisplayDialogueNode(firstLine);
+        }
+        else
+        {
+            Debug.LogError("시작 대사 (id: \"1\")가 존재하지 않습니다.");
+            EndDialogue();
         }
     }
 
@@ -250,9 +268,12 @@ public class DialogueManager : Singleton<DialogueManager>
     private void EndDialogue()
     {
         Debug.Log("대화 종료");
+        if (autoAdvanceCoroutine != null) { StopCoroutine(autoAdvanceCoroutine); autoAdvanceCoroutine = null; }
         isDialogueActive = false;
+        isWaitingForChoice = false;
+        isWaitingForEvent = false;
+        eventResumeNodeId = null;
         dialogueUI.ShowDialoguePanel(false);
-        // 이후 추가 정리 작업 (예: 플레이어 제어 복원 등)
     }
 
     private void OpenShopUI()

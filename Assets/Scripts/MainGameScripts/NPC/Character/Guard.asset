@@ -15,5 +15,5 @@ MonoBehaviour:
   id: Guard
   displayName: "\uB3D9\uB124\uCE5C\uAD6C"
   expressions:
-  - key: neutral
+  - key: natural
     sprite: {fileID: 685736931, guid: ed5d4ef8e6e2ee143ad112d3b2a204e2, type: 3}

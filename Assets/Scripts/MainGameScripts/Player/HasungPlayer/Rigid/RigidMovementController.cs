@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using static Cinemachine.DocumentationSortingAttribute;
 
 public class RigidMovementController : MonoBehaviour
 {
@@ -43,12 +42,18 @@ public class RigidMovementController : MonoBehaviour
     {
         inputX = Input.GetAxisRaw("Horizontal");
 
-        // Shift 눌렀을 때: 달리기 ON + 통과권 부여(비소모)
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
-            _isSpeedup = true;
-            _canPass = true;
+            _isSpeedup = !_isSpeedup;       // 토글
+            if (_isSpeedup) _canPass = true; // 달리기 켤 때만 통과권 부여
         }
+
+        if (Mathf.Abs(rb.velocity.x) <= 0.1f)
+        {
+            _isSpeedup = false ;
+            _canPass = false;
+        }
+            
     }
 
     // --- 외부에서 FixedUpdate에서 호출 ---
@@ -60,6 +65,8 @@ public class RigidMovementController : MonoBehaviour
         else WalkMove(isGrounded, groundHit, dt);
 
         ApplyFacing(dt);
+
+        //StickToGroundDownOnly(isGrounded, groundHit);
     }
 
     private void WalkMove(bool isGrounded, RaycastHit groundHit, float dt)
@@ -102,13 +109,9 @@ public class RigidMovementController : MonoBehaviour
 
         if (isOnSlope)
         {
-            // 슬로프 분모 보호 + y 보존
             Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundHit.normal).normalized;
-            float eps = 1e-4f;
-            float denom = Mathf.Abs(slopeDir.x) < eps ? (slopeDir.x >= 0 ? eps : -eps) : slopeDir.x;
-
-            newVelocity = slopeDir * (newVx / denom);
-            newVelocity.y = rb.velocity.y; // y 보존
+            float multi = 1f / slopeDir.x;
+            newVelocity = slopeDir * newVx * multi;
         }
         else
         {
@@ -131,6 +134,7 @@ public class RigidMovementController : MonoBehaviour
 
     private void ApplyFacing(float dt)
     {
+        if (!animator) return;
         if (Mathf.Abs(inputX) > 0.01f)
         {
             Vector3 dir = new Vector3(inputX, 0, 0);
@@ -179,12 +183,6 @@ public class RigidMovementController : MonoBehaviour
                 _lastTeleportTime = Time.time;
             }
         }
-        else if (!collision.gameObject.CompareTag("Ground"))
-        {
-            // 사용자 의도: 다른 오브젝트와 충돌 시 러닝/통과권 해제
-            _isSpeedup = false;
-            _canPass = false;
-        }
     }
 
     public void UpdateAnimationStates()
@@ -210,4 +208,30 @@ public class RigidMovementController : MonoBehaviour
         rb.velocity = Vector3.zero;
         UpdateAnimationStates();
     }
+
+    //[SerializeField] private float stickMaxDownSpeed = 3f;   // 너무 세게 떨어질 땐 개입 X
+    //[SerializeField] private float stickDownAccel = 60f;  // 지면 쪽으로 살짝 눌러주는 가속
+
+    //private void StickToGroundDownOnly(bool isGrounded, RaycastHit hit)
+    //{
+    //    if (!isGrounded || hit.collider == null) return;
+
+    //    var v = rb.velocity;
+
+    //    // 위로 상승 중이거나(점프 등) 낙하가 너무 빠르면 개입하지 않음
+    //    if (v.y > 0f || v.y < -stickMaxDownSpeed) return;
+
+    //    // 지금 움직임이 '내리막 방향'일 때만 붙이기 — 안 그러면 오르막에서 y가 양수로 솟습니다.
+    //    Vector3 downSlope = Vector3.ProjectOnPlane(Physics.gravity, hit.normal); // 평면 위의 중력 = 내리막 방향
+    //    if (Vector3.Dot(v, downSlope) <= 0f) return; // 내리막으로 가지 않으면 스킵
+
+    //    // 평면 투영하되, 절대 y를 올리지 않음(Down-only)
+    //    Vector3 projected = Vector3.ProjectOnPlane(v, hit.normal);
+    //    if (projected.y > v.y) projected.y = v.y; // "위로 뜨게" 만드는 증가분은 금지
+
+    //    rb.velocity = projected;
+
+    //    // 살짝 눌러줘서 접촉 유지(필요 시 수치 조정)
+    //    rb.AddForce(-hit.normal * stickDownAccel, ForceMode.Acceleration);
+    //}
 }

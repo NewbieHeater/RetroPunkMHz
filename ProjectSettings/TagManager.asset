@@ -9,6 +9,7 @@ TagManager:
   - Obstacle
   - Wall
   - Glitch
+  - Interactive
   layers:
   - Default
   - TransparentFX

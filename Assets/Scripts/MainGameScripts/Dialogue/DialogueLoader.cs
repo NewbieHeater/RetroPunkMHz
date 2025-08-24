@@ -7,7 +7,7 @@ public class DialogueLine
 {
     public string id;           // 그룹 내 대사 노드 번호 ("1", "2", "3" 등)
     public string speaker;      // "NPC" or "Player" 혹은 특정 화자 ID
-    public string nameTag;      // 화면에 표시할 화자 이름 (예: "성문 경비병")
+    //public string nameTag;      // 화면에 표시할 화자 이름 (예: "성문 경비병")
     public string sprite;       // 표정/감정 상태 키 (예: "happy", "angry")
     public string text;         // 실제 대사 텍스트
     public Choice[] choices;    // 선택지 목록 (없으면 null 또는 빈 배열)

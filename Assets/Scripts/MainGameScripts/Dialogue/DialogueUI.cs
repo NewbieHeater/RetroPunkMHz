@@ -7,13 +7,14 @@ public class DialogueUI : MonoBehaviour
 {
     // Unity 에디터에서 할당해야 하는 UI 참조들
     [SerializeField] private GameObject dialoguePanel;   // 대화 전체 패널 (배경 패널 등)
-    [SerializeField] private TextMeshProUGUI leftNameText;              // 화자 이름 표시 Text
+    [SerializeField] private TextMeshProUGUI NameText;              // 화자 이름 표시 Text
     [SerializeField] private TextMeshProUGUI dialogueText;          // 대사 내용 표시 Text (타이핑 대상)
     [SerializeField] private Image leftPortrait;         // 좌측 캐릭터 초상화 이미지
     [SerializeField] private Image rightPortrait;        // 우측 캐릭터 초상화 이미지
     [SerializeField] private Transform choiceContainer;  // 선택지 버튼들을 담는 컨테이너 (예: Vertical Layout Group)
     [SerializeField] private Button choiceButtonPrefab;  // 선택지 버튼 프리팹 (미리 설정해둔 UI Button)
     [SerializeField] private float delay = 0.03f;
+    [SerializeField] private Button changeAuto;
 
     private CharacterProfile leftProfile;
     private CharacterProfile rightProfile;
@@ -23,7 +24,13 @@ public class DialogueUI : MonoBehaviour
 
     private void Start()
     {
+        changeAuto.onClick.AddListener(TogleAuto);
         //InitCharacters();
+    }
+
+    public void TogleAuto()
+    {
+        DialogueManager.Instance.TogleAuto();
     }
 
     // 대화 패널 활성/비활성화
@@ -39,19 +46,19 @@ public class DialogueUI : MonoBehaviour
     // 대화 시작 시 호출: 좌/우 캐릭터 초상화 영역을 초기화
     public void InitCharacters()
     {
-
-        leftPortrait.sprite = CharacterProfileManager.Instance.GetProfile("Eto").GetSprite("netural");
+        var eto = CharacterProfileManager.Instance.GetProfile("Eto");
+        leftPortrait.sprite = eto?.GetSprite("neutral");
         leftPortrait.color = Color.gray; // 초기엔 비활성 (화자가 나올 때 업데이트)
         leftPortrait.gameObject.SetActive(true);
 
         rightPortrait.sprite = null;
-        rightPortrait.gameObject.SetActive(rightProfile != null);
+        //rightPortrait.gameObject.SetActive(rightProfile != null);
         if (rightProfile != null)
             rightPortrait.color = Color.gray;
         rightPortrait.gameObject.SetActive(true);
         // 이름 텍스트 초기화
-        if (leftNameText != null)
-            leftNameText.text = "";
+        if (NameText != null)
+            NameText.text = "";
         // 대사 텍스트 초기화
         if (dialogueText != null)
             dialogueText.text = "";
@@ -60,62 +67,45 @@ public class DialogueUI : MonoBehaviour
     // 한 줄의 대사를 표시 (화자, 내용, 표정 키 전달)
     public void ShowDialogueLine(CharacterProfile speakerProfile, string content, string expressionKey)
     {
+
         // 저장: 타이핑 효과에 사용할 전체 텍스트
         currentTypedContent = content;
 
-        // 화자에 따라 이름과 초상화 하이라이트 처리
-        if (speakerProfile != null)
+        if (NameText != null && speakerProfile.displayName != null)
+            NameText.text = speakerProfile.displayName;
+
+        bool isLeft = speakerProfile != null && speakerProfile.id == "Eto";
+
+        if (isLeft)
         {
-            // 이름 표시
-            if (leftNameText != null)
-                leftNameText.text = speakerProfile.displayName;
-            // 화자가 왼쪽 프로필일 경우
-            if (speakerProfile.id == "Eto")
+            leftPortrait.gameObject.SetActive(true);
+            leftPortrait.sprite = speakerProfile.GetSprite(expressionKey);
+            leftPortrait.color = Color.white;
+
+            // 상대 초상화(오른쪽) 비활성 또는 그레이
+            if (rightPortrait != null)
             {
-                leftPortrait.gameObject.SetActive(true);
-                leftPortrait.sprite = speakerProfile.GetSprite(expressionKey);
-                leftPortrait.color = Color.white;   // 활성화된 화자는 컬러 표시
-                //leftPortrait.SetNativeSize();
-                if (rightPortrait != null && rightPortrait.sprite != null)
-                {
-                    rightPortrait.color = Color.gray;   // 상대방은 회색 처리
-                }
+                if (rightPortrait.sprite == null) rightPortrait.gameObject.SetActive(false);
+                else rightPortrait.color = Color.gray;
             }
-            // 화자가 오른쪽 프로필일 경우
-            else if (speakerProfile.id != "Eto")
-            {
-                rightPortrait.gameObject.SetActive(true);
-                rightPortrait.sprite = speakerProfile.GetSprite(expressionKey);
-                rightPortrait.color = Color.white;
-                //rightPortrait.SetNativeSize();
-                if (leftPortrait != null && leftPortrait.sprite != null)
-                {
-                    leftPortrait.color = Color.gray;
-                }
-            }
-            
         }
         else
         {
-            // 화자 정보가 없으면 이름 비움 및 양쪽 회색 처리
-            if (leftNameText != null)
-                leftNameText.text = "";
+            // 오른쪽 활성
+            rightPortrait.gameObject.SetActive(true);
+            rightPortrait.sprite = speakerProfile?.GetSprite(expressionKey);
+            rightPortrait.color = Color.white;
+
+            // 왼쪽 그레이
             if (leftPortrait != null)
-                leftPortrait.color = Color.gray;
-            if (rightPortrait != null)
-                rightPortrait.color = Color.gray;
+            {
+                if (leftPortrait.sprite == null) leftPortrait.gameObject.SetActive(false);
+                else leftPortrait.color = Color.gray;
+            }
         }
 
-        // 기존 타이핑 코루틴이 있다면 정지
-        if (typingCoroutine != null)
-        {
-            StopCoroutine(typingCoroutine);
-        }
-        // 대사 텍스트 초기화 후 타이핑 효과 시작
-        if (dialogueText != null)
-        {
-            dialogueText.text = "";
-        }
+        if (typingCoroutine != null) StopCoroutine(typingCoroutine);
+        dialogueText.text = "";
         typingCoroutine = StartCoroutine(TypeText(currentTypedContent));
     }
 

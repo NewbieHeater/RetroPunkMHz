@@ -20,6 +20,9 @@ public class InteractionHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if(!other.CompareTag("Interactive"))
+            return;
+
         var interactable = other.GetComponent<IInteractable>();
         if (interactable != null)
         {
