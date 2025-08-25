@@ -68,6 +68,8 @@ public class RigidJumpController : MonoBehaviour
 
     }
 
+    #region 점프&중력
+
     private void UpdateCoyoteTimer(bool isGrounded)
     {
         if (isGrounded)
@@ -100,11 +102,6 @@ public class RigidJumpController : MonoBehaviour
         }
     }
 
-    private bool CanJump(bool isGrounded)
-    {
-        return isGrounded || coyoteTimer > 0f || (allowDoubleJump && airJumpsLeft > 0);
-    }
-
     private void ExecuteJump()
     {
         animator.SetTrigger("JUMP");
@@ -118,14 +115,6 @@ public class RigidJumpController : MonoBehaviour
             airJumpsLeft--;
     }
 
-    private void ApplyJumpCutOff()
-    {
-        if (rb.velocity.y > 0f)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, 0f);
-        }
-    }
-    public float gravity;
     private void ApplyGravity(bool isGrounded)
     {
         if (isGrounded) return;
@@ -138,6 +127,21 @@ public class RigidJumpController : MonoBehaviour
     {
         rb.velocity = new Vector3(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -speedLimit, float.MaxValue), 0f);
     }
+    #endregion
+
+    private bool CanJump(bool isGrounded)
+    {
+        return isGrounded || coyoteTimer > 0f || (allowDoubleJump && airJumpsLeft > 0);
+    }
+
+    private void ApplyJumpCutOff()
+    {
+        if (rb.velocity.y > 0f)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y * 0.5f, 0f);
+        }
+    }
+    public float gravity;
 
     public void UpdateAnimationStates()
     {

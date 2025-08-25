@@ -6,8 +6,9 @@ public enum CharacterSide { Left, Right }
 [CreateAssetMenu(fileName = "CharacterProfile", menuName = "Game/Character Profile")]
 public class CharacterProfile : ScriptableObject
 {
-    [Header("Identity")]
-    public string id;                 // "Guard", "Eto", "Merchant" …
+    [Header("대사에서 불러올 코드")]
+    public string id;                 // "Guard", "Eto", "Merchant"
+    [Header("UI 표시명")]
     public string displayName;        // UI 표시명
 
     [Header("UI Defaults")]
@@ -22,6 +23,8 @@ public class CharacterProfile : ScriptableObject
 
     void OnEnable()
     {
+        defaultExpressionSprite = expressions[0].sprite;
+
         _exprMap = new Dictionary<string, Sprite>(System.StringComparer.OrdinalIgnoreCase);
         foreach (var e in expressions)
             if (!string.IsNullOrWhiteSpace(e.key)) _exprMap[e.key.Trim()] = e.sprite;

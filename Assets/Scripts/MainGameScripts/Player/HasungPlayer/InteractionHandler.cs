@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
 public class InteractionHandler : MonoBehaviour
@@ -11,43 +9,63 @@ public class InteractionHandler : MonoBehaviour
     [SerializeField] private TextMeshProUGUI promptText;
     [SerializeField] private KeyCode interactKey = KeyCode.E;
 
-    private IInteractable currentTarget;
+    private readonly List<IInteractable> _candidates = new();
+    private IInteractable _current;
 
-    private void Awake()
+    void Awake() { if (promptUI) promptUI.SetActive(false); }
+
+    void OnTriggerEnter(Collider other)
     {
-        if (promptUI) promptUI.SetActive(false);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(!other.CompareTag("Interactive"))
-            return;
-
-        var interactable = other.GetComponent<IInteractable>();
-        if (interactable != null)
+        if (other.TryGetComponent<IInteractable>(out var it))
         {
-            currentTarget = interactable;
-            promptText.text = interactable.GetInteractPrompt();
-            if (promptUI) promptUI.SetActive(true);
+            if (!_candidates.Contains(it)) _candidates.Add(it);
+            UpdateCurrent();
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<IInteractable>() == currentTarget)
+        if (other.TryGetComponent<IInteractable>(out var it))
         {
-            currentTarget = null;
+            _candidates.Remove(it);
+            if (_current == it) _current = null;
+            UpdateCurrent();
+        }
+    }
+
+    void Update()
+    {
+        if (_current != null && Input.GetKeyDown(interactKey))
+        {
+            _current.Interact();
+            // 상호작용 중에는 프롬프트 숨김(대화 UI가 따로 뜨면 충돌 방지)
             if (promptUI) promptUI.SetActive(false);
         }
     }
 
-    private void Update()
+    private void UpdateCurrent()
     {
-        if (currentTarget != null && Input.GetKeyDown(interactKey))
+        // 가장 가까운 대상을 선택
+        float best = float.MaxValue;
+        IInteractable pick = null;
+        foreach (var it in _candidates)
         {
-            if (promptUI) promptUI.SetActive(!promptUI.activeSelf);
-            currentTarget.Interact();
+            if (it is Component c)
+            {
+                float d = (c.transform.position - transform.position).sqrMagnitude;
+                if (d < best) { best = d; pick = it; }
+            }
         }
-            
+        _current = pick;
+
+        if (_current != null)
+        {
+            if (promptText) promptText.text = _current.GetInteractPrompt();
+            if (promptUI) promptUI.SetActive(true);
+        }
+        else
+        {
+            if (promptUI) promptUI.SetActive(false);
+        }
     }
 }
