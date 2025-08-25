@@ -76,7 +76,7 @@ public class DialogueUI : MonoBehaviour
 
         bool isLeft = speakerProfile != null && speakerProfile.id == "Eto";
 
-        if (isLeft)
+        if (speakerProfile.defaultSide == CharacterSide.Left)
         {
             leftPortrait.gameObject.SetActive(true);
             leftPortrait.sprite = speakerProfile.GetSprite(expressionKey);
