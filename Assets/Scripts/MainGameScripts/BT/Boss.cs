@@ -36,10 +36,10 @@ public class Boss : BTRunner
     protected override BTNode BuildTree()
     {
         bool HasTarget(BTContext ctx)
-            => target && Vector3.Distance(transform.position, target.position) <= sightRange && IsPlayerInSight(sightRange);
+            => target && Vector3.Distance(transform.position, target.position) <= sightRange;
 
         bool InAttackRange(BTContext ctx)
-            => target && Vector3.Distance(transform.position, target.position) <= attackRange && IsPlayerInSight(sightRange);
+            => target && Vector3.Distance(transform.position, target.position) <= attackRange;
 
         return new BTBuilder()
             .Selector("Root")
@@ -125,6 +125,7 @@ public class Boss : BTRunner
     // ---------- 추격 ----------
     private void ChaseStart(BTContext ctx)
     {
+        Debug.Log("ChaseStart");
         _lastChaseRepath = Blackboard.Get("lastChaseRepath", 0f);
         if (target) _moveTarget = target.position; // 시작 즉시 한 번 목표 세팅
     }
@@ -156,7 +157,8 @@ public class Boss : BTRunner
     {
         Debug.Log("BossAttack");
         if (target) FaceTowards(target.position, ctx.DeltaTime);
-        // animator.SetTrigger("Attack"); 등
+        anime.ResetTrigger("Attack");
+        anime.SetTrigger("Attack");
     }
 
     private NodeStatus AttackTick(BTContext ctx)
@@ -165,15 +167,24 @@ public class Boss : BTRunner
 
         Debug.DrawLine(transform.position, target.position, Color.red, 0.05f);
 
-        // 실제 게임이면: 공격 애니 끝날 때까지 Running 유지 후 Success 반환
-        // 여기선 간단히 즉시 성공 처리
-        return NodeStatus.Success;
+        FaceTowards(target.position, ctx.DeltaTime);
+
+        var st = anime.GetCurrentAnimatorStateInfo(0);
+        bool inAttack = st.IsName("Attack");
+
+        // 아직 공격 애니로 못들어갔으면 계속 대기
+        //if (!inAttack) return NodeStatus.Running;
+
+        // 애니메이션 진행이 끝났다면 성공
+        //if (st.normalizedTime >= 0.95f) return NodeStatus.Success;
+        if (!inAttack) return NodeStatus.Success;
+        return NodeStatus.Running;
     }
 
     private void AttackStop(BTContext ctx, NodeStatus result)
     {
         // 쿨다운 세팅/판정 해제 등
-        Blackboard.Set("nextAttackTime", Time.time + 1.0f);
+        //Blackboard.Set("nextAttackTime", Time.time + 1.0f);
     }
 
     // ---------- 디버그 ----------

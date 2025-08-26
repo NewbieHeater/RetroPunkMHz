@@ -788,7 +788,7 @@ MonoBehaviour:
   player: {fileID: 859057849}
   anime: {fileID: 217029160}
   viewAngle: 50
-  maxDist: 5
+  maxDist: 12
   obstacleMask:
     serializedVersion: 2
     m_Bits: 1216

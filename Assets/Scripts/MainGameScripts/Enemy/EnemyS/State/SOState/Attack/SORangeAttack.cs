@@ -79,7 +79,7 @@ public class SORangeAttack : EnemyAttackSOBase
 
     public override void OperateExit()
     {
-        animator.CrossFade("Idle", 0.05f);
+        animator.CrossFade("Idle", 0.05f, 0);
     }
 
     public void Fire()
