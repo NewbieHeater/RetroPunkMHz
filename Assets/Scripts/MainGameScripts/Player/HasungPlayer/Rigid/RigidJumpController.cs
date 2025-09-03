@@ -1,8 +1,5 @@
-// RigidJumpController.cs
 using UnityEngine;
 
-/// Jump+Gravity controller: owns ONLY vertical(y) velocity & jump state.
-/// Uses coyote, buffer, jump-cutoff, configurable multipliers.
 [RequireComponent(typeof(Rigidbody))]
 public class RigidJumpController : MonoBehaviour
 {
@@ -28,14 +25,14 @@ public class RigidJumpController : MonoBehaviour
     private IPlayerInput _input;
     private IPlayerAnimatorView _anim;
 
-    // State
+    // 상태
     private float _coyoteTimer;
     private float _jumpBufferTimer;
     private bool _jumpHeld;
     private bool _requestCutoff;
     private int _airJumpsLeft;
 
-    private float _baseGravity; // negative accel (units: m/s^2)
+    private float _baseGravity; // 기본중력
     private bool _wasGrounded;
 
     public void Initialize(GroundDetector gd, IPlayerInput input, IPlayerAnimatorView anim)
@@ -49,13 +46,13 @@ public class RigidJumpController : MonoBehaviour
         _baseGravity = (-2f) / (timeToJumpApex * timeToJumpApex);
     }
 
-    /// Handle button edges in Update (after input.Read()).
+    /// 지속적인 입력을 확인하는 함수
     public void OnUpdate()
     {
         if (_input.JumpDown)
         {
             _jumpHeld = true;
-            _jumpBufferTimer = jumpBufferTime; // (re)arm buffer
+            _jumpBufferTimer = jumpBufferTime; 
         }
         if (_input.JumpUp)
         {
@@ -64,7 +61,7 @@ public class RigidJumpController : MonoBehaviour
         }
     }
 
-    /// Physics step in FixedUpdate.
+    /// 물리적용
     public void OnFixedStep(float dt)
     {
         bool grounded = _ground.IsGrounded;
@@ -77,7 +74,7 @@ public class RigidJumpController : MonoBehaviour
 
         ClampVertical();
 
-        // Animation view
+        // 애니메이션 조정
         bool isFalling = _rb.velocity.y < -0.01f && !grounded;
         _anim?.SetFalling(isFalling);
         _anim?.SetGrounded(grounded);
@@ -108,7 +105,7 @@ public class RigidJumpController : MonoBehaviour
         if (CanJump(grounded))
         {
             DoJump(grounded);
-            _jumpBufferTimer = 0f; // consumed
+            _jumpBufferTimer = 0f;
         }
     }
 
@@ -126,7 +123,7 @@ public class RigidJumpController : MonoBehaviour
         float jumpVelocity = Mathf.Sqrt(-2f * _baseGravity * maxJumpHeight);
         _rb.velocity = new Vector3(_rb.velocity.x, jumpVelocity, 0f);
 
-        // If this was an air jump, consume a charge
+        // 공중에서 더블점프시 카운트 -1
         if (!grounded && _coyoteTimer <= 0f && _airJumpsLeft > 0)
             _airJumpsLeft--;
     }

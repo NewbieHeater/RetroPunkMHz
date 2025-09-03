@@ -9,8 +9,8 @@ public class RigidPlayerManagement : MonoBehaviour
     [SerializeField] private RigidMovementController movementController;
     [SerializeField] private RigidJumpController jumpController;
     [SerializeField] private AttackController attackController;
-    [SerializeField] private KeyboardInput keyboardInput; // implements IPlayerInput
-    [SerializeField] private PlayerAnimatorView animatorView; // implements IPlayerAnimatorView
+    [SerializeField] private KeyboardInput keyboardInput; // IPlayerInput
+    [SerializeField] private PlayerAnimatorView animatorView; // IPlayerAnimatorView
     [SerializeField] private Glitch glitchPasser;
 
     public bool IsGrounded = false;
@@ -19,7 +19,7 @@ public class RigidPlayerManagement : MonoBehaviour
 
     private void Awake()
     {
-        // Auto-resolve if left empty
+        // 비어있으면 가져오기(인스펙터창에 드래그시 그걸로 유지)
         if (!groundDetector) groundDetector = GetComponent<GroundDetector>();
         if (!movementController) movementController = GetComponent<RigidMovementController>();
         if (!jumpController) jumpController = GetComponent<RigidJumpController>();
@@ -28,7 +28,7 @@ public class RigidPlayerManagement : MonoBehaviour
         if (!animatorView) animatorView = GetComponentInChildren<PlayerAnimatorView>();
         if (!glitchPasser) glitchPasser = GetComponent<Glitch>();
 
-        // Dependency injection
+        // 의존성 주입
         movementController.Initialize(groundDetector, keyboardInput, animatorView, glitchPasser);
         jumpController.Initialize(groundDetector, keyboardInput, animatorView);
         attackController?.Initialize();
@@ -44,7 +44,9 @@ public class RigidPlayerManagement : MonoBehaviour
         movementController?.OnUpdate(Time.deltaTime);
         jumpController?.OnUpdate();
 
-        // If your attack system needs Update-time input edges, call here too:
+        // 나중에 바꿔야함
+        // 중요
+        // 기억할것
         attackController?.HandleInput();
     }
 

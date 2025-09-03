@@ -13,7 +13,7 @@ public interface IPlayerAnimatorView
 public class PlayerAnimatorView : MonoBehaviour, IPlayerAnimatorView
 {
     [SerializeField] private Animator animator;
-    [SerializeField] private Transform model; // the thing you want to rotate (often animator.transform)
+    [SerializeField] private Transform model; // 회전시킬 모델
 
     private static readonly int HashMove = Animator.StringToHash("Move");
     private static readonly int HashSpeed = Animator.StringToHash("Speed");

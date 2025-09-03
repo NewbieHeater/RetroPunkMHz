@@ -29,7 +29,7 @@ public class RigidMovementController : MonoBehaviour
     private Glitch _glitch;
 
     private bool _isRun = false;
-    private float _faceDir = 1f; // -1 or +1 for forward probe direction
+    private float _faceDir = 1f; // -1 or +1 좌우이동용
 
     public void Initialize(GroundDetector gd, IPlayerInput input, IPlayerAnimatorView anim, Glitch glitch = null)
     {
@@ -45,7 +45,7 @@ public class RigidMovementController : MonoBehaviour
         if (_input.SprintToggleDown)
         {
             _isRun = !_isRun;
-            if (_glitch) _glitch.CanPass = _isRun; // grant pass only when sprint toggled on
+            if (_glitch) _glitch.CanPass = _isRun; // 달리기 키가 토글되어있을때만 허용
         }
 
         if (Mathf.Abs(_input.MoveX) > 0.01f)
@@ -61,7 +61,7 @@ public class RigidMovementController : MonoBehaviour
     {
         bool grounded = _ground.IsGrounded;
 
-        // Snap-stop x if nearly zero and grounded to avoid drifting
+        // 점프, 정지, 이동방향 변경시 미끄러짐 방지
         if (Mathf.Abs(_input.MoveX) < 0.01f && grounded && Mathf.Abs(_rb.velocity.x) < 0.0005f)
         {
             _rb.velocity = new Vector3(0f, _rb.velocity.y, 0f);
@@ -83,10 +83,10 @@ public class RigidMovementController : MonoBehaviour
         if (ProbeForwardBlock())
             newVx = 0f;
 
-        // OWN x ONLY. y is owned by Jump controller.
+        // x만 바꿔줌 y는 점프에서만
         _rb.velocity = new Vector3(newVx, Mathf.Clamp(_rb.velocity.y, -verticalSpeedLimit, float.MaxValue), 0f);
 
-        // Auto-cancel run & pass when coming to a stop
+        // 점추면 글리치 종료
         if (Mathf.Abs(_rb.velocity.x) <= 0.1f)
         {
             _isRun = false;

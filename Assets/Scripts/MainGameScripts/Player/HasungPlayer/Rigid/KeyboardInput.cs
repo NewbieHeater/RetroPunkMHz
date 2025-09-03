@@ -32,7 +32,7 @@ public class KeyboardInput : MonoBehaviour, IPlayerInput
     {
         _moveX = Input.GetAxisRaw(horizontalAxis);
 
-        // Support both legacy input button and key (defensive).
+        // 키변경 가능케
         _jumpDown = Input.GetButtonDown(jumpButton);
         _jumpUp = Input.GetButtonUp(jumpButton);
 
