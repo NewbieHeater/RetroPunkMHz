@@ -2284,7 +2284,7 @@ GameObject:
   - component: {fileID: 288425503}
   - component: {fileID: 288425502}
   - component: {fileID: 288425501}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2908,6 +2908,11 @@ MonoBehaviour:
   footRayExtraHeight: 1.3
   hipSmoothingTime: 0.155
   cliffDropAmount: 0.15
+--- !u!95 &303487859 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 9c18580b97512ed43885caa0955ca4fb, type: 3}
+  m_PrefabInstance: {fileID: 883968633}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &308869818
 GameObject:
   m_ObjectHideFlags: 0
@@ -6392,6 +6397,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 859057850}
+  - component: {fileID: 859057856}
+  - component: {fileID: 859057855}
   - component: {fileID: 859057854}
   - component: {fileID: 859057849}
   - component: {fileID: 859057852}
@@ -6508,10 +6515,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfd0cd4c0d5cfe846b2da073d294724f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movementController: {fileID: 0}
-  _jumpController: {fileID: 0}
-  _attackController: {fileID: 0}
-  playerHp: {fileID: 0}
+  groundDetector: {fileID: 0}
+  movementController: {fileID: 0}
+  jumpController: {fileID: 0}
+  attackController: {fileID: 0}
+  keyboardInput: {fileID: 0}
+  animatorView: {fileID: 0}
+  glitchPasser: {fileID: 0}
   IsGrounded: 0
   IsEnabled: 1
 --- !u!4 &859057850
@@ -6549,14 +6559,11 @@ MonoBehaviour:
   timeToJumpApex: 0.5
   coyoteTime: 0.1
   jumpBufferTime: 0.1
-  allowDoubleJump: 0
   maxAirJumps: 1
   upwardMovementMultiplier: 3.43
   downwardMovementMultiplier: 3.9
   jumpCutOffMultiplier: 6.79
-  speedLimit: 15
-  gravityValue: 0
-  gravity: 0
+  verticalSpeedLimit: 15
 --- !u!114 &859057852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6575,12 +6582,12 @@ MonoBehaviour:
   decelerationTime: 0.1
   airControl: 1
   rotationSpeed: 10
-  _teleportSpace: 6
-  _postTeleportOffset: 1.2
-  _teleportCooldown: 0.08
-  inputX: 0
-  isOnSlope: 0
-  newVelocity: {x: 0, y: 0, z: 0}
+  forwardBlockMask:
+    serializedVersion: 2
+    m_Bits: 0
+  probeHeight: 0.5
+  probeDistance: 0.5
+  verticalSpeedLimit: 15
 --- !u!114 &859057853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6617,6 +6624,35 @@ MonoBehaviour:
   promptUI: {fileID: 43866432}
   promptText: {fileID: 1321305357}
   interactKey: 102
+--- !u!114 &859057855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859057843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d25d003e981f6c4f93ce23d5399f3a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 303487859}
+  model: {fileID: 303487854}
+--- !u!114 &859057856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859057843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4e104eeb2e9abc43a4bb24220cd0f51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  horizontalAxis: Horizontal
+  jumpButton: Jump
+  sprintToggleKey: 304
 --- !u!1 &868125771
 GameObject:
   m_ObjectHideFlags: 0

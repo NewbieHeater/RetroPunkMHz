@@ -60,7 +60,7 @@ public class CinemachineCameraController : MonoBehaviour
         if (target == null || transposer == null) return;
 
         bool grounded = playerMgmt.IsGrounded;
-        float inputX = movementCtrl.inputX;
+        float inputX = playerMgmt.InputX;
         float horizontalSpeed = Mathf.Abs(rb.velocity.x);
         float verticalSpeed = rb.velocity.y;
 
