@@ -1,23 +1,25 @@
+ï»¿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 /// <summary>
-/// ÀÎº¥Åä¸® ½½·Ô ÇÏ³ª¸¦ ´ã´ç
+/// ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ í•˜ë‚˜ë¥¼ ë‹´ë‹¹
 /// </summary>
 public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private Item _item;
     public Item Item => _item;
 
-    [Header("ÇØ´ç ½½·Ô¿¡ ¾î¶°ÇÑ Å¸ÀÔ¸¸ µé¾î¿Ã ¼ö ÀÖ´ÂÁö Å¸ÀÔ ¸¶½ºÅ©")]
+    [Header("í•´ë‹¹ ìŠ¬ë¡¯ì— ì–´ë– í•œ íƒ€ì…ë§Œ ë“¤ì–´ì˜¬ ìˆ˜ ìˆëŠ”ì§€ íƒ€ì… ë§ˆìŠ¤í¬")]
     [SerializeField] private ItemType _slotMask;
 
     private int _itemCount;
 
-    [Header("¾ÆÀÌÅÛ ½½·Ô¿¡ ÀÖ´Â UI ¿ÀºêÁ§Æ®")]
+    [Header("ì•„ì´í…œ ìŠ¬ë¡¯ì— ìˆëŠ” UI ì˜¤ë¸Œì íŠ¸")]
     [SerializeField] private Image _itemImage;
     [SerializeField] private Image _cooltimeImage;
     [SerializeField] private Text _textCount;
@@ -43,8 +45,10 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
     {
         _item = item;
         _itemCount = count;
+        UnityEngine.Debug.Log(_itemCount);
         _itemImage.sprite = _item.Image;
-
+        
+        
         _textCount.text = _item.Type <= ItemType.Equipment_SHOES ? "" : _itemCount.ToString();
 
         SetColor(1);

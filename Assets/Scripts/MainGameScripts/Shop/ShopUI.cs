@@ -11,20 +11,26 @@ public class ShopUI : MonoBehaviour
     public Button buybutton;
 
     private int item = 10;
+    private int _inventorycount = 0;
+    
+    
+    
+    
     private void Start()
     {
-        itemname.text = "potion";
+        itemname.text = "포션";
         UpdatecountText();
 
         buybutton.onClick.AddListener(Onbuybutton);
     }
-
     private void Onbuybutton()
     {
         if(item >0)
         {
             item--;
+            _inventorycount = 10 - item;
             UpdatecountText();
+            
         }
         else
         {
@@ -34,6 +40,6 @@ public class ShopUI : MonoBehaviour
 
     private void UpdatecountText()
     {
-        itemcount.text = item+"gae";
+        itemcount.text = item+".";
     }
 }

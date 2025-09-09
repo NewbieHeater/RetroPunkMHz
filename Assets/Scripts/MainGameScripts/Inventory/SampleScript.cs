@@ -1,24 +1,24 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SampleScript : MonoBehaviour
 {
-    [Header("ÀÎº¥Åä¸® ¸ŞÀÎ")]
+    [Header("ì¸ë²¤í† ë¦¬ ë©”ì¸")]
     [SerializeField] private InventoryMain mInventoryMain;
 
-    [Header("È¹µæÇÒ ¾ÆÀÌÅÛ")]
+    [Header("íšë“í•  ì•„ì´í…œ")]
     [SerializeField] private Item mHPItem, mManaItem;
 
 
     private void OnGUI()
     {
-        if (GUI.Button(new Rect(20, 20, 300, 40), "Ã¼·ÂÆ÷¼Ç ¾ÆÀÌÅÛ È¹µæ"))
+        if (GUI.Button(new Rect(20, 20, 300, 40), "ì²´ë ¥í¬ì…˜ ì•„ì´í…œ íšë“"))
         {
             mInventoryMain.AcquireItem(mHPItem);
         }
 
-        if (GUI.Button(new Rect(400, 20, 300, 40), "¸¶³ªÆ÷¼Ç ¾ÆÀÌÅÛ È¹µæ"))
+        if (GUI.Button(new Rect(400, 20, 300, 40), "ë§ˆë‚˜í¬ì…˜ ì•„ì´í…œ íšë“"))
         {
             mInventoryMain.AcquireItem(mManaItem);
         }

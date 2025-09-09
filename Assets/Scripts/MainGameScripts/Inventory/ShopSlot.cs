@@ -1,3 +1,4 @@
+ï»¿using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,61 +7,79 @@ public class ShopSlot : MonoBehaviour
 {
     [SerializeField] private InventoryMain mInventory;
 
-    [Header("ÇØ´ç ¿ÀºêÁ§Æ®¿¡ ÇÒ´çµÇ´Â ¾ÆÀÌÅÛ")]
+    [Header("í•´ë‹¹ ì˜¤ë¸Œì íŠ¸ì— í• ë‹¹ë˜ëŠ” ì•„ì´í…œ")]
     [SerializeField] private Item mItem;
     /// <summary>
-    /// »óÈ£ÀÛ¿ë °¡´ÉÇÑ °´Ã¼°¡ °¡Áö°í ÀÖ´Â ¾ÆÀÌÅÛ
+    /// ìƒí˜¸ì‘ìš© ê°€ëŠ¥í•œ ê°ì²´ê°€ ê°€ì§€ê³  ìˆëŠ” ì•„ì´í…œ
     /// /// </summary>
     /// <value></value>
     public Item Item => mItem;
 
-    [Header("¾ÆÀÌÅÛÀÇ ÀÌ¹ÌÁö¸¦ ÇÒ´çÇÒ ¿ÀºêÁ§Æ®")]
+    [Header("ì•„ì´í…œì˜ ì´ë¯¸ì§€ë¥¼ í• ë‹¹í•  ì˜¤ë¸Œì íŠ¸")]
     [SerializeField] private Image mItemImage;
 
-    [Header("¹öÆ°")]
+    [Header("ë²„íŠ¼")]
     [SerializeField] private Button mButton;
+    public TextMeshProUGUI itemname;
+    public TextMeshProUGUI itemcount;
 
+    private int item = 10;
+    
 
     private void Awake()
     {
         if (mInventory == null)
         {
-            Debug.LogError("[ShopSlot] InventoryMainÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("[ShopSlot] InventoryMainì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             mInventory = GameObject.Find("InventoryManager").GetComponent<InventoryMain>();
         }    
         if (mItemImage == null)
         {
-            Debug.LogError("[ShopSlot] ItemImage°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("[ShopSlot] ItemImageê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             mItemImage = GetComponentInChildren<Image>();
         }
         if (mButton == null)
         {
-            Debug.LogError("[ShopSlot] ButtonÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("[ShopSlot] Buttonì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             mButton = GetComponentInChildren<Button>();
         }
 
         mItemImage.sprite = mItem.Image;
         mButton.onClick.AddListener(OnButtonClicked);
-    }
 
+    }
+    private void Start()
+    {
+        itemname.text = "í¬ì…˜";
+        UpdatecountText();
+
+        
+    }
     /// <summary>
-    /// ¹öÆ° Å¬¸¯½Ã Çàµ¿
+    /// ë²„íŠ¼ í´ë¦­ì‹œ í–‰ë™
     /// </summary>
     public void OnButtonClicked()
     {
-        if (IsItemAquireAble())
+        if(item < 0)
         {
-            mInventory.AcquireItem(mItem);
+            Debug.Log("close");
+            return;
         }
-        else
+        if(!IsItemAquireAble())
         {
-            //ÀÎº¥Åä¸®¿¡ ¾ÆÀÌÅÛÀ» ¸ø³Ö´Â »óÈ²¿¡ ÇÒÀÏ(¿¡·¯Ã¢À» ¶ç¿î´Ù°Å³ªµîµî)
+            Debug.Log("ì¸ë²¤í† ë¦¬ì— ê³µê°„ ì—†ìŒ");
+            return;
         }
+
+        item--;
+        mInventory.AcquireItem(mItem);
+        UpdatecountText();
+        
     }
 
-    // »ç½Ç ÀÌ¹Ì AcquireItem() ¿¡¼­ °Ë»çÇÏ°í ÀÖÁö¸¸ ÇÑ¹ø´õ
+    // ì‚¬ì‹¤ ì´ë¯¸ AcquireItem() ì—ì„œ ê²€ì‚¬í•˜ê³  ìˆì§€ë§Œ í•œë²ˆë”
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡ µé¾î°¥ ¼ö ÀÖ´ÂÁö °Ë»ç
+    /// ì¸ë²¤í† ë¦¬ì— ë“¤ì–´ê°ˆ ìˆ˜ ìˆëŠ”ì§€ ê²€ì‚¬
     /// </summary>
     private bool IsItemAquireAble()
     {
@@ -69,16 +88,22 @@ public class ShopSlot : MonoBehaviour
         int count = 0;
         for (; count < allitems.Length; ++count)
         {
-            //ÇöÀç ¾ÆÀÌÅÛ Ä­ÀÌ nullÀÌ¶ó¸é ÁÖ¿ï ¼ö ÀÖ´Â »óÅÂ
+            //í˜„ì¬ ì•„ì´í…œ ì¹¸ì´ nullì´ë¼ë©´ ì£¼ìš¸ ìˆ˜ ìˆëŠ” ìƒíƒœ
             if (allitems[count].Item == null) { break; }
 
-            //ÇöÀç ¾ÆÀÌÅÛÄ­ÀÌ nullÀÌ ¾Æ´ÏÁö¸¸, ÇöÀç ¾ÆÀÌÅÛ°ú µ¿ÀÏÇÏ¸é¼­ ÁßÃ¸ÀÌ °¡´ÉÇÑ ¾ÆÀÌÅÛÀÌ¶ó¸é ÁÖ¿ï ¼ö ÀÖ´Â »óÅÂ
+            //í˜„ì¬ ì•„ì´í…œì¹¸ì´ nullì´ ì•„ë‹ˆì§€ë§Œ, í˜„ì¬ ì•„ì´í…œê³¼ ë™ì¼í•˜ë©´ì„œ ì¤‘ì²©ì´ ê°€ëŠ¥í•œ ì•„ì´í…œì´ë¼ë©´ ì£¼ìš¸ ìˆ˜ ìˆëŠ” ìƒíƒœ
             if (allitems[count].Item.ItemID == mItem.ItemID && allitems[count].Item.CanOverlap) { break; }
         }
 
-        //ÀÌ°Ô trueÀÌ¸é ¾ÆÀÌÅÛÀÌ ÀÎº¥Åä¸®ÀÇ ¾î¶² ½½·Ô¿¡µµ µé¾î°¥ ¼ö ¾ø´Â»óÅÂ
+        //ì´ê²Œ trueì´ë©´ ì•„ì´í…œì´ ì¸ë²¤í† ë¦¬ì˜ ì–´ë–¤ ìŠ¬ë¡¯ì—ë„ ë“¤ì–´ê°ˆ ìˆ˜ ì—†ëŠ”ìƒíƒœ
         if (count == allitems.Length) { return false; }
 
         return true;
+    }
+    
+
+    private void UpdatecountText()
+    {
+        itemcount.text = item + ".";
     }
 }
