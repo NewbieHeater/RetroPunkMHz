@@ -200,47 +200,4 @@ public class Boss : BTRunner
     [SerializeField] private float maxDist;
     [SerializeField] private LayerMask obstacleMask;
 
-    protected bool IsPlayerInSight(float range)
-    {
-        float dist = Vector3.Distance(transform.position, player.transform.position);
-        if (dist > range)
-            return false;
-
-        Vector3 toPlayer = (player.transform.position - transform.position).normalized;
-        float angle = Vector3.Angle(anime.transform.forward, toPlayer);
-        Debug.DrawRay(transform.position + Vector3.up, toPlayer * dist, Color.green, 0.1f);
-        if (angle > viewAngle)
-        {
-            Debug.DrawRay(transform.position + Vector3.up, toPlayer * dist, Color.gray, 0.1f);
-            return false;
-        }
-
-        Vector3 origin = transform.position + Vector3.up;
-        Vector3 target = player.transform.position + Vector3.up;
-        Vector3 dir = target - origin;
-        Debug.DrawRay(origin, dir.normalized * range, Color.red, 0.1f);
-
-        return IsRayHitOnPlayer(origin, dir);
-    }
-
-    public RaycastHit? GetRaycastHit(Vector3 origin, Vector3 dir, float distance)
-    {
-        Debug.DrawRay(origin, dir.normalized * distance, Color.red, 0.1f);
-
-        if (Physics.Raycast(origin, dir, out var hit, distance, obstacleMask))
-        {
-            return hit;
-        }
-
-        return null;
-    }
-
-    public bool IsRayHitOnPlayer(Vector3 origin, Vector3 dir)
-    {
-        if (GetRaycastHit(origin, dir, maxDist) is RaycastHit hit)
-        {
-            return hit.collider.CompareTag("Player");
-        }
-        return false;
-    }
 }
