@@ -60,7 +60,7 @@ public class ShopSlot : MonoBehaviour
     /// </summary>
     public void OnButtonClicked()
     {
-        if(item < 0)
+        if(item < 7)
         {
             Debug.Log("close");
             return;

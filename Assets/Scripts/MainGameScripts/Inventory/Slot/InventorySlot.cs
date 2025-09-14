@@ -26,6 +26,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     [SerializeField] private ItemActionManager _itemActionManager;
     [SerializeField] private ItemDescription _itemDescription;
+    
 
     private bool _isTooltipActive;
 
@@ -34,6 +35,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
         Color color = _itemImage.color;
         color.a = alpha;
         _itemImage.color = color;
+        
     }
 
     public bool IsMask(Item item)
@@ -45,7 +47,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
     {
         _item = item;
         _itemCount = count;
-        UnityEngine.Debug.Log(_itemCount);
+        
         _itemImage.sprite = _item.Image;
         
         
@@ -201,5 +203,24 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
             // mToolTipScript.EnableToolTip(_item.ItemID);
             _isTooltipActive = false;
         }
+    }
+
+    
+
+    public void RefreshUI()
+    {
+        // 아이템이 없으면 UI 초기화
+        if (_item == null)
+        {
+            _itemImage.sprite = null;
+            _textCount.text = "";
+            SetColor(0);
+            return;
+        }
+        UnityEngine.Debug.Log("정렬");
+        // 기존 아이템 그대로 UI 갱신
+        _itemImage.sprite = _item.Image;
+        _textCount.text = _item.Type <= ItemType.Equipment_SHOES ? "" : _itemCount.ToString();
+        SetColor(1);
     }
 }

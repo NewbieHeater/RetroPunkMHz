@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 /// <summary>
 /// 여러 아이템을 담을 가장 기본적인 인벤토리
@@ -6,9 +9,10 @@
 public class InventoryMain : InventoryBase
 {
     public static bool IsInventoryActive = false;  // 인벤토리 활성화 되었는가?
-    
+    private RectTransform _slotsParentRectTransform;
     new void Awake()
     {
+        _slotsParentRectTransform = GameObject.Find("GRIDLAYOUT_SlotsParent").GetComponent<RectTransform>();
         base.Awake();
     }
 
@@ -111,6 +115,7 @@ public class InventoryMain : InventoryBase
             for (int i = 0; i < _slots.Length; i++)
             {
                 //마스크를 사용하여 해당 슬롯이 마스크에 허용되는 위치인경우에만 아이템을 집어넣도록 한다.
+                Debug.Log("나는" + _slots.Length);
                 if (_slots[i].Item != null && _slots[i].IsMask(item))
                 {
                     if (_slots[i].Item.ItemID == item.ItemID)
@@ -139,5 +144,36 @@ public class InventoryMain : InventoryBase
         }
             
             
+    }
+
+    public void InventoryArray()
+    {
+        
+        Array.Sort(_slots, CompareSlot);
+        for (int i=0;i<_slots.Length;i++)
+        {
+            if (_slots[i] != null && _slots[i].Item != null)
+            {
+
+                _slots[i].transform.SetSiblingIndex(i);
+                _slots[i].RefreshUI();
+            }
+                
+        }
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_slotsParentRectTransform);
+
+
+    }
+
+    private int CompareSlot(InventorySlot a, InventorySlot b)
+    {
+        
+        if (a == null || a.Item == null) return 1;
+        if (b == null || b.Item == null) return -1;
+
+        string nameA = a.Item.Description ?? ""; // null 안전
+        string nameB = b.Item.Description ?? "";
+
+        return string.Compare(nameA, nameB, StringComparison.Ordinal);
     }
 }
