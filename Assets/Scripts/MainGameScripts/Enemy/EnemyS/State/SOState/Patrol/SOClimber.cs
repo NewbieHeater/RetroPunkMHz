@@ -133,7 +133,6 @@ public class SOClimber : EnemyPatrolSOBase
 
     private void AdvanceIndex()
     {
-        Debug.Log(patrolIndex);
         int len = enemy.patrolPoints.Length;
         if (len <= 1)
         {

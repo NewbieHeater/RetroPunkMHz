@@ -35,7 +35,7 @@ public sealed class BTBuilder
     public BTBuilder Do(string name, Func<BTContext, NodeStatus> onTick, Action<BTContext> onStart = null, Action<BTContext, NodeStatus> onStop = null)
     { Add(new ActionNode(name, onTick, onStart, onStop)); return this; }
 
-    public BTBuilder Wait(float seconds, string name = null) { Add(new WaitNode(seconds, name ?? $"Wait({seconds})")); return this; }
+    public BTBuilder Wait(float seconds, bool unscaled = false, string name = null) { Add(new WaitNode(seconds, unscaled, name ?? $"Wait({seconds})")); return this; }
 
     public BTBuilder Guard(Func<BTContext, bool> predicate, Action<BTBuilder> body, string name = null)
     {
