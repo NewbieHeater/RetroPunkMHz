@@ -5,9 +5,10 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering.VirtualTexturing;
+using static UnityEngine.EventSystems.EventTrigger;
 using static UnityEngine.UI.Image;
 
-public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Death, ANY }
+public enum State { Patrol, Chase, Idle, MeleeAttack, RangeAttack, Search, Hit, Death, ANY }
 
 
 [System.Serializable]
@@ -226,7 +227,7 @@ public abstract class EnemyFSMBase : MonoBehaviour, IAttackable, IExplosionInter
     public void TakeDamage(in DamageInfo info)
     {
         if (isDead) return;
-
+        ChangeState(State.Hit);
         mCurrentHp -= info.Amount;
         Debug.Log("hit");
         if (mCurrentHp <= 0)
