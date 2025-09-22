@@ -6520,7 +6520,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 859057850}
-  - component: {fileID: 859057856}
+  - component: {fileID: 859057859}
   - component: {fileID: 859057855}
   - component: {fileID: 859057854}
   - component: {fileID: 859057849}
@@ -6644,7 +6644,6 @@ MonoBehaviour:
   movementController: {fileID: 0}
   jumpController: {fileID: 0}
   attackController: {fileID: 0}
-  keyboardInput: {fileID: 0}
   animatorView: {fileID: 0}
   glitchPasser: {fileID: 859057857}
   IsGrounded: 0
@@ -6748,7 +6747,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   promptUI: {fileID: 43866432}
   promptText: {fileID: 1321305357}
-  interactKey: 102
 --- !u!114 &859057855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6763,21 +6761,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 303487859}
   model: {fileID: 303487854}
---- !u!114 &859057856
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 859057843}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4e104eeb2e9abc43a4bb24220cd0f51, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  horizontalAxis: Horizontal
-  jumpButton: Jump
-  sprintToggleKey: 304
 --- !u!114 &859057857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6807,6 +6790,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TextMeshProUGUI: {fileID: 179190689}
+--- !u!114 &859057859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859057843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37166eaa982d7504a9842c5b5a7e0bb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  horizontalAxis: Horizontal
+  jumpButton: Jump
+  sprintToggleKey: 304
+  interactKey: 102
+  attackMouseButton: 0
 --- !u!1 &868125771
 GameObject:
   m_ObjectHideFlags: 0
@@ -14348,7 +14348,6 @@ GameObject:
   - component: {fileID: 1859175361}
   - component: {fileID: 1859175365}
   - component: {fileID: 1859175364}
-  - component: {fileID: 1859175363}
   - component: {fileID: 1859175362}
   m_Layer: 0
   m_Name: Main Camera
@@ -14408,29 +14407,6 @@ MonoBehaviour:
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1859175363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1859175360}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b80294dd9931d943bc63f15ac130353, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 859057850}
-  minX: -500
-  maxX: 500
-  minY: -500
-  maxY: 500
-  yOffset: 2
-  xLeadDist: 1
-  walkSmoothTime: 0.3
-  runSmoothTime: 0.15
-  ySmoothTime: 0.3
-  fallOffsetY: 1.5
 --- !u!81 &1859175364
 AudioListener:
   m_ObjectHideFlags: 0

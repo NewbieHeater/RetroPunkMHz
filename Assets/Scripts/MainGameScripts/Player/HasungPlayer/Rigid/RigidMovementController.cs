@@ -24,45 +24,43 @@ public class RigidMovementController : MonoBehaviour
 
     private Rigidbody _rb;
     private GroundDetector _ground;
-    private IPlayerInput _input;
     private IPlayerAnimatorView _anim;
     private Glitch _glitch;
 
     private bool _isRun = false;
     private float _faceDir = 1f; // -1 or +1 좌우이동용
 
-    public void Initialize(GroundDetector gd, IPlayerInput input, IPlayerAnimatorView anim, Glitch glitch = null)
+    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim, Glitch glitch = null)
     {
         _rb = GetComponent<Rigidbody>();
         _ground = gd;
-        _input = input;
         _anim = anim;
         _glitch = glitch;
     }
 
-    public void OnUpdate(float dt)
+    public void OnUpdate(float dt, PlayerInputFrame input)
     {
-        if (_input.SprintToggleDown)
+        if (input.sprintToggleDown)
         {
             _isRun = !_isRun;
             if (_glitch) _glitch.CanPass = _isRun; // 달리기 키가 토글되어있을때만 허용
         }
 
-        if (Mathf.Abs(_input.MoveX) > 0.01f)
-            _faceDir = Mathf.Sign(_input.MoveX);
+        if (Mathf.Abs(input.moveX) > 0.01f)
+            _faceDir = Mathf.Sign(input.moveX);
 
         // Animation (view)
-        bool moving = Mathf.Abs(_input.MoveX) > 0.01f;
+        bool moving = Mathf.Abs(input.moveX) > 0.01f;
         _anim?.SetMove(moving, Mathf.Abs(_rb.velocity.x));
-        _anim?.Face(_input.MoveX, rotationSpeed, dt);
+        _anim?.Face(input.moveX, rotationSpeed, dt);
     }
 
-    public void OnFixedStep(float dt)
+    public void OnFixedStep(float fdt, PlayerInputFrame input)
     {
         bool grounded = _ground.IsGrounded;
 
         // 점프, 정지, 이동방향 변경시 미끄러짐 방지
-        if (Mathf.Abs(_input.MoveX) < 0.01f && grounded && Mathf.Abs(_rb.velocity.x) < 0.0005f)
+        if (Mathf.Abs(input.moveX) < 0.01f && grounded && Mathf.Abs(_rb.velocity.x) < 0.0005f)
         {
             _rb.velocity = new Vector3(0f, _rb.velocity.y, 0f);
         }
@@ -74,11 +72,11 @@ public class RigidMovementController : MonoBehaviour
         float decel = grounded ? (maxSpeed / decelerationTime)
                                : (maxSpeed / decelerationTime) * airControl;
 
-        float targetVx = _input.MoveX * maxSpeed;
+        float targetVx = input.moveX * maxSpeed;
 
-        float newVx = (Mathf.Abs(_input.MoveX) > 0.01f)
-            ? Mathf.MoveTowards(_rb.velocity.x, targetVx, accel * dt)
-            : Mathf.MoveTowards(_rb.velocity.x, 0f, decel * dt);
+        float newVx = (Mathf.Abs(input.moveX) > 0.01f)
+            ? Mathf.MoveTowards(_rb.velocity.x, targetVx, accel * fdt)
+            : Mathf.MoveTowards(_rb.velocity.x, 0f, decel * fdt);
 
         if (ProbeForwardBlock())
             newVx = 0f;

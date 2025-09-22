@@ -6,12 +6,13 @@ public enum StateInfo
 {
     Idle,
     Attack,
-    Move
+    Move,
+    Hit,
 }
 
 public class EnemyRobot : EnemyBase
 {
-    StateInfo _state;
+    
     BoxCollider _meleeAttackCollider;
 
     protected override void Start()
@@ -26,6 +27,7 @@ public class EnemyRobot : EnemyBase
 
     protected override void FSM()
     {
+        
         switch (_state)
         {
             case StateInfo.Idle:
@@ -39,40 +41,96 @@ public class EnemyRobot : EnemyBase
                 if (IsPlayerInSight(_aggroRange))
                 {
                     _patrolController.Exit();
-                    _state = StateInfo.Attack;
+                    SetState(StateInfo.Idle);
                 }
+            break;
+            case StateInfo.Hit:
+                time += Time.deltaTime;
+                if(time >= _hitTime)
+                {
+                    SetState(StateInfo.Idle);
+                }
+                float dir = Mathf.Sign(this.transform.position.x - _player.transform.position.x);
+                // dir == +1 : 플레이어가 왼쪽에 있음 → 오른쪽으로 밀림
+                // dir == -1 : 플레이어가 오른쪽에 있음 → 왼쪽으로 밀림
+
+                Vector3 knockback = new Vector3(dir, 0, 0);
+                transform.position += knockback * knockbackStrength * Time.deltaTime;
+            break;
+
+        }
+    }
+
+    protected override void SetState(StateInfo next)
+    {
+        // Exit 훅
+        switch (_state)
+        {
+            case StateInfo.Move:
+                _patrolController.Exit();              // nav.isStopped = true
+                break;
+            case StateInfo.Attack:
+                _meleeAttackCollider.enabled = false;  // 공격 끝나면 안전하게 끄기
+                break;
+            case StateInfo.Hit:
+                time = 0f;                             // 히트 타이머 리셋
+                break;
+        }
+
+        _state = next;
+
+        // Enter 훅
+        switch (_state)
+        {
+            case StateInfo.Move:
+                _patrolController.Enter();
+                break;
+            case StateInfo.Attack:
+                // 필요하면 여기서 애니 초기 세팅
+                break;
+            case StateInfo.Hit:
+                // 히트 시작 시 필요한 초기화
+                time = 0f;
                 break;
         }
     }
 
+
+    private float knockbackStrength = 3;
+    private float _hitTime = 0.3f;
+    private float time = 0;
     private void Idle()
     {
-        
-        if(IsPlayerInSight(_aggroRange) || CloseEnoughToPlayer())
+        _animator.Play("Idle");
+        if(IsPlayerInSight(_aggroRange) || IsCloseEnoughToPlayer())
         {
-            _state = StateInfo.Attack;
+            SetState(StateInfo.Attack);
         }
         else
         {
-            _state = StateInfo.Move;
+            SetState(StateInfo.Move);
         }
     }
 
-    bool _isAttacking = false;
 
     private void Attack()
     {
-        if (IsInOrTransitionToAttack()) return;
+        if (!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer())
+        {
+            
+            SetState(StateInfo.Move);
+            return;
+        }
 
-        // 이제 막 공격 시작
-        //_isAttacking = true;
+        if (IsInOrTransitionToAttack()) return;
+        
         _meleeAttackCollider.enabled = true;
-        _animator.ResetTrigger("Attack"); // 혹시 남아있을지 몰라 안전
+        _animator.ResetTrigger("Attack");
         _animator.SetTrigger("Attack");
     }
 
     #region Helper
-    private bool CloseEnoughToPlayer()
+    private bool IsCloseEnoughToPlayer()
     {
         return Vector3.Distance(transform.position, _player.transform.position) < _findRange;
     }
@@ -88,6 +146,12 @@ public class EnemyRobot : EnemyBase
             if (next.IsTag("Attack")) return true;
         }
         return false;
+    }
+
+    public override void TakeDamage(in DamageInfo info)
+    {
+        base.TakeDamage(info);
+        _state = StateInfo.Hit;
     }
     #endregion
 }

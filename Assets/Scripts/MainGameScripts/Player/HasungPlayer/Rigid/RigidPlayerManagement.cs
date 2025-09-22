@@ -1,6 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.Windows;
 
+public struct DamageInfo
+{
+    public Vector3 SourceDir;
+    public float KnockbackForce;
+    public bool IsCharge;
+    public int Amount;
+}
+
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 public class RigidPlayerManagement : MonoBehaviour
 {
@@ -9,7 +17,6 @@ public class RigidPlayerManagement : MonoBehaviour
     [SerializeField] private RigidMovementController movementController;
     [SerializeField] private RigidJumpController jumpController;
     [SerializeField] private AttackController attackController;
-    [SerializeField] private KeyboardInput keyboardInput; // IPlayerInput
     [SerializeField] private PlayerAnimatorView animatorView; // IPlayerAnimatorView
     [SerializeField] private Glitch glitchPasser;
 
@@ -24,13 +31,12 @@ public class RigidPlayerManagement : MonoBehaviour
         if (!movementController) movementController = GetComponent<RigidMovementController>();
         if (!jumpController) jumpController = GetComponent<RigidJumpController>();
         if (!attackController) attackController = GetComponent<AttackController>();
-        if (!keyboardInput) keyboardInput = GetComponent<KeyboardInput>();
         if (!animatorView) animatorView = GetComponentInChildren<PlayerAnimatorView>();
         if (!glitchPasser) glitchPasser = GetComponent<Glitch>();
 
         // 의존성 주입
-        movementController.Initialize(groundDetector, keyboardInput, animatorView, glitchPasser);
-        jumpController.Initialize(groundDetector, keyboardInput, animatorView);
+        movementController.Initialize(groundDetector, animatorView, glitchPasser);
+        jumpController.Initialize(groundDetector, animatorView);
         attackController?.Initialize();
     }
 
@@ -38,11 +44,11 @@ public class RigidPlayerManagement : MonoBehaviour
     {
         if (!IsEnabled) return;
 
-        keyboardInput?.Read();
-        InputX = keyboardInput.MoveX;
+        var input = GlobalInputRouter.Instance.GetFrame();
+        InputX = input.moveX;
 
-        movementController?.OnUpdate(Time.deltaTime);
-        jumpController?.OnUpdate();
+        movementController?.OnUpdate(Time.deltaTime, input);
+        jumpController?.OnUpdate(Time.fixedDeltaTime, input);
 
         // 나중에 바꿔야함
         // 중요
@@ -57,8 +63,9 @@ public class RigidPlayerManagement : MonoBehaviour
         groundDetector?.UpdateGroundStatus();
         IsGrounded = groundDetector.IsGrounded;
 
-        movementController?.OnFixedStep(Time.fixedDeltaTime);
-        jumpController?.OnFixedStep(Time.fixedDeltaTime);
+        var input = GlobalInputRouter.Instance.GetFrame();
+        movementController?.OnFixedStep(Time.fixedDeltaTime, input);
+        jumpController?.OnFixedStep(Time.fixedDeltaTime, input);
 
         attackController?.ProcessAttack();
     }

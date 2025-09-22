@@ -35,13 +35,8 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     [Tooltip("에너미가 플레이어를 볼 수 있는 최대 각도(도)")]
     [SerializeField] protected float _viewAngle = 45f;
     [SerializeField] protected LayerMask _obstacleMask;
-
+    protected StateInfo _state;
     public void OnExplosionInteract(Channel channel)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void TakeDamage(in DamageInfo info)
     {
         throw new System.NotImplementedException();
     }
@@ -62,6 +57,10 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     {
         FSM();
     }
+
+    protected abstract void SetState(StateInfo next);
+
+
 
     protected abstract void FSM();
 
@@ -143,6 +142,39 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
                 reactable.OnExplosionInteract(ChannelManager.Instance.CurrentChannel);
         }
         Destroy(gameObject);
+    }
+    private float mCurrentHp = 100;
+    public virtual void TakeDamage(in DamageInfo info)
+    {
+        if (isDead) return;
+        mCurrentHp -= info.Amount;
+        
+        Debug.Log("hit");
+        if (mCurrentHp <= 0)
+        {
+            mCurrentHp = 0;
+            isDead = true;
+
+            if (info.IsCharge)
+            {
+                ApplyKnockback(info.SourceDir.normalized, info.KnockbackForce);
+            }
+            else
+            {
+                DieInstant();
+            }
+        }
+    }
+
+    private void DieInstant()
+    {
+        isDead = true;
+        gameObject.SetActive(false);
+    }
+
+    void IAttackable.TakeDamage(in DamageInfo info)
+    {
+        TakeDamage(info);
     }
     #endregion
 }

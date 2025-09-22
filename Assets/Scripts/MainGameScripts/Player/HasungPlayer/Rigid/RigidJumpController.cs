@@ -35,11 +35,10 @@ public class RigidJumpController : MonoBehaviour
     private float _baseGravity; // 기본중력
     private bool _wasGrounded;
 
-    public void Initialize(GroundDetector gd, IPlayerInput input, IPlayerAnimatorView anim)
+    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim)
     {
         _rb = GetComponent<Rigidbody>();
         _ground = gd;
-        _input = input;
         _anim = anim;
 
         _airJumpsLeft = maxAirJumps;
@@ -47,14 +46,14 @@ public class RigidJumpController : MonoBehaviour
     }
 
     /// 지속적인 입력을 확인하는 함수
-    public void OnUpdate()
+    public void OnUpdate(float fdt, PlayerInputFrame input)
     {
-        if (_input.JumpDown)
+        if (input.jumpDown)
         {
             _jumpHeld = true;
             _jumpBufferTimer = jumpBufferTime; 
         }
-        if (_input.JumpUp)
+        if (input.jumpUp)
         {
             _jumpHeld = false;
             _requestCutoff = true;
@@ -62,14 +61,14 @@ public class RigidJumpController : MonoBehaviour
     }
 
     /// 물리적용
-    public void OnFixedStep(float dt)
+    public void OnFixedStep(float fdt, PlayerInputFrame input)
     {
         bool grounded = _ground.IsGrounded;
 
-        UpdateCoyote(grounded, dt);
+        UpdateCoyote(grounded, fdt);
         TryConsumeBufferedJump(grounded);
 
-        ApplyGravity(grounded, dt);
+        ApplyGravity(grounded, fdt);
         ApplyCutoffIfRequested();
 
         ClampVertical();

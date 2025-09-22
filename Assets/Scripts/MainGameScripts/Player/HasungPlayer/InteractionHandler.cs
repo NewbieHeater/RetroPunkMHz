@@ -7,7 +7,6 @@ public class InteractionHandler : MonoBehaviour
 {
     [SerializeField] private GameObject promptUI;
     [SerializeField] private TextMeshProUGUI promptText;
-    [SerializeField] private KeyCode interactKey = KeyCode.E;
 
     private readonly List<IInteractable> _candidates = new();
     private IInteractable _current;
@@ -35,7 +34,8 @@ public class InteractionHandler : MonoBehaviour
 
     void Update()
     {
-        if (_current != null && Input.GetKeyDown(interactKey))
+        var input = GlobalInputRouter.Instance.GetFrame();
+        if (_current != null && input.interactDown)
         {
             _current.Interact();
             // 상호작용 중에는 프롬프트 숨김(대화 UI가 따로 뜨면 충돌 방지)
