@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9501afaf71e434e488612844c323583b
+guid: bef3b063920f62f488a27828c7d7590c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,13 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: body
-    second: {fileID: 2100000, guid: b178f89b3d9bb9a4dbd4ff6e4f15c3ec, type: 2}
+      name: Material.001
+    second: {fileID: 2100000, guid: 6752f006cd0b35247bf166a55d24cb96, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: face
-    second: {fileID: 2100000, guid: b178f89b3d9bb9a4dbd4ff6e4f15c3ec, type: 2}
+      name: Material.002
+    second: {fileID: 2100000, guid: f26a4fc878ee3ca449c1310180644d38, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -109,7 +109,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 1
+  avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0
