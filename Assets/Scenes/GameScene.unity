@@ -2043,7 +2043,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3819,7 +3819,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4882,7 +4882,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10534,7 +10534,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -10659,7 +10659,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -13597,6 +13597,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1867091517}
   - component: {fileID: 1867091518}
+  - component: {fileID: 1867091519}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -13681,6 +13682,29 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1867091519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867091516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!4 &1868745748 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -2162143435508275823, guid: 9c18580b97512ed43885caa0955ca4fb, type: 3}
@@ -14950,6 +14974,10 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 1411688608665972789, guid: 82b1ca2c9a645884095df6aece83ea39, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
     - target: {fileID: 2777731879265484936, guid: 82b1ca2c9a645884095df6aece83ea39, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15.69
@@ -15047,6 +15075,10 @@ PrefabInstance:
       propertyPath: invoker
       value: 
       objectReference: {fileID: 706298332}
+    - target: {fileID: 7170849497263872839, guid: 2973e2cd06c8cb9459d5b2e1d3f9aba8, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e3bbb539d2da4014abd9a72b83de2164, type: 2}
     - target: {fileID: 7898820730030525307, guid: 2973e2cd06c8cb9459d5b2e1d3f9aba8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -17.28

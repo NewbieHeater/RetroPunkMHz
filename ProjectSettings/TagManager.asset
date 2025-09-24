@@ -23,9 +23,9 @@ TagManager:
   - PlayerHitBox
   - Objects
   - ReplayObjects
-  - 
-  - 
-  - 
+  - Outline
+  - RenderTexture
+  - titleBackground
   - 
   - 
   - 
