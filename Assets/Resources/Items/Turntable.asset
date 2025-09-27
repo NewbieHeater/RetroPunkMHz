@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 57762381bd9779649bcab490e6dbccd9, type: 3}
-  m_Name: Item
+  m_Name: Turntable
   m_EditorClassIdentifier: 
-  mItemID: 1
-  mCanOverlap: 1
-  mIsInteractivity: 0
-  mIsConsumable: 0
+  mItemID: 3
+  mCanOverlap: 0
+  mIsInteractivity: 1
+  mIsConsumable: 1
   mItemCooltime: -1
   mItemType: 128
-  mItemImage: {fileID: 21300000, guid: 04fdd7165fa35a142b76e0275448d1e4, type: 3}
-  mItemDescription: B
+  mItemImage: {fileID: 21300000, guid: b3a5012ac2b76114d84a625cbb6deb10, type: 3}
+  mItemDescription: A

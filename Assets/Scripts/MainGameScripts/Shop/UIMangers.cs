@@ -5,7 +5,8 @@ using UnityEngine;
 public class UIMangers : MonoBehaviour
 {
     public GameObject UIObjects;
-
+    
+    
     public void ShowUI()
     {
         UIObjects.SetActive(true);
@@ -18,6 +19,9 @@ public class UIMangers : MonoBehaviour
 
     public void TogleUI()
     {
+        
         UIObjects.SetActive(!UIObjects.activeSelf);
+        
+
     }
 }

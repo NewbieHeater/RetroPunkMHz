@@ -50,7 +50,7 @@ public class ShopSlot : MonoBehaviour
     }
     private void Start()
     {
-        itemname.text = "포션";
+        
         UpdatecountText();
 
         
