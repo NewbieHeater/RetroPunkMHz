@@ -36,8 +36,8 @@ public class AttackController : MonoBehaviour
 
     public void HandleInput()
     {
-        if (Input.GetMouseButtonDown(0)) PerformPrimaryAttack();
-        if (Input.GetMouseButtonDown(1)) StartCharging();
+        if (GlobalInputRouter.Instance.CurrentFrame.buttons.IsDown(InputAction.Attack)) PerformPrimaryAttack();
+        if (GlobalInputRouter.Instance.CurrentFrame.buttons.IsDown(InputAction.Charge)) StartCharging();
         if (isCharging && Input.GetMouseButton(1)) ContinueCharging();
         if (isCharging && Input.GetMouseButtonUp(1)) PerformChargedAttack();
     }

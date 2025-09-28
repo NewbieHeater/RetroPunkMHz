@@ -1,71 +1,103 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
-[RequireComponent(typeof(Collider))]
 public class InteractionHandler : MonoBehaviour
 {
-    [SerializeField] private GameObject promptUI;
-    [SerializeField] private TextMeshProUGUI promptText;
+    [Header("Refs")]
+    [SerializeField] private Transform player; // 플레이어 Transform (없으면 이 컴포넌트가 붙은 오브젝트의 transform 사용)
+    [SerializeField] private float scanInterval = 0.05f;
+    [SerializeField] private float maxSeekRadius = 5f; // 너무 먼 NPC는 탐색 제외(최대 상호반경보다 크게 잡아도 OK)
 
-    private readonly List<IInteractable> _candidates = new();
-    private IInteractable _current;
+    [Header("Debug")]
+    [SerializeField] private bool showDebug = false;
 
-    void Awake() { if (promptUI) promptUI.SetActive(false); }
+    private InteractableBase _focused;
+    private float _scanTimer;
 
-    void OnTriggerEnter(Collider other)
+    private void Awake()
     {
-        if (other.TryGetComponent<IInteractable>(out var it))
-        {
-            if (!_candidates.Contains(it)) _candidates.Add(it);
-            UpdateCurrent();
-        }
+        if (player == null) player = transform;
     }
 
-    void OnTriggerExit(Collider other)
+    private void Update()
     {
-        if (other.TryGetComponent<IInteractable>(out var it))
+        // 시네머신 이벤트 중엔 상호작용 비활성(원한다면 유지 가능)
+        if (CinemachineEventReader.Instance != null && CinemachineEventReader.Instance.IsRunning)
         {
-            _candidates.Remove(it);
-            if (_current == it) _current = null;
-            UpdateCurrent();
+            ClearFocus();
+            return;
         }
-    }
 
-    void Update()
-    {
-        var input = GlobalInputRouter.Instance.GetFrame();
-        if (_current != null && input.interactDown)
+        _scanTimer -= Time.deltaTime;
+        if (_scanTimer <= 0f)
         {
-            _current.Interact();
-            // ��ȣ�ۿ� �߿��� ������Ʈ ����(��ȭ UI�� ���� �߸� �浹 ����)
-            if (promptUI) promptUI.SetActive(false);
+            _scanTimer = scanInterval;
+            ScanAndFocusNearest();
         }
-    }
-
-    private void UpdateCurrent()
-    {
-        // ���� ����� ����� ����
-        float best = float.MaxValue;
-        IInteractable pick = null;
-        foreach (var it in _candidates)
+        
+        // PressToInteract 모드: F 키 다운에만 반응
+        if (_focused != null && _focused.IsAvailable() && _focused.InRange())
         {
-            if (it is Component c)
+            if (_focused.mode == InteractionMode.PressToInteract)
             {
-                float d = (c.transform.position - transform.position).sqrMagnitude;
-                if (d < best) { best = d; pick = it; }
+
+                var frame = GlobalInputRouter.Instance?.CurrentFrame ?? default;
+
+                if (frame.buttons.IsDown(InputAction.Interact))
+                {
+                    _focused.TryInteract();
+                }
+            }
+            // AutoOnEnter는 포커스 진입 시 TryInteract()가 이미 호출됨
+        }
+    }
+
+    private void ScanAndFocusNearest()
+    {
+        InteractableBase best = null;
+        float bestDistSq = float.PositiveInfinity;
+
+        foreach (var it in InteractableBase.All)
+        {
+            it.BindPlayer(player);
+
+            // 탐색 최대 반경 컷(옵션)
+            float rMax = Mathf.Max(it.interactRadius, maxSeekRadius);
+            float distSq = it.SqrDistanceToPlayer();
+            if (distSq > rMax * rMax) continue; // 너무 멀면 스킵
+
+            // 실제 상호 가능한 거리 내인지 우선순위 ↑
+            // (동일 거리면 아무나)
+            if (distSq < bestDistSq)
+            {
+                best = it;
+                bestDistSq = distSq;
             }
         }
-        _current = pick;
 
-        if (_current != null)
+        if (best != _focused)
         {
-            if (promptText) promptText.text = _current.GetInteractPrompt();
-            if (promptUI) promptUI.SetActive(true);
+            // 포커스 변경
+            if (_focused != null) _focused.SetFocused(false);
+            _focused = best;
+            if (_focused != null) _focused.SetFocused(true);
         }
-        else
+
+        if (showDebug)
         {
-            if (promptUI) promptUI.SetActive(false);
+            if (_focused != null)
+                Debug.Log($"[PlayerInteractor] Focus: {_focused.name} (d={Mathf.Sqrt(bestDistSq):0.00})");
+            else
+                Debug.Log($"[PlayerInteractor] Focus: (none)");
         }
+    }
+
+    private void ClearFocus()
+    {
+        if (_focused != null) _focused.SetFocused(false);
+        _focused = null;
     }
 }

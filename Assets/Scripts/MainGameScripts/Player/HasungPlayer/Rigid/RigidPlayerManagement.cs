@@ -44,7 +44,7 @@ public class RigidPlayerManagement : MonoBehaviour
     {
         if (!IsEnabled) return;
 
-        var input = GlobalInputRouter.Instance.GetFrame();
+        var input = GlobalInputRouter.Instance.CurrentFrame;
         InputX = input.moveX;
 
         movementController?.OnUpdate(Time.deltaTime, input);
@@ -63,7 +63,7 @@ public class RigidPlayerManagement : MonoBehaviour
         groundDetector?.UpdateGroundStatus();
         IsGrounded = groundDetector.IsGrounded;
 
-        var input = GlobalInputRouter.Instance.GetFrame();
+        var input = GlobalInputRouter.Instance.CurrentFrame;
         movementController?.OnFixedStep(Time.fixedDeltaTime, input);
         jumpController?.OnFixedStep(Time.fixedDeltaTime, input);
 

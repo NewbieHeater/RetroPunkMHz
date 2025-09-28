@@ -1,4 +1,5 @@
 ﻿// RigidMovementController.cs
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// Movement controller: owns ONLY horizontal velocity (x-axis) + facing.
@@ -40,7 +41,7 @@ public class RigidMovementController : MonoBehaviour
 
     public void OnUpdate(float dt, PlayerInputFrame input)
     {
-        if (input.sprintToggleDown)
+        if (input.buttons.IsDown(InputAction.SprintToggle))
         {
             _isRun = !_isRun;
             if (_glitch) _glitch.CanPass = _isRun; // 달리기 키가 토글되어있을때만 허용

@@ -48,12 +48,12 @@ public class RigidJumpController : MonoBehaviour
     /// 지속적인 입력을 확인하는 함수
     public void OnUpdate(float fdt, PlayerInputFrame input)
     {
-        if (input.jumpDown)
+        if (input.buttons.IsDown(InputAction.Jump))
         {
             _jumpHeld = true;
             _jumpBufferTimer = jumpBufferTime; 
         }
-        if (input.jumpUp)
+        if (input.buttons.IsUp(InputAction.Jump))
         {
             _jumpHeld = false;
             _requestCutoff = true;

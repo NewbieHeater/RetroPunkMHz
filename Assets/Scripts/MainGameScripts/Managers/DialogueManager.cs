@@ -35,6 +35,26 @@ public class DialogueManager : Singleton<DialogueManager>
         }
     }
 
+    public IEnumerator StartDialogueAndWait(string fileName, string groupName)
+    {
+        StartDialogue(fileName, groupName);
+        // 대사가 정상적으로 시작되지 않았다면 바로 종료
+        if (!isDialogueActive) yield break;
+
+        // 대사 종료까지 대기
+        yield return new WaitUntil(() => !isDialogueActive);
+    }
+
+    // 필요하면 시네머신 에셋을 직접 받는 오버로드도 제공
+    public IEnumerator StartDialogueAndWait(CinemachineEventAsset asset)
+    {
+        yield return StartDialogueAndWait(asset.fileName, asset.groupName);
+    }
+
+    // 오타 정리 (선택)
+    public void ToggleAuto() => isAuto = !isAuto;
+
+
     // fileName: JSON 파일 리소스 경로 (확장자 없이), groupName: "Quest1", "Quest2", "Normal" 등
     public void StartDialogue(string fileName, string groupName)
     {

@@ -19,7 +19,8 @@ public class CinemachineEventAsset : ScriptableObject
     }
 
     [Header("Basic")]
-    public string eventId;
+    public string fileName;
+    public string groupName;
     public EventMode mode = EventMode.CameraAndDialogue;
     public bool lockPlayerInputWhileRunning = true;
     public bool oneShot = true;
@@ -28,10 +29,6 @@ public class CinemachineEventAsset : ScriptableObject
     [Tooltip("CinemachineFocusing.FocusTo(slot) 에 들어갈 슬롯/인덱스")]
     public int cameraSlot = 1;
     public BlendHint blendHint = BlendHint.Default;
-
-    [Header("Dialogue")]
-    [TextArea(3, 6)]
-    public string dialogueScriptId;
 
     [Tooltip("이 이벤트가 끝난 후 원래 카메라로 복귀할지")]
     public bool restoreCameraAfter = false;
