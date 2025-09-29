@@ -1,11 +1,14 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BTRunner : MonoBehaviour
 {
-    [Tooltip("0ÀÌ¸é ¸Å ÇÁ·¹ÀÓ Tick. >0ÀÌ¸é ÇØ´ç °£°Ý(ÃÊ)¸¶´Ù Tick.")]
+    [Tooltip("0ì´ë©´ ë§¤ í”„ë ˆìž„ Tick. >0ì´ë©´ í•´ë‹¹ ê°„ê²©(ì´ˆ)ë§ˆë‹¤ Tick.")]
     public float tickInterval = 0f;
+
+    [Tooltip("Tick ê°„ê²© ê³„ì‚°ì— Time.timeScaleì˜ ì˜í–¥ì„ ë°›ì§€ ì•Šê²Œ í•˜ë ¤ë©´ ì²´í¬")]
+    public bool useUnscaledForTick = false;
 
     protected Blackboard Blackboard { get; private set; }
     protected BTContext Ctx { get; private set; }
@@ -18,19 +21,29 @@ public class BTRunner : MonoBehaviour
         Blackboard = new Blackboard();
         Ctx = new BTContext(gameObject, Blackboard);
         Root = BuildTree();
-        if (Root == null) Debug.LogWarning($"{name}: BuildTree()°¡ nullÀ» ¹ÝÈ¯Çß½À´Ï´Ù.");
+        if (Root == null) Debug.LogWarning($"{name}: BuildTree()ê°€ nullì„ ë°˜í™˜í–ˆìŠµë‹ˆë‹¤.");
     }
 
-    protected virtual BTNode BuildTree() { return null; } // »ó¼ÓÇØ¼­ ±¸Çö
+    protected virtual BTNode BuildTree() { return null; } // ìƒì†í•´ì„œ êµ¬í˜„
 
     protected virtual void Update()
     {
         if (Root == null) return;
 
-        _accum += Time.deltaTime;
+        Ctx.Time = UnityEngine.Time.time;
+        Ctx.UnscaledTime = UnityEngine.Time.unscaledTime;
+
+        float dtSource = useUnscaledForTick
+            ? UnityEngine.Time.unscaledDeltaTime
+            : UnityEngine.Time.deltaTime;
+        _accum += dtSource;
+
+        Ctx.UpdateTimers();
+
+        // (4) Tick ì‹¤í–‰
         if (tickInterval == 0f || _accum >= tickInterval)
         {
-            Ctx.DeltaTime = _accum > 0f ? _accum : Time.deltaTime;
+            Ctx.DeltaTime = (tickInterval > 0f) ? _accum : dtSource;
             _accum = 0f;
             Root.Tick(Ctx);
         }

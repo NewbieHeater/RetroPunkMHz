@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 2981962912144855308}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.78, y: 3.54, z: 0}
+  m_LocalPosition: {x: -17.28, y: 3.54, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1b7f439b544cb74a95b1e46c2198609, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabPath: Prefabs/Box
+  prefabPath: Prefabs/Cube
 --- !u!114 &5643970532913783463
 MonoBehaviour:
   m_ObjectHideFlags: 0

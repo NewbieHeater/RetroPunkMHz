@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Eto
   displayName: Eto
+  defaultSide: 0
+  defaultExpressionKey: neutral
+  defaultExpressionSprite: {fileID: 172975581, guid: 2b48a034cf7456d4a92a98697c952143, type: 3}
   expressions:
   - key: neutral
     sprite: {fileID: 172975581, guid: 2b48a034cf7456d4a92a98697c952143, type: 3}

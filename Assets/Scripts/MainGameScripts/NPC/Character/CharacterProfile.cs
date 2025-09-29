@@ -1,36 +1,77 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public enum CharacterSide { Left, Right }
+
 [CreateAssetMenu(fileName = "CharacterProfile", menuName = "Game/Character Profile")]
 public class CharacterProfile : ScriptableObject
 {
-    public string id;                   // 캐릭터 구분 ID (예: "Guard", "Player")
-    public string displayName;          // UI에 표시될 이름 (예: "경비병", "플레이어")
-    public List<ExpressionSprite> expressions;  // 다양한 표정의 스프라이트 목록
+    [Header("대사에서 불러올 코드")]
+    public string id;                 // "Guard", "Eto", "Merchant"
+    [Header("UI 표시명")]
+    public string displayName;        // UI 표시명
 
-    // 주어진 키에 해당하는 스프라이트 반환 (키가 없으면 첫 번째 스프라이트 반환)
+    [Header("UI Defaults")]
+    public CharacterSide defaultSide = CharacterSide.Right; // 플레이어는 Left 권장
+    public string defaultExpressionKey = "neutral";
+    public Sprite defaultExpressionSprite;                   // 비워두면 key로 폴백
+
+    [Header("Expressions")]
+    public List<ExpressionSprite> expressions = new();
+
+    [System.NonSerialized] private Dictionary<string, Sprite> _exprMap;
+
+    void OnEnable()
+    {
+        defaultExpressionSprite = expressions[0].sprite;
+
+        _exprMap = new Dictionary<string, Sprite>(System.StringComparer.OrdinalIgnoreCase);
+        foreach (var e in expressions)
+            if (!string.IsNullOrWhiteSpace(e.key)) _exprMap[e.key.Trim()] = e.sprite;
+
+        // 흔한 오타 보정
+        if (_exprMap.ContainsKey("neutral") && !_exprMap.ContainsKey("netural"))
+            _exprMap["netural"] = _exprMap["neutral"];
+    }
+
     public Sprite GetSprite(string key)
     {
-        if (string.IsNullOrEmpty(key))
-        {
-            // 키가 없으면 기본 표정 (인덱스 0) 반환
-            return expressions.Count > 0 ? expressions[0].sprite : null;
-        }
-        // expressions 리스트에서 키와 일치하는 스프라이트 찾기
-        foreach (var expr in expressions)
-        {
-            if (expr.key == key)
-                return expr.sprite;
-        }
-        // 키를 찾지 못한 경우 첫 번째 스프라이트 반환
-        return expressions.Count > 0 ? expressions[0].sprite : null;
+        if (string.IsNullOrWhiteSpace(key)) return GetDefaultSprite();
+
+        var norm = Normalize(key);
+        if (_exprMap.TryGetValue(norm, out var sp)) return sp;
+
+        // 오타 보정
+        if (norm == "netural" && _exprMap.TryGetValue("neutral", out sp)) return sp;
+
+        return GetDefaultSprite();
     }
+
+    public bool TryGetSprite(string key, out Sprite sprite)
+    {
+        sprite = GetSprite(key);
+        return sprite != null;
+    }
+
+    public bool HasExpression(string key)
+    {
+        return _exprMap.ContainsKey(Normalize(key));
+    }
+
+    public Sprite GetDefaultSprite()
+    {
+        if (defaultExpressionSprite != null) return defaultExpressionSprite;
+        if (_exprMap != null && _exprMap.TryGetValue(Normalize(defaultExpressionKey), out var sp)) return sp;
+        if (expressions != null && expressions.Count > 0) return expressions[0].sprite;
+        return null;
+    }
+
+    private static string Normalize(string s) => s?.Trim().ToLowerInvariant();
 }
 
-// 캐릭터 한 표정 이미지와 키를 묶어 표현
 [System.Serializable]
 public class ExpressionSprite
 {
-    public string key;     // 표정 키 (예: "neutral", "happy", "angry")
-    public Sprite sprite;  // 해당 표정의 이미지
+    public string key;     // "neutral", "happy", "angry" …
+    public Sprite sprite;
 }

@@ -11,12 +11,14 @@ public class CinemachineCameraController : MonoBehaviour
     public Transform groundCheck;
     public GameObject groundTarget;
     public LayerMask groundLayer;
+    public GameObject CameraArm;
 
     [Header("카메라 설정")]
     public float leadDistance = 2f;
     public float fallYOffset = 1f;
     public bool ignoreJump = true;
     public float groundCheckRadius = 0.2f;
+    public bool IsManualMode;
 
     [Header("속도 기반 Damping")]
     public float walkSmooth = 0.3f;
@@ -41,6 +43,7 @@ public class CinemachineCameraController : MonoBehaviour
 
     void Start()
     {
+        IsManualMode = false;
         vcam = GetComponent<CinemachineVirtualCamera>();
         playerMgmt = Player.GetComponent<RigidPlayerManagement>();
         transposer = vcam.GetCinemachineComponent<CinemachineFramingTransposer>();
@@ -57,10 +60,19 @@ public class CinemachineCameraController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (IsManualMode)
+        {
+            vcam.Follow = null;
+            vcam.LookAt = null;
+            CameraArm.transform.parent = GameObject.Find("Boss").transform;
+            CameraArm.transform.localPosition = new Vector3(0, 2,0);
+            return;
+        }
+            
         if (target == null || transposer == null) return;
 
         bool grounded = playerMgmt.IsGrounded;
-        float inputX = movementCtrl.inputX;
+        float inputX = playerMgmt.InputX;
         float horizontalSpeed = Mathf.Abs(rb.velocity.x);
         float verticalSpeed = rb.velocity.y;
 

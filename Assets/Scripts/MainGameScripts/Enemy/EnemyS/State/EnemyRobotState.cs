@@ -131,6 +131,49 @@ namespace EnemyRobotState
         
     }
 
+    public class HitState : BaseState
+    {
+        float curTime;
+        float waitTime = 1;
+        public HitState(EnemyFSMBase enemy) : base(enemy)
+        {
+        }
+
+        public override void OperateEnter()
+        {
+            curTime = 0;
+            if (enemy.transform.position.x - enemy.player.transform.position.x > 0)
+            {
+                enemy.rigid.AddForce(new Vector3(2, 0, 0));
+            }
+            else
+            {
+                enemy.rigid.AddForce(new Vector3(-2, 0, 0));
+            }
+        }
+
+        public override void OperateUpdate()
+        {
+            curTime += Time.deltaTime;
+            if (curTime > waitTime)
+            {
+                enemy.ChangeState(State.Search);
+            }
+        }
+
+        public override void OperateExit()
+        {
+            curTime = 0;
+        }
+
+        public override void OperateFixedUpdate()
+        {
+            enemy.EnemyAttackBaseInstance.OperateFixedUpdate();
+        }
+
+
+    }
+
 
 
     public class RangeAttackState : BaseState

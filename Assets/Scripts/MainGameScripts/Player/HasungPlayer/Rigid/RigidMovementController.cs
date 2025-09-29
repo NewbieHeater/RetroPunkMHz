@@ -1,6 +1,10 @@
-﻿using UnityEngine;
-using static Cinemachine.DocumentationSortingAttribute;
+﻿// RigidMovementController.cs
+using Unity.VisualScripting;
+using UnityEngine;
 
+/// Movement controller: owns ONLY horizontal velocity (x-axis) + facing.
+/// No animation/teleport physics inside — uses injected view & GlitchPasser gate.
+[RequireComponent(typeof(Rigidbody))]
 public class RigidMovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
@@ -11,203 +15,95 @@ public class RigidMovementController : MonoBehaviour
     [Range(0f, 1f)] public float airControl = 0.5f;
     public float rotationSpeed = 0.2f;
 
-    [Header("Glitch Pass")]
-    [SerializeField] private float _teleportSpace = 0.5f;      // 통과 허용 두께(X축 기준)
-    [SerializeField] private float _postTeleportOffset = 1.2f; // 반대편으로 얼마나 더 밀어낼지
-    [SerializeField] private float _teleportCooldown = 0.08f;  // 같은 벽에 대한 재텔레포트 쿨다운
-    private float _lastTeleportTime = -999f;
-    private int _lastGlitchId = -1;
+    [Header("Forward Probe (block check)")]
+    [SerializeField] private LayerMask forwardBlockMask;
+    [SerializeField] private float probeHeight = 0.5f;
+    [SerializeField] private float probeDistance = 0.5f;
 
-    private Rigidbody rb;
-    private Animator animator;
-    private GroundDetector groundDetector;
+    [Header("Clamp")]
+    [SerializeField] private float verticalSpeedLimit = 15f;
 
-    public float inputX;
-    private bool wasOnSlope;
-    public bool isOnSlope;
+    private Rigidbody _rb;
+    private GroundDetector _ground;
+    private IPlayerAnimatorView _anim;
+    private Glitch _glitch;
 
-    // 의도: LeftShift로 달리기 토글 유지 / 통과권 비소모 유지
-    private bool _isSpeedup = false; // 달리기 모드
-    private bool _canPass = false; // Glitch 통과권(소모하지 않음)
+    private bool _isRun = false;
+    private float _faceDir = 1f; // -1 or +1 좌우이동용
 
-    public Vector3 newVelocity;
-
-    public void Initialize(GroundDetector gd)
+    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim, Glitch glitch = null)
     {
-        rb = GetComponent<Rigidbody>();
-        animator = GetComponentInChildren<Animator>();
-        groundDetector = gd;
+        _rb = GetComponent<Rigidbody>();
+        _ground = gd;
+        _anim = anim;
+        _glitch = glitch;
     }
 
-    public void HandleInput()
+    public void OnUpdate(float dt, PlayerInputFrame input)
     {
-        inputX = Input.GetAxisRaw("Horizontal");
-
-        // Shift 눌렀을 때: 달리기 ON + 통과권 부여(비소모)
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (input.buttons.IsDown(InputAction.SprintToggle))
         {
-            _isSpeedup = true;
-            _canPass = true;
+            _isRun = !_isRun;
+            if (_glitch) _glitch.CanPass = _isRun; // 달리기 키가 토글되어있을때만 허용
+        }
+
+        if (Mathf.Abs(input.moveX) > 0.01f)
+            _faceDir = Mathf.Sign(input.moveX);
+
+        // Animation (view)
+        bool moving = Mathf.Abs(input.moveX) > 0.01f;
+        _anim?.SetMove(moving, Mathf.Abs(_rb.velocity.x));
+        _anim?.Face(input.moveX, rotationSpeed, dt);
+    }
+
+    public void OnFixedStep(float fdt, PlayerInputFrame input)
+    {
+        bool grounded = _ground.IsGrounded;
+
+        // 점프, 정지, 이동방향 변경시 미끄러짐 방지
+        if (Mathf.Abs(input.moveX) < 0.01f && grounded && Mathf.Abs(_rb.velocity.x) < 0.0005f)
+        {
+            _rb.velocity = new Vector3(0f, _rb.velocity.y, 0f);
+        }
+
+        float maxSpeed = _isRun ? maxRunSpeed : maxWalkSpeed;
+
+        float accel = grounded ? (maxSpeed / accelerationTime)
+                               : (maxSpeed / accelerationTime) * airControl;
+        float decel = grounded ? (maxSpeed / decelerationTime)
+                               : (maxSpeed / decelerationTime) * airControl;
+
+        float targetVx = input.moveX * maxSpeed;
+
+        float newVx = (Mathf.Abs(input.moveX) > 0.01f)
+            ? Mathf.MoveTowards(_rb.velocity.x, targetVx, accel * fdt)
+            : Mathf.MoveTowards(_rb.velocity.x, 0f, decel * fdt);
+
+        if (ProbeForwardBlock())
+            newVx = 0f;
+
+        // x만 바꿔줌 y는 점프에서만
+        _rb.velocity = new Vector3(newVx, Mathf.Clamp(_rb.velocity.y, -verticalSpeedLimit, float.MaxValue), 0f);
+
+        // 점추면 글리치 종료
+        if (Mathf.Abs(_rb.velocity.x) <= 0.1f)
+        {
+            _isRun = false;
+            if (_glitch) _glitch.CanPass = false;
         }
     }
 
-    // --- 외부에서 FixedUpdate에서 호출 ---
-    public void ProcessMovement(bool isGrounded, RaycastHit groundHit, float dt)
+    private bool ProbeForwardBlock()
     {
-        SnapStopIfNeeded(isGrounded);
-
-        if (_isSpeedup) RunMove(isGrounded, groundHit, dt);
-        else WalkMove(isGrounded, groundHit, dt);
-
-        ApplyFacing(dt);
-    }
-
-    private void WalkMove(bool isGrounded, RaycastHit groundHit, float dt)
-    {
-        ApplyLocomotion(
-            maxSpeed: maxWalkSpeed,
-            accelTime: accelerationTime,
-            decelTime: decelerationTime,
-            isGrounded: isGrounded,
-            groundHit: groundHit,
-            dt: dt
-        );
-    }
-
-    private void RunMove(bool isGrounded, RaycastHit groundHit, float dt)
-    {
-        // 필요하면 달리기 전용 accel/decel/airControl로 분기 가능
-        ApplyLocomotion(
-            maxSpeed: maxRunSpeed,
-            accelTime: accelerationTime,
-            decelTime: decelerationTime,
-            isGrounded: isGrounded,
-            groundHit: groundHit,
-            dt: dt
-        );
-    }
-
-    private void ApplyLocomotion(float maxSpeed, float accelTime, float decelTime,
-                                 bool isGrounded, RaycastHit groundHit, float dt)
-    {
-        float targetVx = inputX * maxSpeed;
-        float accel = isGrounded ? (maxSpeed / accelTime) : (maxSpeed / accelTime) * airControl;
-        float decel = isGrounded ? (maxSpeed / decelTime) : (maxSpeed / decelTime) * airControl;
-
-        float newVx = (Mathf.Abs(inputX) > 0.01f)
-            ? Mathf.MoveTowards(rb.velocity.x, targetVx, accel * dt)
-            : Mathf.MoveTowards(rb.velocity.x, 0f, decel * dt);
-
-        isOnSlope = IsOnSlope(groundHit) && isGrounded;
-
-        if (isOnSlope)
-        {
-            // 슬로프 분모 보호 + y 보존
-            Vector3 slopeDir = Vector3.ProjectOnPlane(Vector3.right, groundHit.normal).normalized;
-            float eps = 1e-4f;
-            float denom = Mathf.Abs(slopeDir.x) < eps ? (slopeDir.x >= 0 ? eps : -eps) : slopeDir.x;
-
-            newVelocity = slopeDir * (newVx / denom);
-            newVelocity.y = rb.velocity.y; // y 보존
-        }
-        else
-        {
-            // 지상이라도 y 보존(필요 시 StickToGround 별도 구현 권장)
-            newVelocity = new Vector3(newVx, rb.velocity.y, 0f);
-        }
-
-        wasOnSlope = isOnSlope;
-        rb.velocity = newVelocity;
-    }
-
-    private void SnapStopIfNeeded(bool isGrounded)
-    {
-        // 입력 없고 지상이며 수평속도 거의 0이면 x만 0으로 스냅( y는 보존 )
-        if (Mathf.Approximately(inputX, 0f) && isGrounded && Mathf.Abs(rb.velocity.x) < 0.0005f)
-        {
-            rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
-        }
-    }
-
-    private void ApplyFacing(float dt)
-    {
-        if (Mathf.Abs(inputX) > 0.01f)
-        {
-            Vector3 dir = new Vector3(inputX, 0, 0);
-            Quaternion targetRot = Quaternion.LookRotation(dir);
-            animator.transform.rotation = Quaternion.Slerp(
-                animator.transform.rotation, targetRot, rotationSpeed * dt);
-        }
-    }
-
-    void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Glitch"))
-        {
-            if (!_canPass) return; // 통과권 없으면 무시(통과권은 소모하지 않음)
-
-            Collider wallCol = collision.collider;
-            int id = wallCol.GetInstanceID();
-
-            // 같은 벽에서 너무 빠른 재텔레포트 방지
-            if (id == _lastGlitchId && Time.time - _lastTeleportTime < _teleportCooldown)
-                return;
-
-            Bounds wallBounds = wallCol.bounds;
-            float width = wallBounds.size.x;
-
-            if (width < _teleportSpace)
-            {
-                float playerX = transform.position.x;
-                float minX = wallBounds.min.x;
-                float maxX = wallBounds.max.x;
-
-                // 가까운 쪽에서 먼 쪽으로 순간이동
-                float targetX = (Mathf.Abs(playerX - minX) < Mathf.Abs(playerX - maxX)) ? maxX : minX;
-
-                Vector3 teleportPos = new Vector3(
-                    targetX + ((playerX < targetX) ? _postTeleportOffset : -_postTeleportOffset),
-                    transform.position.y,
-                    transform.position.z
-                );
-
-                // Rigidbody로 이동하는 것이 더 안전
-                rb.position = teleportPos;
-
-                // 통과권은 유지하되, 같은 벽 재충돌로 인한 연속 텔레포트만 제한
-                _lastGlitchId = id;
-                _lastTeleportTime = Time.time;
-            }
-        }
-        else if (!collision.gameObject.CompareTag("Ground"))
-        {
-            // 사용자 의도: 다른 오브젝트와 충돌 시 러닝/통과권 해제
-            _isSpeedup = false;
-            _canPass = false;
-        }
-    }
-
-    public void UpdateAnimationStates()
-    {
-        float horizontalSpeed = Mathf.Abs(rb.velocity.x);
-        bool moving = Mathf.Abs(inputX) > 0.01f;
-
-        animator.SetBool("Move", moving);
-        animator.SetFloat("Speed", horizontalSpeed);
-        animator.SetBool("Idle", !moving);
-        // 필요 시 animator.SetFloat("Sprint", _isSpeedup ? 1f : 0f);
-    }
-
-    private bool IsOnSlope(RaycastHit hit)
-    {
-        if (hit.collider == null) return false;
-        float angle = Vector3.Angle(Vector3.up, hit.normal);
-        return angle > 0f && angle < 55f;
+        Vector3 origin = transform.position + Vector3.up * probeHeight;
+        Vector3 dir = Vector3.right * _faceDir; // local +x/-x
+        return Physics.Raycast(origin, dir, probeDistance, forwardBlockMask, QueryTriggerInteraction.Ignore);
     }
 
     public void ForceStop()
     {
-        rb.velocity = Vector3.zero;
-        UpdateAnimationStates();
+        if (!_rb) _rb = GetComponent<Rigidbody>();
+        _rb.velocity = Vector3.zero;
+        _anim?.SetMove(false, 0f);
     }
 }

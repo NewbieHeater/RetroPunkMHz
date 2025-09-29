@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: ai
   displayName: "\uB3D9\uB124 \uCE5C\uAD6C2"
+  defaultSide: 1
+  defaultExpressionKey: neutral
+  defaultExpressionSprite: {fileID: 21300000, guid: c8b527ea0abf79e429eae4704346dbb1, type: 3}
   expressions:
   - key: neutral
     sprite: {fileID: 21300000, guid: c8b527ea0abf79e429eae4704346dbb1, type: 3}

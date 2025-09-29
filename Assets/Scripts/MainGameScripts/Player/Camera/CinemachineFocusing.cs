@@ -9,10 +9,10 @@ public class CinemachineFocusing : MonoBehaviour
 
     public void FocusTo(int cam)
     {
-        for(int i = 0; i < vcams.Length; i++)
+        for (int i = 0; i < vcams.Length; i++)
         {
             if (vcams[i] == null) continue;
-            if(i == cam)
+            if (i == cam)
             {
                 vcams[i].Priority = 10;
                 Debug.Log("cam" + i + " focused");
