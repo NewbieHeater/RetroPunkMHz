@@ -22,7 +22,6 @@ public class RigidJumpController : MonoBehaviour
 
     private Rigidbody _rb;
     private GroundDetector _ground;
-    private IPlayerInput _input;
     private IPlayerAnimatorView _anim;
 
     // ป๓ลย
