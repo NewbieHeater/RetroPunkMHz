@@ -8,6 +8,7 @@ TagManager:
   - EnemyAttackCollider
   - Obstacle
   - Wall
+  - Mount
   layers:
   - Default
   - TransparentFX
