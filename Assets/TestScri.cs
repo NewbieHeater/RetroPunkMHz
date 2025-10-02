@@ -20,10 +20,7 @@ public class TestScri : MonoBehaviour
         {
             CinemachineEventReader.Instance.PlayEvent(CameraOnly);
         }
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            CinemachineEventReader.Instance.PlayEvent(DialogueOnly);
-        }
+
 
         if (Input.GetKeyDown(KeyCode.S))
         {
