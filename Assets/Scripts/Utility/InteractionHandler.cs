@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using TMPro;
-using UnityEditor;
-using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+﻿using UnityEngine;
 
 public class InteractionHandler : MonoBehaviour
 {

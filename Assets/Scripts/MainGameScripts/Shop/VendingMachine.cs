@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class VendingMachine : InteractableBase
 {
+
+    private bool _isOpen = false;
     protected override bool OnInteract()
     {
 
@@ -11,10 +13,31 @@ public class VendingMachine : InteractableBase
         if (CinemachineEventReader.Instance != null && CinemachineEventReader.Instance.IsRunning)
             return false;
 
-        UIMangers.Instance.TogleUI();
+        _isOpen = !_isOpen;
+
+        if (_isOpen)
+            OpenShop();
+        else
+            CloseShop();
+
+
 
         return true;
         
 
+    }
+
+    private void OpenShop()
+    {
+        // Interact만 허용 (나머지 공격/이동/점프 전부 차단)
+        GlobalInputRouter.Instance.LockAllowOnly(InputAction.Interact);
+        UIManagers.Instance.ShowUI();
+    }
+
+    private void CloseShop()
+    {
+        // 입력 잠금 해제
+        GlobalInputRouter.Instance.Unlock();
+        UIManagers.Instance.HideUI();
     }
 }
