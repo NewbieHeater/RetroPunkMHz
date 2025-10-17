@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32909d311a0020c499c6228241a35822, type: 3}
+  m_Name: BasicBlock
+  m_EditorClassIdentifier: 
+  items:
+  - label: 
+    tag: LevelEditing
+    prefab: {fileID: 6098137134033688210, guid: f64c053e08672994c8fba9891da24090, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: LevelEditing
+    prefab: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
