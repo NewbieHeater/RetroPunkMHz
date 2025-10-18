@@ -12,12 +12,13 @@ public class LevelBrushWindow : EditorWindow
     private GameObject _activePrefab;
     private Transform _parent;
     private int _rotationSteps; // 0,1,2,3 => 0/90/180/270
-    private float _brushSize = 1f;
+    private int _brushSize = 1;
 
     // 탐색/필터
     private string _search = "";
     private string _tagFilter = "All";
-    private Vector2 _scroll;
+    private Vector2 _mainScroll;    // 전체 창 스크롤
+    private Vector2 _paletteScroll; // 팔레트 영역 전용 스크롤
 
     // 즐겨찾기/최근/핫바
     private const int HotbarSize = 9;
@@ -35,8 +36,12 @@ public class LevelBrushWindow : EditorWindow
     // 마우스 반응성
     private bool _forceSceneMouseMove = true;
 
-    // ✅ 브러시 활성/비활성 토글
+    // 브러시 활성/비활성 토글
     private bool _brushEnabled = true;
+
+    private const string _planeRefKey = "LevelBrush.LastPlaneGOID";
+    private const string BRUSH_TAG = "LevelBrush";
+    private static readonly Collider[] _eraseBuf = new Collider[128];
 
     [MenuItem("Tools/Level Brush")]
     public static void ShowWindow() => GetWindow<LevelBrushWindow>("Level Brush");
@@ -51,6 +56,8 @@ public class LevelBrushWindow : EditorWindow
             foreach (SceneView sv in SceneView.sceneViews)
                 if (sv) sv.wantsMouseMove = true;
         };
+
+        TryResolvePlane(autoCreateIfMissing: false);
     }
 
     void OnDisable()
@@ -72,29 +79,107 @@ public class LevelBrushWindow : EditorWindow
         }
     }
 
+
+void TryResolvePlane(bool autoCreateIfMissing = true)
+    {
+        // 1) 저장된 GlobalObjectId로 복원 시도
+#if UNITY_EDITOR
+        if (_plane == null)
+        {
+            string saved = EditorPrefs.GetString(_planeRefKey, string.Empty);
+            if (!string.IsNullOrEmpty(saved) && GlobalObjectId.TryParse(saved, out var goid))
+            {
+                Object obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(goid);
+                if (obj is LevelPlane lp) _plane = lp;
+            }
+        }
+#endif
+
+        // 2) 씬에서 자동 탐색
+        if (_plane == null)
+        {
+            _plane = Object.FindFirstObjectByType<LevelPlane>(FindObjectsInactive.Include);
+            // (구버전에선 FindObjectOfType<LevelPlane>(true) 사용)
+        }
+
+        // 3) 필요 시 자동 생성
+        if (_plane == null && autoCreateIfMissing)
+        {
+            var go = new GameObject("__LevelPlane");
+            _plane = go.AddComponent<LevelPlane>();
+            Undo.RegisterCreatedObjectUndo(go, "Create LevelPlane");
+            // 기본값 살짝 가다듬기 (2.5D 흔한 Z-normal)
+            _plane.planeNormal = Vector3.forward;
+            _plane.axisU = Vector3.right;
+            _plane.gridSize = 1f;
+        }
+
+        // 4) 잡혔다면 저장
+#if UNITY_EDITOR
+        if (_plane != null)
+        {
+            var goid = GlobalObjectId.GetGlobalObjectIdSlow(_plane);
+            EditorPrefs.SetString(_planeRefKey, goid.ToString());
+        }
+#endif
+    }
+
+    void SavePlaneRef()
+    {
+#if UNITY_EDITOR
+        if (_plane == null) { EditorPrefs.DeleteKey(_planeRefKey); return; }
+        var goid = GlobalObjectId.GetGlobalObjectIdSlow(_plane);
+        EditorPrefs.SetString(_planeRefKey, goid.ToString());
+#endif
+    }
+
     void OnGUI()
     {
         InitStyles();
 
-        // ✅ 상단 상태바: 활성/비활성 토글 + 단축키 안내
-        EditorGUILayout.Space(4);
-        using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
-        {
-            _brushEnabled = GUILayout.Toggle(
-                _brushEnabled,
-                _brushEnabled ? "🟢 브러시 활성(B)" : "⚪ 브러시 비활성(B)",
-                "Button",
-                GUILayout.Height(24)
-            );
-            GUILayout.Label("단축키: B 토글, 1~9 핫바, Q/E 순환, I 아이드랍퍼, Alt+클릭 픽업", GUILayout.ExpandWidth(false));
-        }
+
+        _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
+
+        EditorGUI.BeginChangeCheck();
+        _plane = (LevelPlane)EditorGUILayout.ObjectField("Level Plane", _plane, typeof(LevelPlane), true);
+        if (EditorGUI.EndChangeCheck())
+            SavePlaneRef();
 
         using (new EditorGUILayout.VerticalScope())
         {
-            _plane = (LevelPlane)EditorGUILayout.ObjectField("Level Plane", _plane, typeof(LevelPlane), true);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Find In Scene", GUILayout.Width(120)))
+                {
+                    _plane = Object.FindFirstObjectByType<LevelPlane>(FindObjectsInactive.Include);
+                    SavePlaneRef();
+                }
+                if (GUILayout.Button("Create One", GUILayout.Width(120)))
+                {
+                    TryResolvePlane(autoCreateIfMissing: true);
+                }
+            }
+            //if (GUI.changed) SavePlaneRef();
+
+            // 상단 상태바: 활성/비활성 토글 + 단축키 안내
+            EditorGUILayout.Space(4);
+            using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
+            {
+                _brushEnabled = GUILayout.Toggle(
+                    _brushEnabled,
+                    _brushEnabled ? "브러시 활성(B)" : "브러시 비활성(B)",
+                    "Button",
+                    GUILayout.Height(25),
+                    GUILayout.Width(200)
+                );
+                GUILayout.Label("단축키: B 토글, 1~9 핫바, Q/E 순환, I 아이드랍퍼, Alt+클릭 픽업, Shift+클릭 직선 색칠", GUILayout.ExpandWidth(false));
+            }
+
+            
+            //_plane = (LevelPlane)EditorGUILayout.ObjectField("Level Plane", _plane, typeof(LevelPlane), true);
             _palette = (PrefabPalette)EditorGUILayout.ObjectField("Prefab Palette", _palette, typeof(PrefabPalette), false);
             _parent = (Transform)EditorGUILayout.ObjectField("Parent (optional)", _parent, typeof(Transform), true);
-            _brushSize = EditorGUILayout.Slider("Brush Size (cells)", _brushSize, 1f, 7f);
+            _brushSize = EditorGUILayout.IntSlider("Brush Size (cells)", _brushSize, 1, 7);
 
             // 액션 바
             using (new EditorGUILayout.HorizontalScope())
@@ -113,6 +198,8 @@ public class LevelBrushWindow : EditorWindow
             EditorGUILayout.Space(8);
             DrawRecentStrip();
         }
+
+        EditorGUILayout.EndScrollView();
     }
 
     void DrawSearchAndTags()
@@ -182,7 +269,7 @@ public class LevelBrushWindow : EditorWindow
         var list = FilteredItems();
 
         int col = Mathf.Max(3, (int)(position.width / 90f));
-        _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.Height(220));
+        _paletteScroll = EditorGUILayout.BeginScrollView(_paletteScroll, GUILayout.Height(220));
         int i = 0;
         while (i < list.Count)
         {
@@ -408,16 +495,28 @@ public class LevelBrushWindow : EditorWindow
 
         var go = (GameObject)PrefabUtility.InstantiatePrefab(_activePrefab);
         Undo.RegisterCreatedObjectUndo(go, "Level Brush Paint");
+        go.tag = BRUSH_TAG;
         go.transform.position = world;
         go.transform.rotation = Quaternion.AngleAxis(90f * _rotationSteps, _plane.Normal) * go.transform.rotation;
         if (_parent) go.transform.SetParent(_parent, true);
     }
 
+    
+
     void EraseAt(Vector2 uv)
     {
         var world = _plane.UVToWorld(uv);
         float r = _plane.gridSize * 0.4f;
-        var hits = Physics.OverlapSphere(world, r);
-        foreach (var h in hits) Undo.DestroyObjectImmediate(h.transform.gameObject);
+
+        int count = Physics.OverlapSphereNonAlloc(world, r, _eraseBuf);
+        for (int i = 0; i < count; i++)
+        {
+            var h = _eraseBuf[i];
+            if (h.CompareTag(BRUSH_TAG))
+            {
+                Undo.DestroyObjectImmediate(h.transform.gameObject);
+            }
+        }
     }
+
 }

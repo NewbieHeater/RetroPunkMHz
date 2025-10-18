@@ -23,3 +23,8 @@ MonoBehaviour:
     prefab: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
     customIcon: {fileID: 0}
     favorite: 0
+  - label: 
+    tag: LevelEditing
+    prefab: {fileID: 7779754269365225195, guid: 441b29f958861c2418fe0d94997f866a, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
