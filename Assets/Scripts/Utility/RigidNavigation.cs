@@ -9,6 +9,9 @@ public class RigidNavigation : MonoBehaviour
     public enum MoveMode { Walk, Climb, Jump }
     private MoveMode mode;
 
+    [Header("Ground 설정")]
+    [SerializeField] private LayerMask groundLayer;
+
     [Header("공통 설정")]
     [SerializeField] private float speed = 3f;
     [SerializeField] public float stoppingDistance = 0.01f;
@@ -101,14 +104,7 @@ public class RigidNavigation : MonoBehaviour
     private void Update()
     {
         resetVector = new Vector3(0,rigid.velocity.y,0);
-        if (Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out var hit, 0.7f, climbableLayer))
-        {
-            isGrounded = true;
-        }
-        else
-        {
-            isGrounded = false;
-        }
+        isGrounded = Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, out var hit, 0.7f, groundLayer);
 
         if (!hasPath || isStopped) return;
 
@@ -197,18 +193,17 @@ public class RigidNavigation : MonoBehaviour
         if (!jumpLaunched)
         {
             Vector3 launch = CalculateLaunchVelocity(transform.position, targetPos, jumpApexHeight);
-
             rigid.velocity = launch;
             jumpLaunched = true;
             rigid.useGravity = true;
         }
         else
         {
-            // 공중에서 목표 지점 근처로 오면 경로 종료
-            if (RemainingDistance() <= stoppingDistance && isGrounded)
+            // 공중에서는 '도착 판정'만 보고, 착지 후에 ResetPath()
+            if (isGrounded && RemainingDistance() <= stoppingDistance)
+            {
                 ResetPath();
-            else if(RemainingDistance() >= stoppingDistance)
-                SetDestinationWalk(targetPos);
+            }         
         }
     }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public enum InteractionMode
@@ -23,8 +24,10 @@ public abstract class InteractableBase : MonoBehaviour
 
     [Header("Prompt (Head-up hint)")]
     [SerializeField] private string pressPrompt = "F: 상호작용";
-    [SerializeField] private string pressPromptAlt = "F: 대화";
-    [SerializeField] private string autoPrompt = "접근 중...";
+    [SerializeField] private string autoPrompt = "F를 눌러 상호작용";
+    [Header("Prompt UI")]
+    [SerializeField] private GameObject promptUI;
+    [SerializeField] private TextMeshProUGUI promptText;
 
     private bool _consumed = false;
     private bool _focused = false; // 현재 플레이어가 '주 대상'으로 보고 있는지
@@ -71,18 +74,50 @@ public abstract class InteractableBase : MonoBehaviour
 
     protected virtual string GetPromptText()
     {
-        return mode == InteractionMode.PressToInteract ? (string.IsNullOrEmpty(pressPromptAlt) ? pressPrompt : pressPromptAlt) : autoPrompt;
+        return !string.IsNullOrEmpty(pressPrompt) ? pressPrompt : autoPrompt;
     }
 
     // UI 훅: 필요 시 여기서 월드 스페이스 캔버스/아이콘 갱신. 현재는 Log로 대체.
     protected virtual void OnShowPrompt(string text)
     {
-        Debug.Log($"[Interactable] {name} Prompt: {text}");
+        if (promptUI != null) promptUI.SetActive(true);
+        if (promptText != null) promptText.text = text;
     }
 
     protected virtual void OnHidePrompt()
     {
-        // 안내 비활성
+        if (promptUI != null) promptUI.SetActive(false);
+    }
+
+    protected virtual void TogglePrompt(string text)
+    {
+        if (promptUI != null) promptUI.SetActive(!promptUI.activeSelf);
+        promptText.text = text;
+    }
+
+    public static void ReevaluateAllPrompts()
+    {
+        foreach (var it in All) it.ReevaluatePrompt();
+    }
+
+    public static void HideAllPrompts()
+    {
+        foreach (var it in All)
+        {
+            it.OnHidePrompt();
+        }
+    }
+
+    public void ReevaluatePrompt()
+    {
+        if (promptUI == null || promptText == null) return;
+
+        bool shouldShow = _focused && InRange() && IsAvailable();
+
+        if (shouldShow && !promptUI.activeSelf)
+            OnShowPrompt(GetPromptText());
+        else if (!shouldShow && promptUI.activeSelf)
+            OnHidePrompt();
     }
 
     // === 실제 상호작용 ===
@@ -94,14 +129,18 @@ public abstract class InteractableBase : MonoBehaviour
         {
             if (singleUse) _consumed = true;
             // 성공 시 프롬프트는 숨김(상태에 따라 유지하고 싶으면 주석 처리)
-            OnHidePrompt();
+            TogglePrompt(GetPromptText());
         }
     }
 
     /// <summary>
     /// 상속 객체에서 구체 동작 구현
     /// </summary>
-    protected abstract bool OnInteract();
+    protected virtual bool OnInteract()
+    {
+
+        return true;
+    }
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()

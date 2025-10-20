@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using TMPro;
-using UnityEditor;
-using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+﻿using UnityEngine;
 
 public class InteractionHandler : MonoBehaviour
 {
@@ -80,10 +76,17 @@ public class InteractionHandler : MonoBehaviour
 
         if (best != _focused)
         {
-            // 포커스 변경
             if (_focused != null) _focused.SetFocused(false);
             _focused = best;
-            if (_focused != null) _focused.SetFocused(true);
+            if (_focused != null)
+            {
+                _focused.SetFocused(_focused.InRange());
+            }
+        }
+        else
+        {
+            // 같은 대상에 머무를 때도, 거리 변화를 반영해 프롬프트 On/Off 갱신
+            if (_focused != null) _focused.SetFocused(_focused.InRange());
         }
 
         if (showDebug)

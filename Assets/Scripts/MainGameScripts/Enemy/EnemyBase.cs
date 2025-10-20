@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
-using static Unity.Burst.Intrinsics.X86.Avx;
 
 public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
 {
@@ -29,6 +27,7 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     [SerializeField] protected float _meleeAttackRange = 2f;
     [SerializeField] protected float _rangeAttackRange = 2f;
     [SerializeField] protected float _aggroRange = 5f;
+    [SerializeField] protected float _attackRange = 5f;
     [SerializeField] protected float _maxDist = 5;
 
     [Header("시야 설정")]
@@ -59,8 +58,8 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     }
 
     protected abstract void SetState(StateInfo next);
-
-
+    protected abstract void EnterState(StateInfo next);
+    protected abstract void ExitState(StateInfo next);
 
     protected abstract void FSM();
 
