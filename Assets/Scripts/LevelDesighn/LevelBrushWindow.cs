@@ -185,7 +185,7 @@ void TryResolvePlane(bool autoCreateIfMissing = true)
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("회전 R", GUILayout.Width(70))) _rotationSteps = (_rotationSteps + 1) % 4;
-                if (GUILayout.Button("지우개 토글(Tab)", GUILayout.Width(120))) _eraseMode = !_eraseMode;
+                if (GUILayout.Button("지우개 토글(E)", GUILayout.Width(120))) _eraseMode = !_eraseMode;
                 GUILayout.Label("배치/삭제는 SceneView에서 동작합니다.");
             }
 
@@ -420,10 +420,8 @@ void TryResolvePlane(bool autoCreateIfMissing = true)
                 int idx = (int)e.keyCode - (int)KeyCode.Alpha1;
                 var p = _hotbar[idx]; if (p) { SelectPrefab(p); e.Use(); }
             }
-            else if (e.keyCode == KeyCode.Q) { CyclePrefab(-1); e.Use(); }
-            else if (e.keyCode == KeyCode.E) { CyclePrefab(+1); e.Use(); }
+            else if (e.keyCode == KeyCode.E) { _eraseMode = !_eraseMode; e.Use(); }
             else if (e.keyCode == KeyCode.R) { _rotationSteps = (_rotationSteps + 1) % 4; e.Use(); }
-            else if (e.keyCode == KeyCode.Tab) { _eraseMode = !_eraseMode; e.Use(); }
         }
     }
 
@@ -506,7 +504,7 @@ void TryResolvePlane(bool autoCreateIfMissing = true)
     void EraseAt(Vector2 uv)
     {
         var world = _plane.UVToWorld(uv);
-        float r = _plane.gridSize * 0.4f;
+        float r = _plane.gridSize * 0.4f * Mathf.Max(1, _brushSize);
 
         int count = Physics.OverlapSphereNonAlloc(world, r, _eraseBuf);
         for (int i = 0; i < count; i++)
