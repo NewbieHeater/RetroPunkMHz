@@ -3451,7 +3451,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 367288719}
-  - component: {fileID: 367288720}
   m_Layer: 0
   m_Name: Managers---------------------------------
   m_TagString: Untagged
@@ -3475,23 +3474,6 @@ Transform:
   - {fileID: 1587111400}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &367288720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 367288718}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55be0b7af117bcc48915fb9562c9b55f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  planeNormal: {x: 0, y: 0, z: 1}
-  axisU: {x: 1, y: 0, z: 0}
-  gridSize: 1
-  gridPreviewHalfExtent: 25
-  gizmoColor: {r: 0, g: 0.83900166, b: 1, a: 0.3137255}
 --- !u!4 &372978639 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7997083469584188786, guid: 9c18580b97512ed43885caa0955ca4fb, type: 3}
@@ -14889,6 +14871,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1942078287}
   - component: {fileID: 1942078288}
+  - component: {fileID: 1942078289}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -14924,6 +14907,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+--- !u!114 &1942078289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942078286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55be0b7af117bcc48915fb9562c9b55f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  planeNormal: {x: 0, y: 0, z: 1}
+  axisU: {x: 1, y: 0, z: 0}
+  gridSize: 1
+  gridPreviewHalfExtent: 25
+  gizmoColor: {r: 0, g: 0.83900166, b: 1, a: 0.3137255}
 --- !u!1 &1944984809
 GameObject:
   m_ObjectHideFlags: 0
