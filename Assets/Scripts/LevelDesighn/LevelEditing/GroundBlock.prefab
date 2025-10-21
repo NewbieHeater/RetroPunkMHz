@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 2683452858536551335}
   - component: {fileID: 3836246099133479633}
   - component: {fileID: 3490732854850408571}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundBlock
-  m_TagString: Untagged
+  m_TagString: LevelBrush
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

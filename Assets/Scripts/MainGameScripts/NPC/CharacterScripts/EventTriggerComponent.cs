@@ -141,7 +141,7 @@ public class EventTriggerComponent : MonoBehaviour
         if (cmEvent != null)
         {
             // 옵션: 이벤트 에셋의 설정 일부를 런타임에서 오버라이드
-            cmEvent.restoreCameraAfter = restoreCameraAfter;
+            //cmEvent.restoreCameraAfter = restoreCameraAfter;
             CinemachineEventReader.Instance.PlayEvent(cmEvent);
         }
 

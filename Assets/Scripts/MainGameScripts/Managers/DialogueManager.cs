@@ -46,10 +46,10 @@ public class DialogueManager : Singleton<DialogueManager>
     }
 
     // 필요하면 시네머신 에셋을 직접 받는 오버로드도 제공
-    public IEnumerator StartDialogueAndWait(CinemachineEventAsset asset)
-    {
-        yield return StartDialogueAndWait(asset.fileName, asset.groupName);
-    }
+    //public IEnumerator StartDialogueAndWait(CinemachineEventAsset asset)
+    //{
+    //    yield return StartDialogueAndWait(asset.fileName, asset.groupName);
+    //}
 
     // 오타 정리 (선택)
     public void ToggleAuto() => isAuto = !isAuto;
