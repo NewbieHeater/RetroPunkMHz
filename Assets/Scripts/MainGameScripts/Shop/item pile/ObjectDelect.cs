@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public class Communicator : MonoBehaviour
+public class ObjectDelect : MonoBehaviour
 {
     // Start is called before the first frame update
-   
+    void OnMouseDown()
+    {
+        Destroy(gameObject);
+    }
 }

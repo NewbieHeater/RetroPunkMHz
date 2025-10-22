@@ -2996,6 +2996,10 @@ PrefabInstance:
       propertyPath: _itemActionManager
       value: 
       objectReference: {fileID: 1595216699}
+    - target: {fileID: 5074884429317420753, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5833719837895623891, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
       propertyPath: _itemDescription
       value: 
