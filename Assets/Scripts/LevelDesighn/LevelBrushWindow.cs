@@ -1,7 +1,12 @@
-﻿using UnityEditor;
-using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using UnityEditor;
+using UnityEngine;
+
+// Note : 이 코드는 공부중인 코드로 최적화, 객체지향, 코딩스타일 어디하나 잘된 부분이 없음을 알림
+// 아마 오류가 나서 이 코드를 찾아오게 되었을텐데
+// 오류나 질문은 갠디로 연락 바람
 
 public class LevelBrushWindow : EditorWindow
 {
@@ -111,7 +116,6 @@ public class LevelBrushWindow : EditorWindow
         if (_plane == null)
         {
             _plane = Object.FindFirstObjectByType<LevelPlane>(FindObjectsInactive.Include);
-            // (구버전에선 FindObjectOfType<LevelPlane>(true) 사용)
         }
 
         // 3) 필요 시 자동 생성
@@ -466,7 +470,7 @@ public class LevelBrushWindow : EditorWindow
         var snappedWorld = _plane.UVToWorld(snappedUV);
 
         // 미리보기
-        Handles.color = _eraseMode ? Color.red : Color.cyan;
+        Handles.color = _selectMode ? Color.yellow : _eraseMode ? Color.red : Color.cyan;
         Handles.DrawWireDisc(snappedWorld, _plane.Normal, 0.25f);
         //Handles.DrawSolidDisc(snappedWorld, _plane.Normal, _plane.gridSize * 0.4f * Mathf.Max(1, _brushSize));
 
@@ -692,6 +696,7 @@ public class LevelBrushWindow : EditorWindow
             // S: 선택 모드 토글
             if (e.keyCode == KeyCode.S)
             {
+                _eraseMode = false;
                 _selectMode = !_selectMode;
                 _selecting = false;
                 _lineModeActive = false; // 라인 모드도 비활성화
@@ -741,7 +746,6 @@ public class LevelBrushWindow : EditorWindow
                     e.Use();
                 }
             }
-            // Q/E: 프리팹 순환 (Q는 E에 매핑된 단축키가 있어 R을 사용)
             else if (e.keyCode == KeyCode.Q)
             {
                 CyclePrefab(-1); // 이전
@@ -750,7 +754,17 @@ public class LevelBrushWindow : EditorWindow
             else if (e.keyCode == KeyCode.E)
             {
                 // E: 지우개 토글 (Q/E 순환 대신 R/E 토글로 재정의)
+                _selectMode = false;
                 _eraseMode = !_eraseMode;
+                e.Use();
+                Repaint();
+                SceneView.RepaintAll();
+            }
+            else if (e.keyCode == KeyCode.D)
+            {
+                // D: 드로잉 모드
+                _selectMode = false;
+                _eraseMode = false;
                 e.Use();
                 Repaint();
                 SceneView.RepaintAll();

@@ -28,7 +28,6 @@ public class EnemyRobot : EnemyBase
 
     protected override void FSM()
     {
-        
         switch (_state)
         {
             case StateInfo.Idle:
@@ -38,11 +37,10 @@ public class EnemyRobot : EnemyBase
                 Attack();
             break;
             case StateInfo.Move:
-                _patrolController.Tick();
+                Tick(RigidNavigation.MoveMode.Walk);
 
-                if (IsPlayerInSight(_aggroRange))
+                if (IsPlayerInSight(_aggroRange) || IsCloseEnoughToPlayer())
                 {
-                    _patrolController.Exit();
                     SetState(StateInfo.Idle);
                 }
             break;
@@ -76,7 +74,7 @@ public class EnemyRobot : EnemyBase
         switch (cur)
         {
             case StateInfo.Move:
-                _patrolController.Enter();
+                BeginPatrol(RigidNavigation.MoveMode.Walk);
                 break;
             case StateInfo.Attack:
                 // 필요하면 여기서 애니 초기 세팅
@@ -93,7 +91,7 @@ public class EnemyRobot : EnemyBase
         switch (cur)
         {
             case StateInfo.Move:
-                _patrolController.Exit();              // nav.isStopped = true
+                _nav.isStopped = true;
                 break;
             case StateInfo.Attack:
                 _meleeAttackCollider.enabled = false;  // 공격 끝나면 안전하게 끄기
@@ -124,7 +122,8 @@ public class EnemyRobot : EnemyBase
 
     private void Attack()
     {
-        if (!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer())
+        Debug.Log(!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer());
+        if (!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer() || IsInOrTransitionToAttack())
         {
             
             SetState(StateInfo.Move);
