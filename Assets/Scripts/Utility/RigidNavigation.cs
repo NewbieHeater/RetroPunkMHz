@@ -149,8 +149,7 @@ public class RigidNavigation : MonoBehaviour
         Vector3 move = new Vector3(dir * speed * Time.fixedDeltaTime, 0f, 0f);
         rigid.MovePosition(rigid.position + move);
     }
-    private float rotationSpeed = 180f;
-    [SerializeField] float wallOffset = 0.05f;
+
     private void DoClimb()
     {
         Vector3 dir = (targetPos - transform.position).normalized;

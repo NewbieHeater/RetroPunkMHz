@@ -8,8 +8,6 @@ using UnityEngine;
 public class RigidMovementController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float maxWalkSpeed = 5f;
-    public float maxRunSpeed = 8f;
     public float accelerationTime = 0.1f;
     public float decelerationTime = 0.2f;
     [Range(0f, 1f)] public float airControl = 0.5f;
@@ -27,16 +25,18 @@ public class RigidMovementController : MonoBehaviour
     private GroundDetector _ground;
     private IPlayerAnimatorView _anim;
     private Glitch _glitch;
+    private IPlayerStats _stats;
 
     private bool _isRun = false;
     private float _faceDir = 1f; // -1 or +1 좌우이동용
 
-    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim, Glitch glitch = null)
+    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim, Glitch glitch = null, IPlayerStats stats = null)
     {
         _rb = GetComponent<Rigidbody>();
         _ground = gd;
         _anim = anim;
         _glitch = glitch;
+        _stats = stats;
     }
 
     public void OnUpdate(float dt, PlayerInputFrame input)
@@ -66,7 +66,7 @@ public class RigidMovementController : MonoBehaviour
             _rb.velocity = new Vector3(0f, _rb.velocity.y, 0f);
         }
 
-        float maxSpeed = _isRun ? maxRunSpeed : maxWalkSpeed;
+        float maxSpeed = _isRun ? _stats.RunSpeed : _stats.WalkSpeed;
 
         float accel = grounded ? (maxSpeed / accelerationTime)
                                : (maxSpeed / accelerationTime) * airControl;

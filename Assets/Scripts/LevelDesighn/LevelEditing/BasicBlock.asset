@@ -19,12 +19,17 @@ MonoBehaviour:
     customIcon: {fileID: 0}
     favorite: 0
   - label: 
-    tag: ga
-    prefab: {fileID: 5621990501110813708, guid: 7e602c1da310fee44bdaf896167adebb, type: 3}
+    tag: LevelEditing
+    prefab: {fileID: 7779754269365225195, guid: 441b29f958861c2418fe0d94997f866a, type: 3}
     customIcon: {fileID: 0}
     favorite: 0
   - label: 
-    tag: LevelEditing
-    prefab: {fileID: 7779754269365225195, guid: 441b29f958861c2418fe0d94997f866a, type: 3}
+    tag: Enemys
+    prefab: {fileID: 8874187368424205674, guid: ea986d3280fa76d4c991002b92c612e5, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: Enemys
+    prefab: {fileID: 5775095506597332354, guid: 3cbdf890f638ce84188b7027b7fa295a, type: 3}
     customIcon: {fileID: 0}
     favorite: 0

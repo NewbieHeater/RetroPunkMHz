@@ -123,7 +123,7 @@ public class EnemyRobot : EnemyBase
     private void Attack()
     {
         Debug.Log(!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer());
-        if (!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer() || IsInOrTransitionToAttack())
+        if (!IsPlayerInSight(_aggroRange) && !IsCloseEnoughToPlayer() && !IsInOrTransitionToAttack())
         {
             
             SetState(StateInfo.Move);
