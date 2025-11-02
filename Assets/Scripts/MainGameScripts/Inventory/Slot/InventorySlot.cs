@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -170,6 +171,14 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
             if (_slotMask == ItemType.SKILL) return;
             UseItem();
         }
+
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            if (_item != null && _item.ItemID == 1)
+            {
+                SceneManager.LoadScene("eto_room");
+            }
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -179,6 +188,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
             _itemDescription.OpenUI(_item.name, _item.Description);
             _isTooltipActive = true;
         }
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -199,12 +209,5 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
         }
     }
 
-    void OnMouseDown() // 아직 작동하는지 몰겠음 에토방 신 나오면 구현할게용
-    {
-        if (_item.ItemID == 1)
-        {
-            //SceneManager.LoadScene("GameScene");
-        }
-
-    }
+    
 }

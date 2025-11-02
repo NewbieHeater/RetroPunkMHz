@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +12,7 @@ public class RoomManager : MonoBehaviour
         camAnim = GetComponent<Animator>();
     }
 
-    //¸Å°³º¯¼ö 2°³·Î ÇÏ¸é ÀÎ½ºÆåÅÍ¿¡¼­ ¾Èº¸¿©¼­ ±×³É ÇÔ¼ö 2°³·Î ÂÉ°·
+    //ë§¤ê°œë³€ìˆ˜ 2ê°œë¡œ í•˜ë©´ ì¸ìŠ¤í™í„°ì—ì„œ ì•ˆë³´ì—¬ì„œ ê·¸ëƒ¥ í•¨ìˆ˜ 2ê°œë¡œ ìª¼ê°¬
     public void SetCamAnimBoolTrue(string name)
     {
         camAnim.SetBool(name, true);

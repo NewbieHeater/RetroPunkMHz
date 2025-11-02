@@ -13,9 +13,11 @@ public class EtoRoominstall : MonoBehaviour
     {
         if (_previewobject == null) return;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // 마우스에 레이케스트 장착
+        Debug.DrawRay(ray.origin, ray.direction * 100f, Color.red);
 
         if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f, groundLayer)) // 마우스가 땅에 있는 레이케스트랑 닿는다면
         {
+            Debug.Log("dasd");
             _previewobject.transform.position = hitInfo.point; // 땅하고 충돌지점으로 이동
             if (Input.GetMouseButtonDown(0)) 
             {
