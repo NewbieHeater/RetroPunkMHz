@@ -7897,6 +7897,9 @@ MonoBehaviour:
   animTriggerAttack: Attack
   animClipCharged: Attack_5Combo_4_Inplace
   attackPivotHeight: 1
+  hitRadius: 0.6
+  baseAttackCooldown: 0.5
+  chargeAffectedByAttackSpeed: 0
 --- !u!114 &859057849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8055,14 +8058,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maxHp: 100
   _hp: 100
-  _attackDamage: 10
-  _attackSpeed: 2
+  _baseAttackDamage: 10
+  _baseAttackSpeed: 0.5
   _attackRange: 1
   _chargeAttackDamage: 40
-  _critChance: 0.2
-  _critMultiplier: 2
-  minChargeTime: 0.5
-  maxChargeTime: 2
+  _critChance: 0
+  _critMultiplier: 1.5
   _walkSpeed: 3.5
   _runSpeed: 6
 --- !u!1 &868125771
@@ -20169,6 +20170,10 @@ PrefabInstance:
     - target: {fileID: 5775095506597332354, guid: 3cbdf890f638ce84188b7027b7fa295a, type: 3}
       propertyPath: m_Name
       value: Climber
+      objectReference: {fileID: 0}
+    - target: {fileID: 5775095506597332354, guid: 3cbdf890f638ce84188b7027b7fa295a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

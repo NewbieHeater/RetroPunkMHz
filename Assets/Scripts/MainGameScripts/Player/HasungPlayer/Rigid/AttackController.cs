@@ -9,17 +9,24 @@ public class AttackController : MonoBehaviour
     [SerializeField] private LayerMask attackableLayer;
 
     [Header("UI")]
-    public Image chargeBar;
-    public GameObject chargeBarParent;
-    public TextMeshProUGUI chargedValue;
+    [SerializeField] private Image chargeBar;
+    [SerializeField] private GameObject chargeBarParent;
+    [SerializeField] private TextMeshProUGUI chargedValue;
 
     [Header("Anim/Hit Window")]
     [SerializeField] private string animTriggerAttack = "Attack";
     [SerializeField] private string animClipCharged = "Attack_5Combo_4_Inplace";
     private Animator animator;
 
-    // 히트 높이(지면에서 얼마 위에서 휘두르는지)
+    [Header("Hit Shape")]
     [SerializeField] private float attackPivotHeight = 1.0f;
+    [SerializeField] private float hitRadius = 0.6f;
+
+    [Header("Attack Speed Apply")]
+    [Tooltip("기준 쿨다운(초). 실제 쿨다운은 base / AttackSpeed 입니다.")]
+    [SerializeField] private float baseAttackCooldown = 0.5f; // 1초에 2타 기준
+    [Tooltip("차지 속도에도 AttackSpeed를 곱해 차지 시간을 단축시킬지 여부")]
+    [SerializeField] private bool chargeAffectedByAttackSpeed = false;
 
     private bool isCharging;
     private float chargeTimer;
@@ -27,44 +34,79 @@ public class AttackController : MonoBehaviour
 
     // 비할당/GC 방지
     private readonly Collider[] overlapResults = new Collider[32];
-
     // 한 번의 공격 동안 중복 타격 방지
     private readonly HashSet<IAttackable> _hitOnce = new HashSet<IAttackable>();
 
     private IPlayerStats _stats;
 
+    // 쿨다운 관리
+    private float nextAttackTime;
+    private float EffectiveCooldown =>
+        Mathf.Max(0.01f, baseAttackCooldown / Mathf.Max(0.01f, _stats != null ? _stats.AttackSpeed : 1f));
+
     public void Initialize(IPlayerStats stats = null)
     {
+        // 한 번만 세팅
         if (!cam) cam = Camera.main;
         if (!animator) animator = GetComponentInChildren<Animator>();
-        if (stats != null) _stats = stats;
+        if (_stats == null)
+            _stats = stats ?? GetComponent<IPlayerStats>();
     }
 
-    private (int finalDamage, bool isCrit) ApplyCritical(int baseDamage)
+    private void Awake()
     {
-        float chance = _stats != null ? _stats.CritChance : 0f;
-        float mult = _stats != null ? _stats.CritMultiplier : 2f;
+        Initialize(); // 조기 캐싱
+    }
 
-        bool isCrit = UnityEngine.Random.value < chance;
-        int final = isCrit ? Mathf.RoundToInt(baseDamage * mult) : baseDamage;
-        return (final, isCrit);
+    // ★ 치명타 로직: 확률의 절댓값으로 발동, 양수면 ×CritMultiplier, 음수면 ×0.75
+    private (int finalDamage, bool activated) ApplyCritical(int baseDamage)
+    {
+        if (_stats == null)
+            return (baseDamage, false);
+
+        float chance = _stats.CritChance;          // 양/음수 가능
+        float absChance = Mathf.Abs(chance);       // 발동 확률은 절댓값
+        float mult = 1f;
+        bool activated = false;
+
+        if (UnityEngine.Random.value < absChance)
+        {
+            activated = true;
+            mult = (chance > 0f) ? _stats.CritMultiplier : 0.75f;
+        }
+
+        int final = Mathf.RoundToInt(baseDamage * mult);
+        return (final, activated);
     }
 
     public void HandleInput()
     {
-        var btns = GlobalInputRouter.Instance.CurrentFrame.buttons;
+        var frame = GlobalInputRouter.Instance.CurrentFrame;
+        var btns = frame.buttons;
 
-        if (btns.IsDown(InputAction.Attack))
+        // 애니메이터 파라미터(있으면 사용)
+        if (animator)
+        {
+            float spd = _stats != null ? _stats.AttackSpeed : 1f;
+            animator.SetFloat("AttackSpeed", spd); // Animator Controller에 "AttackSpeed" 파라미터 추가 권장
+        }
+
+        // 기본 공격 (쿨다운 체크)
+        if (btns.IsDown(InputAction.Attack) && Time.time >= nextAttackTime)
             PerformPrimaryAttack();
 
-        if (btns.IsDown(InputAction.Charge))
+        // 차지 시작
+        if (btns.IsDown(InputAction.Charge) || Input.GetMouseButtonDown(1))
             StartCharging();
 
-        // 마우스 직접 체크 대신 입력 라우터에 매핑해 두면 더 깔끔
-        if (isCharging && Input.GetMouseButton(1))
+        // 차지 유지
+        bool holdCharge = btns.IsHeld(InputAction.Charge) || Input.GetMouseButton(1);
+        if (isCharging && holdCharge)
             ContinueCharging();
 
-        if (isCharging && Input.GetMouseButtonUp(1))
+        // 차지 해제/발동
+        bool releaseCharge = btns.IsUp(InputAction.Charge) || Input.GetMouseButtonUp(1);
+        if (isCharging && releaseCharge)
             PerformChargedAttack();
     }
 
@@ -73,21 +115,22 @@ public class AttackController : MonoBehaviour
     private void PerformPrimaryAttack()
     {
         if (animator) animator.SetTrigger(animTriggerAttack);
-
-        float amp = ChannelManager.Instance.CurrentChannel.amplitudePoints * 0.1f;
-        int scaled = Mathf.RoundToInt(_stats.AttackDamage * (1.0f + amp));
-
-        var (final, isCrit) = ApplyCritical(scaled);
-
+        
+        int scaled = Mathf.RoundToInt(_stats != null ? _stats.AttackDamage : 10f);
+        var (final, crit) = ApplyCritical(scaled);
+        Debug.Log(crit);
         var info = new DamageInfo
         {
             Amount = final,
             SourceDir = GetAttackDirection(),
             IsCharge = false,
-            KnockbackForce = 0f
+            KnockbackForce = 3f
         };
 
         ExecuteAttack(info);
+
+        // 공격 후 쿨타임 갱신
+        nextAttackTime = Time.time + EffectiveCooldown;
     }
 
     private void StartCharging()
@@ -100,17 +143,19 @@ public class AttackController : MonoBehaviour
 
     private void ContinueCharging()
     {
-        if (!isCharging) return;
+        if (!isCharging || _stats == null) return;
 
-        chargeTimer = Mathf.Min(chargeTimer + Time.deltaTime, _stats.MaxChargeTime);
+        float mult = (chargeAffectedByAttackSpeed && _stats != null) ? _stats.AttackSpeed : 1f;
+        chargeTimer = Mathf.Min(chargeTimer + Time.deltaTime * mult, _stats.MaxChargeTime);
+
         float t = Mathf.InverseLerp(0f, _stats.MaxChargeTime, chargeTimer);
-        float dmg = Mathf.Lerp(0f, _stats.MaxChargeTime, t);
-        UpdateChargeUI(dmg);
+        float preview = Mathf.Lerp(_stats.AttackDamage, _stats.ChargeAttackDamage, t);
+        UpdateChargeUI(preview);
     }
 
     private void PerformChargedAttack()
     {
-        Initialize();
+        if (_stats == null) { ResetCharge(); return; }
 
         if (animator) animator.Play(animClipCharged);
 
@@ -122,8 +167,7 @@ public class AttackController : MonoBehaviour
             : 0f;
 
         int baseDmg = Mathf.RoundToInt(Mathf.Lerp(_stats.AttackDamage, _stats.ChargeAttackDamage, lerp) / 10f) * 10;
-
-        var (final, isCrit) = ApplyCritical(baseDmg);
+        var (final, _) = ApplyCritical(baseDmg);
 
         var info = new DamageInfo
         {
@@ -135,6 +179,9 @@ public class AttackController : MonoBehaviour
 
         ExecuteAttack(info);
         ResetCharge();
+
+        // 차지 공격 후에도 쿨타임 적용 (원하면 배수를 두어도 됨)
+        nextAttackTime = Time.time + EffectiveCooldown;
     }
 
     private void ResetCharge()
@@ -148,11 +195,14 @@ public class AttackController : MonoBehaviour
 
     private void UpdateChargeUI(float damagePreview)
     {
-        if (chargedValue) chargedValue.text = Mathf.RoundToInt(damagePreview).ToString();
-        if (chargeBar) chargeBar.fillAmount = Mathf.Clamp01(chargeTimer / _stats.MaxChargeTime);
+        if (_stats != null && chargeBar)
+            chargeBar.fillAmount = Mathf.Clamp01(chargeTimer / _stats.MaxChargeTime);
+
+        if (chargedValue)
+            chargedValue.text = Mathf.RoundToInt(damagePreview).ToString();
     }
 
-    // === 핵심: 공격 판정 (캡슐 축을 dir과 일치) ===
+    // === 핵심: 공격 판정 ===
     private void ExecuteAttack(in DamageInfo info)
     {
         _hitOnce.Clear();
@@ -160,28 +210,26 @@ public class AttackController : MonoBehaviour
         Vector3 dir = GetAttackDirection();
         if (dir.sqrMagnitude < 1e-6f) dir = Vector3.right;
 
-        // 공격 축(앞/뒤)으로 캡슐 배치
         Vector3 origin = transform.position + Vector3.up * attackPivotHeight;
-
-        // 캡슐의 두 끝점을 dir 방향으로 배치 (리치 길이 사용)
-        Vector3 pointA = origin + dir * 0.1f;          // 손/무기 시작 약간 앞
-        Vector3 pointB = origin + dir * _stats.AttackRange;   // 끝 리치
+        Vector3 pointA = origin + dir * 0.1f; // 시작점(손 앞)
+        float range = _stats != null ? _stats.AttackRange : 1f;
+        Vector3 pointB = origin + dir * range; // 끝 리치
 
         int hitCount = Physics.OverlapCapsuleNonAlloc(
-            pointA, pointB, 1,
+            pointA, pointB, hitRadius,
             overlapResults, attackableLayer,
             QueryTriggerInteraction.Collide);
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (!overlapResults[i]) continue;
+            var col = overlapResults[i];
+            if (!col) continue;
 
-            // 루트에서 IAttackable를 우선 찾음(멀티콜라이더 중복 방지)
-            if (!overlapResults[i].TryGetComponent<IAttackable>(out var atk) &&
-                !overlapResults[i].TryGetComponent<IAttackable>(out atk))
+            // LivingEntity와 Collider가 같은 객체라고 가정 → TryGetComponent 한 번만
+            if (!col.TryGetComponent<IAttackable>(out var atk))
                 continue;
 
-            if (_hitOnce.Contains(atk)) continue;  // 한 번의 스윙에서 한 번만
+            if (_hitOnce.Contains(atk)) continue; // 한 스윙 1히트
             _hitOnce.Add(atk);
 
             atk.TakeDamage(info);
@@ -190,7 +238,7 @@ public class AttackController : MonoBehaviour
 
     private Vector3 GetAttackDirection()
     {
-        Initialize();
+        if (!cam) cam = Camera.main;
         if (!cam) return Vector3.right;
 
         Vector3 mp = Input.mousePosition;
@@ -199,27 +247,26 @@ public class AttackController : MonoBehaviour
         Vector3 world = cam.ScreenToWorldPoint(mp);
         Vector3 dir = world - transform.position;
 
-        // 사이드뷰(XY) 기준
-        dir.z = 0f;
+        dir.z = 0f; // 2D(사이드뷰) 가정
         return dir.sqrMagnitude > 1e-6f ? dir.normalized : Vector3.right;
     }
-
-
 
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying) return;
 
+        float range = _stats != null ? _stats.AttackRange : 1f;
+
         Vector3 dir = GetAttackDirection();
         Vector3 origin = transform.position + Vector3.up * attackPivotHeight;
         Vector3 a = origin + dir * 0.1f;
-        Vector3 b = origin + dir * _stats.AttackRange;
+        Vector3 b = origin + dir * range;
 
-        Gizmos.color = new Color(1f, 0.3f, 0.1f, 0.5f);
+        Gizmos.color = new Color(1f, 0.3f, 0.1f, 0.35f);
         UnityEditor.Handles.color = Gizmos.color;
-        UnityEditor.Handles.DrawWireDisc(a, Vector3.forward, 1);
-        UnityEditor.Handles.DrawWireDisc(b, Vector3.forward, 1);
+        UnityEditor.Handles.DrawWireDisc(a, Vector3.forward, hitRadius);
+        UnityEditor.Handles.DrawWireDisc(b, Vector3.forward, hitRadius);
         Gizmos.DrawLine(a, b);
     }
 #endif
