@@ -58,9 +58,10 @@ public class LevelBrushWindow : EditorWindow
     private const string _planeRefKey = "LevelBrush.LastPlaneGOID";
     private const string BRUSH_TAG = "LevelBrush";
     private static readonly Collider[] _eraseBuf = new Collider[128];
-
-    [MenuItem("Tools/Level Brush")]
-    public static void ShowWindow() => GetWindow<LevelBrushWindow>("Level Brush");
+    // Tools안의 LevelBrush안의 window
+    [MenuItem("Tools/Level Brush/LevelBrushWindow")]
+    // 창의 이름
+    public static void ShowWindow() => GetWindow<LevelBrushWindow>("Level Brush Window");
 
     void OnEnable()
     {

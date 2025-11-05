@@ -58,6 +58,9 @@ public class RigidJumpController : MonoBehaviour
             _requestCutoff = true;
         }
     }
+    // 추가 필드
+    private float _fallTimer;
+    public float minFallTime = 0.1f; // 최소 낙하 시간 (0.1~0.2f 정도 추천)
 
     /// 물리적용
     public void OnFixedStep(float fdt, PlayerInputFrame input)
@@ -72,10 +75,23 @@ public class RigidJumpController : MonoBehaviour
 
         ClampVertical();
 
-        // 애니메이션 조정
-        bool isFalling = _rb.velocity.y < -0.01f && !grounded;
-        _anim?.SetFalling(isFalling);
+        bool isFalling = _rb.velocity.y < -0.01f && !_ground.IsGrounded;
+
+        // 짧게 뜬 것은 무시하도록 타이머 사용
+        if (isFalling)
+        {
+            _fallTimer += fdt;
+        }
+        else
+        {
+            _fallTimer = 0f;
+        }
+
+        bool shouldShowFalling = _fallTimer > minFallTime;
+
+        _anim?.SetFalling(shouldShowFalling);
         _anim?.SetGrounded(grounded);
+
 
         _wasGrounded = grounded;
     }
