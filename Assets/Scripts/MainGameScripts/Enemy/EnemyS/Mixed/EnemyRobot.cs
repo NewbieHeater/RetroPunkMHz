@@ -14,9 +14,9 @@ public class EnemyRobot : EnemyBase
     [SerializeField] private string hitState = "Hit";
     [SerializeField] private string deathState = "Death";
 
-    protected override void Start()
+    protected override void OnEnable()
     {
-        base.Start();
+        base.OnEnable();
         SetState(StateInfo.Idle);
     }
 
@@ -63,8 +63,7 @@ public class EnemyRobot : EnemyBase
     {
         
         float dir = (_player) ? Mathf.Sign(transform.position.x - _player.transform.position.x) : 1f;
-        Debug.Log(dir);
-        Debug.Log(knockbackStrength);
+
         Vector3 kb = new Vector3(dir * knockbackStrength, 0f, 0f);
         transform.position += kb * Time.deltaTime;
         //if (_rigid) _rigid.velocity = new Vector3(kb.x, _rigid.velocity.y, 0f);
@@ -83,6 +82,8 @@ public class EnemyRobot : EnemyBase
             ToggleMelee(false); // ¾ÈÀü
         if (s == StateInfo.Hit)
             _animator.Play(hitState, 0, 0f);
+        if (s == StateInfo.Death)
+            _nav.SetEnabled(false);
     }
 
     protected override void OnExitState(StateInfo s)

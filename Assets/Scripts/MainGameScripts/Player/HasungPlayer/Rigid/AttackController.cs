@@ -37,20 +37,19 @@ public class AttackController : MonoBehaviour
     // 한 번의 공격 동안 중복 타격 방지
     private readonly HashSet<IAttackable> _hitOnce = new HashSet<IAttackable>();
 
-    private IPlayerStats _stats;
+    private PlayerStats _stats;
 
     // 쿨다운 관리
     private float nextAttackTime;
     private float EffectiveCooldown =>
         Mathf.Max(0.01f, baseAttackCooldown / Mathf.Max(0.01f, _stats != null ? _stats.AttackSpeed : 1f));
 
-    public void Initialize(IPlayerStats stats = null)
+    public void Initialize(PlayerStats stats = null)
     {
         // 한 번만 세팅
         if (!cam) cam = Camera.main;
         if (!animator) animator = GetComponentInChildren<Animator>();
-        if (_stats == null)
-            _stats = stats ?? GetComponent<IPlayerStats>();
+        _stats = stats;
     }
 
     private void Awake()
@@ -58,7 +57,7 @@ public class AttackController : MonoBehaviour
         Initialize(); // 조기 캐싱
     }
 
-    // ★ 치명타 로직: 확률의 절댓값으로 발동, 양수면 ×CritMultiplier, 음수면 ×0.75
+    // 치명타 로직: 확률의 절댓값으로 발동, 양수면 ×CritMultiplier, 음수면 ×0.75
     private (int finalDamage, bool activated) ApplyCritical(int baseDamage)
     {
         if (_stats == null)
@@ -118,13 +117,13 @@ public class AttackController : MonoBehaviour
         
         int scaled = Mathf.RoundToInt(_stats != null ? _stats.AttackDamage : 10f);
         var (final, crit) = ApplyCritical(scaled);
-        Debug.Log(crit);
+        Debug.Log(final);
         var info = new DamageInfo
         {
             Amount = final,
             SourceDir = GetAttackDirection(),
             IsCharge = false,
-            KnockbackForce = 3f
+            KnockbackForce = 1f
         };
 
         ExecuteAttack(info);
@@ -174,7 +173,7 @@ public class AttackController : MonoBehaviour
             Amount = final,
             SourceDir = GetAttackDirection(),
             IsCharge = charged,
-            KnockbackForce = final
+            KnockbackForce = final /3
         };
 
         ExecuteAttack(info);

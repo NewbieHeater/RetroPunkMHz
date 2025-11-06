@@ -29,12 +29,10 @@ public class EventTriggerComponent : MonoBehaviour
     [Header("Lifecycle")]
     [SerializeField] private bool oneShot = true;        // 한 번만 발화
     [SerializeField] private float cooldown = 0f;        // 재발화까지 대기 시간
-    [SerializeField] private bool lockPlayerInputWhileRunning = false;
 
     [Header("Outputs")]
     public UnityEvent OnTriggered;                       // 일반 유니티 이벤트 훅
     [SerializeField] private CinemachineEventAsset cmEvent; // 있으면 시네머신 이벤트도 실행
-    [SerializeField] private bool restoreCameraAfter = true;
 
     // 내부 상태
     private bool _armed = true;

@@ -1,27 +1,15 @@
 using UnityEngine;
 using System;
 
-public interface IPlayerStats
+public enum WeaponTuningType
 {
-    int MaxHp { get; }
-    int Hp { get; }
-    float AttackDamage { get; }
-    float AttackSpeed { get; }
-    float AttackRange { get; }
-    float ChargeAttackDamage { get; }
-    float CritChance { get; }
-    float CritMultiplier { get; }
-    float MinChargeTime { get; }
-    float MaxChargeTime { get; }
-    float WalkSpeed { get; }
-    float RunSpeed { get; }
-    void ApplyDamage(int amount);
-    void Heal(int amount);
-    void SetMoveSpeed(float walk, float run);
-    event Action<int, int> OnHpChanged;
+    Amplitude,  // 진폭 모드
+    Period,     // 주기 모드
+    Wave        // 파형 모드
 }
 
-public class PlayerStats : MonoBehaviour, IPlayerStats
+[System.Serializable]
+public class PlayerStats 
 {
     [Header("기본 HP")]
     [SerializeField] int _maxHp = 100;
@@ -39,6 +27,27 @@ public class PlayerStats : MonoBehaviour, IPlayerStats
     [SerializeField] float _walkSpeed = 3.5f;
     [SerializeField] float _runSpeed = 6.0f;
 
+    public WeaponTuningType CurrentTuning { get; private set; } = WeaponTuningType.Amplitude;
+    public void SetWeaponTuning(WeaponTuningType tuning)
+    {
+        CurrentTuning = tuning;
+    }
+    public float GetTuningDamage()
+    {
+        switch (CurrentTuning)
+        {
+            case WeaponTuningType.Amplitude:
+                return ChannelManager.AmpPts * 2f;
+            case WeaponTuningType.Period:
+                return ChannelManager.PerPts * 2f;
+            case WeaponTuningType.Wave:
+                return ChannelManager.WavPts * 2f;
+            default:
+                return 0f;
+        }
+    }
+
+
     public int MaxHp => _maxHp;
     public int Hp => _hp;
 
@@ -47,7 +56,7 @@ public class PlayerStats : MonoBehaviour, IPlayerStats
         get
         {
             int amp = ChannelManager.AmpPts;
-            return _baseAttackDamage * (1.0f + 0.1f * amp);
+            return (_baseAttackDamage + GetTuningDamage()) * (1.0f + 0.1f * amp);
         }
     }
 
@@ -111,3 +120,25 @@ public class PlayerStats : MonoBehaviour, IPlayerStats
         return dmg;
     }
 }
+
+/*
+ * public interface IPlayerStats
+{
+    int MaxHp { get; }
+    int Hp { get; }
+    float AttackDamage { get; }
+    float AttackSpeed { get; }
+    float AttackRange { get; }
+    float ChargeAttackDamage { get; }
+    float CritChance { get; }
+    float CritMultiplier { get; }
+    float MinChargeTime { get; }
+    float MaxChargeTime { get; }
+    float WalkSpeed { get; }
+    float RunSpeed { get; }
+    void ApplyDamage(int amount);
+    void Heal(int amount);
+    void SetMoveSpeed(float walk, float run);
+    event Action<int, int> OnHpChanged;
+}
+ */

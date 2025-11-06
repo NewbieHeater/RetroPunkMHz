@@ -19,7 +19,8 @@ public class RigidPlayerManagement : MonoBehaviour
     private PlayerAnimatorView animatorView; // IPlayerAnimatorView
     [SerializeField] private Glitch glitchPasser;
 
-    private IPlayerStats stats;
+    [Header("Player Stats")]
+    [SerializeField] private PlayerStats stats;
 
     public bool IsGrounded = false;
     public bool IsEnabled = true;
@@ -28,7 +29,7 @@ public class RigidPlayerManagement : MonoBehaviour
     private void Awake()
     {
         // 스탯 획득
-        stats = GetComponent<IPlayerStats>();
+        //stats = new PlayerStats();
 
         // 비어있으면 가져오기(인스펙터에 지정 시 유지)
         if (!groundDetector) groundDetector = GetComponent<GroundDetector>();

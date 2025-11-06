@@ -16,9 +16,9 @@ public class Climber : EnemyBase
     private enum APhase { Windup, Strike, Cooldown }
     APhase _phase;
 
-    protected override void Start()
+    protected override void OnEnable()
     {
-        base.Start();
+        base.OnEnable();
         _state = StateInfo.Idle;
         OnEnterState(StateInfo.Idle);
     }

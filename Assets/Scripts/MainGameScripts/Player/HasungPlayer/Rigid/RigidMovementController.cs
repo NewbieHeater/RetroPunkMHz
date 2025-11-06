@@ -25,12 +25,12 @@ public class RigidMovementController : MonoBehaviour
     private GroundDetector _ground;
     private IPlayerAnimatorView _anim;
     private Glitch _glitch;
-    private IPlayerStats _stats;
+    private PlayerStats _stats;
 
     private bool _isRun = false;
     private float _faceDir = 1f; // -1 or +1 좌우이동용
 
-    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim, Glitch glitch = null, IPlayerStats stats = null)
+    public void Initialize(GroundDetector gd, IPlayerAnimatorView anim, Glitch glitch = null, PlayerStats stats = null)
     {
         _rb = GetComponent<Rigidbody>();
         _ground = gd;

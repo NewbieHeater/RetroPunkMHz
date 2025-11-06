@@ -14,9 +14,6 @@ public class RigidNavigation : MonoBehaviour
     [SerializeField] private float speed = 3f;
     [SerializeField] public float stoppingDistance = 0.01f;
 
-    [Header("Climb 설정")]
-    [SerializeField] private float wallDetectDistance = 0.6f;
-    [SerializeField] private float climbSpeed = 2f;
 
     [Header("Jump 설정")]
     [SerializeField] private float jumpApexHeight = 30f;
@@ -24,6 +21,7 @@ public class RigidNavigation : MonoBehaviour
     //플래그 변수
     public bool hasPath { get; private set; }
     public bool isStopped { get; set; }
+    public bool IsEnabled { get; private set; } = true;
     public bool isGrounded { get; private set; }
     private bool jumpLaunched;
 
@@ -101,6 +99,23 @@ public class RigidNavigation : MonoBehaviour
         isReset = true;
     }
     [SerializeField] private bool isReset = false;
+    public void SetEnabled(bool on)
+    {
+        if (IsEnabled == on) return;
+        IsEnabled = on;
+
+        if (!on)
+        {
+            // 네비 드라이브 끔: 경로/내부상태 초기화
+            ResetPath();
+            // 필요시 rb 속도도 정리 (상황 따라 제거 가능)
+            // rb.velocity = new Vector3(0, rb.velocity.y, 0);
+        }
+        else
+        {
+            // 재개 시 초기화할 항목이 있으면 세팅
+        }
+    }
 
     private void Update()
     {
@@ -116,7 +131,6 @@ public class RigidNavigation : MonoBehaviour
             ResetPath();
         }
     }
-    public bool IsEnabled = true;
     private void FixedUpdate()
     {
         if (!IsEnabled)

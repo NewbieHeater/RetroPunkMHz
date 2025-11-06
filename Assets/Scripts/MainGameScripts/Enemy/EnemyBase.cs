@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public enum StateInfo { Idle, Attack, Move, Hit, Death }
 
@@ -29,7 +33,42 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     [SerializeField] protected float _maxHp = 100f;
     [SerializeField] protected float _explosionRadius = 0f; // 0이면 미사용
 
-    protected float _hp;
+    [Header("Charged-Death Explosion")]
+    [SerializeField] LayerMask _explodeOnHitMask; // 어떤 레이어와 부딪히면 터질지
+    [SerializeField] float _chargedDeathTimeout = 4.0f; // 충돌 못하면 이 시간 뒤 정리
+
+    void IAttackable.TakeDamage(in DamageInfo info) => TakeDamage(info);
+    bool _chargedDeathArmed;   // 차징 즉사 ‘비행’ 상태
+
+    public float MaxHp
+    {
+        get => _maxHp;
+        set
+        {
+            value = Mathf.Max(1f, value);
+            if (Mathf.Approximately(value, _maxHp)) return;
+            _maxHp = value;
+            // Max 변경 시 현재 hp도 재클램프 + 이벤트 재발행
+            Hp = Mathf.Min(_hp, _maxHp);
+        }
+    }
+
+    protected float _hp = 100;
+    public float Hp
+    {
+        get => _hp;
+        protected set
+        {
+            float clamped = Mathf.Clamp(value, 0f, _maxHp);
+            if (Mathf.Approximately(clamped, _hp)) return; // 동일 값이면 무의미한 이벤트 방지
+            _hp = clamped;
+
+            float norm = (_maxHp > 0f) ? (_hp / _maxHp) : 0f;
+            OnHpChangedEx?.Invoke(_hp, _maxHp, norm);
+        }
+    }
+
+
     protected bool _isDead;
 
     // ====== FSM ======
@@ -58,21 +97,42 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
 
     public int RequiredWavPts => throw new System.NotImplementedException();
 
+    public event Action<float, float, float> OnHpChangedEx;
+
     // ====== Unity ======
-    protected virtual void Start()
+    protected virtual void Awake()
     {
-        _player = GameManager.Instance.player;
+        _hp = _maxHp;
         _animator = GetComponentInChildren<Animator>();
         _nav = GetComponent<RigidNavigation>();
         _capsule = GetComponent<CapsuleCollider>();
         _rigid = GetComponent<Rigidbody>();
-
+    }
+    
+    protected virtual void OnEnable()
+    {
         _hp = _maxHp;
+        _isDead = false;
 
         InitPatrolPoints();
-        SetState(StateInfo.Idle); // 기본 시작 상태
+        if (_nav) _nav.SetEnabled(true);
+        // 외부 참조는 여기나 Start에서
+        if (GameManager.Instance)
+            _player = GameManager.Instance.player;
+
+        // 초기 상태 브로드캐스트 (UI가 늦게 붙어도 이후 OnEnable에서 다시 받음)
+        OnHpChangedEx?.Invoke(_hp, _maxHp, (_maxHp > 0f) ? (_hp / _maxHp) : 0f);
     }
 
+
+
+    protected virtual void Start()
+    {
+        // 씬 전역이 준비된 뒤 필요한 초기화
+        if (!_player && GameManager.Instance) _player = GameManager.Instance.player;
+    }
+
+    
     protected virtual void Update()
     {
         _stateTime += Time.deltaTime;
@@ -147,17 +207,20 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     }
 
     // ====== 피해/사망/폭발/넉백 ======
+    public void Heal(float amount) => Hp = Hp + Mathf.Max(0f, amount);
+    public void Damage(float amount) => Hp = Hp - Mathf.Max(0f, amount);
+
     public virtual void TakeDamage(in DamageInfo info)
     {
         if (_isDead) return;
+        Damage(info.Amount);
 
-        _hp -= info.Amount;
-        if (_hp <= 0f)
+        if (Hp <= 0f)
         {
-            _hp = 0f;
+            SetState(StateInfo.Death);
             _isDead = true;
             if (info.IsCharge)
-                ApplyKnockback(info.SourceDir, info.KnockbackForce);
+                StartChargedDeathFlight(info.SourceDir, info.KnockbackForce);
             OnDie();
             return;
         }
@@ -173,13 +236,13 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     protected virtual void OnDie()
     {
         SetState(StateInfo.Death);
-        if (_explosionRadius > 0f) Explode();
-        else gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
-    public void ApplyKnockback(Vector3 dir, float force)
+    public void StartChargedDeathFlight(Vector3 dir, float force)
     {
-        if (_nav) _nav.isStopped = true;
+        _chargedDeathArmed = true;
+        if (_nav) _nav.SetEnabled(false);
 
         Vector3 f = dir.sqrMagnitude > 1e-6f ? dir.normalized : Vector3.right;
         if (_rigid)
@@ -195,6 +258,7 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
             // 폴백: Transform 이동
             transform.position += dir.normalized * force * Time.deltaTime;
         }
+        StartCoroutine(ChargedDeathTimeoutRoutine());
     }
 
     public virtual void OnExplosionInteract(Channel channel) { /* 필요 시 구현 */ }
@@ -208,7 +272,37 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
         Destroy(gameObject);
     }
 
-    void IAttackable.TakeDamage(in DamageInfo info) => TakeDamage(info);
+    IEnumerator ChargedDeathTimeoutRoutine()
+    {
+        float t0 = Time.time;
+        while (_chargedDeathArmed && Time.time - t0 < _chargedDeathTimeout)
+            yield return null;
+
+        _chargedDeathArmed = false;
+        // 타임아웃: 그냥 제거(혹은 OnDie()로 전환하고 비활성화)
+        gameObject.SetActive(false);
+    }
+
+    void OnCollisionEnter(Collision c)
+    {
+        if (!_chargedDeathArmed) return;
+
+        // 레이어 필터
+        int otherLayer = c.gameObject.layer;
+        if (((1 << otherLayer) & _explodeOnHitMask) == 0)
+            return;
+
+        // 바닥 무시 옵션
+        if (c.collider.CompareTag("Ground"))
+            return;
+
+        _chargedDeathArmed = false;
+
+        // 폭발 이펙트/데미지/상호작용
+        if (_explosionRadius > 0f) Explode();
+        else gameObject.SetActive(false);
+    }
+
 
     // ====== 순찰 공통 ======
     protected void InitPatrolPoints()
@@ -367,7 +461,6 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
         }
     }
 
-    // EnemyBase.cs 안, 아무 곳(예: GetNextIndexPingPong 바로 아래)에 추가
     protected void AdvanceOnce()
     {
         int len = (pts != null) ? pts.Count : 0;

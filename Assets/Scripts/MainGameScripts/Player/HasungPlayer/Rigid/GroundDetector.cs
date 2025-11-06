@@ -53,44 +53,4 @@ public class GroundDetector : MonoBehaviour
             animator.SetBool("Grounded", false);
         }
     }
-
-
-    //public void UpdateGroundStatus()
-    //{
-    //    Vector3 boxSize = new Vector3(boxX*0.5f, 0.1f, boxZ * 0.5f);
-    //    bool grounded = Physics.CheckBox(groundCheck.position, boxSize, Quaternion.identity, groundLayer);
-
-    //    IsGrounded = grounded;
-    //    animator.SetBool("Grounded", grounded);
-
-    //    // 2) 닿았으면, 정확한 충돌 정보(RaycastHit)를 얻기
-    //    if (grounded)
-    //    {
-    //        // 구 검사용 위치에서 약간 위로 올려서 땅 방향으로 레이캐스트
-    //        Vector3 rayOrigin = groundCheck.position + Vector3.up * 0.1f;
-    //        float rayDistance = maxFallDistance + 0.1f;
-
-    //        if (Physics.Raycast(
-    //            rayOrigin,
-    //            Vector3.down,
-    //            out RaycastHit hit,
-    //            rayDistance,
-    //            groundLayer,
-    //            QueryTriggerInteraction.Ignore))
-    //        {
-    //            LastHit = hit;
-    //            return;
-    //        }
-    //    }
-
-    //    // 아무것도 안 맞았으면 기본값
-    //    LastHit = default;
-    //}
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Vector3 boxSize = new Vector3(boxX, 0.2f, boxZ);
-        Gizmos.DrawWireCube(groundCheck.position, boxSize);
-    }
 }

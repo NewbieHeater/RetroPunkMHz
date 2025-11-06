@@ -45,7 +45,7 @@ public class LevelBrushWindow : EditorWindow
     private bool _forceSceneMouseMove = true;
 
     // 브러시 활성/비활성 토글
-    private bool _brushEnabled = true;
+    private bool _brushEnabled = false;
 
     // ==== 선택/복사용 상태 ====
     private bool _selectMode; // S로 토글 (선택 모드)

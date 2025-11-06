@@ -310,7 +310,7 @@ namespace LevelEditing
 
                 if (markStatic) GameObjectUtility.SetStaticEditorFlags(chunkGO,
                     StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccludeeStatic | StaticEditorFlags.OccluderStatic |
-                    StaticEditorFlags.NavigationStatic | StaticEditorFlags.ContributeGI);
+                    StaticEditorFlags.ContributeGI);
 
                 // Disable or delete originals
                 foreach (var c in g)
@@ -371,7 +371,7 @@ namespace LevelEditing
                     float cy = (y + h * 0.5f - 0.5f) * grid;
                     float cz = 0f;
                     // Size along U/V; thickness on Normal
-                    bc.center = new Vector3(cx, cy, 0f);
+                    bc.center = new Vector3(cx, cy, cz);
                     bc.size = new Vector3(w * grid, h * grid, Mathf.Max(0.001f, thickness));
                     count++;
                 }
