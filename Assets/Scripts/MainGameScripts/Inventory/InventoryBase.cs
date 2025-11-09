@@ -1,18 +1,18 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÀÎº¥Åä¸® º£ÀÌ½º·Î½á ÀÎº¥Åä¸® ½½·ÔµéÀ» µî·Ï½ÃÅ°°í »ç¿ëÇÒ ÁØºñ¸¦ ¿Ï·áÇÑ´Ù.
-/// Ãß»óÅ¬·¡½º·Î ÀÛ¼ºÇÏ¿© ÀÎº¥Åä¸® º£ÀÌ½º ÀÚÃ¼ÀûÀ¸·Î ÀÎ½ºÅÏ½º ÇÒ ¼ö ¾ø°Ô ÇÑ´Ù.
+/// ì¸ë²¤í† ë¦¬ ë² ì´ìŠ¤ë¡œì¨ ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ë“¤ì„ ë“±ë¡ì‹œí‚¤ê³  ì‚¬ìš©í•  ì¤€ë¹„ë¥¼ ì™„ë£Œí•œë‹¤.
+/// ì¶”ìƒí´ë˜ìŠ¤ë¡œ ì‘ì„±í•˜ì—¬ ì¸ë²¤í† ë¦¬ ë² ì´ìŠ¤ ìì²´ì ìœ¼ë¡œ ì¸ìŠ¤í„´ìŠ¤ í•  ìˆ˜ ì—†ê²Œ í•œë‹¤.
 /// </summary>
 abstract public class InventoryBase : MonoBehaviour
 {
-    [SerializeField] protected GameObject _inventoryBase; // Inventory ÃÖ»óÀ§ ºÎ¸ğ(È°¼º/ºñÈ°¼º ¸ñÀû)
-    [SerializeField] protected GameObject _inventorySlotsParent;  // SlotµéÀ» ´ãÀ» ºÎ¸ğ °ÔÀÓ¿ÀºêÁ§Æ®
+    [SerializeField] protected GameObject _inventoryBase; // Inventory ìµœìƒìœ„ ë¶€ëª¨(í™œì„±/ë¹„í™œì„± ëª©ì )
+    [SerializeField] protected GameObject _inventorySlotsParent;  // Slotë“¤ì„ ë‹´ì„ ë¶€ëª¨ ê²Œì„ì˜¤ë¸Œì íŠ¸
     [SerializeField] protected InventorySlot[] _slots;
     /// <summary>
-    /// ÀÎº¥Åä¸® º£ÀÌ½º¸¦ ÃÊ±âÈ­ ½ÃÅ²´Ù.
+    /// ì¸ë²¤í† ë¦¬ ë² ì´ìŠ¤ë¥¼ ì´ˆê¸°í™” ì‹œí‚¨ë‹¤.
     /// </summary>
     protected void Awake()
     {

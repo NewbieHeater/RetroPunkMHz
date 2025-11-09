@@ -12,6 +12,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 {
     private Item _item;
     public Item Item => _item;
+    public int ItemCount => _itemCount;
 
     [Header("해당 슬롯에 어떠한 타입만 들어올 수 있는지 타입 마스크")]
     [SerializeField] private ItemType _slotMask;
@@ -166,6 +167,8 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        Uiclickset _clickset = GetComponent<Uiclickset>();
+        string _currentscene = SceneManager.GetActiveScene().name;
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             if (_slotMask == ItemType.SKILL) return;
@@ -174,9 +177,21 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
         if (eventData.button == PointerEventData.InputButton.Left)
         {
+            
             if (_item != null && _item.ItemID == 1)
             {
+                InventorySlot[] allSlots = FindObjectsOfType<InventorySlot>();
+                InventorySave.Instance.SaveInventory(allSlots);
+
                 SceneManager.LoadScene("eto_room");
+            }
+            else if (_currentscene == "eto_room"&& _item != null && _item.ItemID == 2)
+            {
+                _clickset.HandleInventoryClick();
+            }
+            else if (_currentscene == "eto_room" && _item != null && _item.ItemID == 3)
+            {
+                _clickset.HandleInventoryClick();
             }
         }
     }
