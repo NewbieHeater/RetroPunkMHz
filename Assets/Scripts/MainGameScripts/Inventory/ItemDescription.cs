@@ -13,15 +13,15 @@ public class ItemDescription : MonoBehaviour
     [SerializeField] private Canvas _canvas;
 
 
-    private TextMeshProUGUI _textArea; //텍스트 라벨
-    private RectTransform _rectTransform; //UI 트랜스폼
+    [SerializeField] private TextMeshProUGUI _textArea; //텍스트 라벨
+    [SerializeField] private RectTransform _rectTransform; //UI 트랜스폼
 
     private StringBuilder _stringBuilder; //스트링 빌더
 
     private void Start()
     {
-        _textArea = _toolTipObj.GetComponentInChildren<TextMeshProUGUI>(true);
-        _rectTransform = _canvas.GetComponent<RectTransform>();
+        //_textArea = _toolTipObj.GetComponentInChildren<TextMeshProUGUI>(true);
+        //_rectTransform = _canvas.GetComponent<RectTransform>();
 
         _stringBuilder = new StringBuilder();
 
@@ -44,9 +44,9 @@ public class ItemDescription : MonoBehaviour
         if (_toolTipObj != null)
             _toolTipObj.SetActive(false);
 
-        _toolTipObj = null;   
-        _textArea = null;
-        _canvas = null;
+        //_toolTipObj = null;   
+        //_textArea = null;
+        //_canvas = null;
     }
     public void LateUpdate()
     {

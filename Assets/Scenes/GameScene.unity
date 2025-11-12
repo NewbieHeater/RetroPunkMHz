@@ -3300,6 +3300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gameObject: {fileID: 0}
+  _gameObject1: {fileID: 0}
 --- !u!1 &349955891
 GameObject:
   m_ObjectHideFlags: 0
@@ -8938,6 +8939,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _toolTipObj: {fileID: 1236453755}
   _canvas: {fileID: 1049561818}
+  _textArea: {fileID: 1546454387}
+  _rectTransform: {fileID: 0}
 --- !u!1 &1176074699
 GameObject:
   m_ObjectHideFlags: 0
@@ -15705,7 +15708,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d55ba1e6986ded8469ed11c791d29793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameObject: {fileID: 2981962912144855308, guid: 48d079c53aac5174f89fd527623d0c6b, type: 3}
+  _gameObject: {fileID: 2981962912144855308, guid: db1485edf1bc72c47b7e610c4570007d, type: 3}
+  _gameObject1: {fileID: 2981962912144855308, guid: 6122aceccf7c6584faee616b252c8790, type: 3}
 --- !u!1 &2079856837
 GameObject:
   m_ObjectHideFlags: 0

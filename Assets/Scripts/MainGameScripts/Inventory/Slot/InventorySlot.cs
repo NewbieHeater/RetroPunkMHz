@@ -191,7 +191,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
             }
             else if (_currentscene == "eto_room" && _item != null && _item.ItemID == 3)
             {
-                _clickset.HandleInventoryClick();
+                _clickset.HandleInventoryClick1();
             }
         }
     }

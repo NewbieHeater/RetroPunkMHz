@@ -1,18 +1,19 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Turntable : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] private PlayerHp _playerhp;
+    private float _healtime = 5f;
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        if ( _playerhp.hp < 100)
+        {
+            _playerhp.hp = _healtime * Time.deltaTime;
+        }
     }
+        
+    
 }
