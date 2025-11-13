@@ -107,6 +107,7 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
         _nav = GetComponent<RigidNavigation>();
         _capsule = GetComponent<CapsuleCollider>();
         _rigid = GetComponent<Rigidbody>();
+        _shakeSource = FindObjectOfType<CameraShakeNoise>();
     }
     
     protected virtual void OnEnable()
@@ -209,7 +210,7 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
     // ====== ÇÇÇØ/»ç¸Á/Æø¹ß/³Ë¹é ======
     public void Heal(float amount) => Hp = Hp + Mathf.Max(0f, amount);
     public void Damage(float amount) => Hp = Hp - Mathf.Max(0f, amount);
-
+    CameraShakeNoise _shakeSource;
     public virtual void TakeDamage(in DamageInfo info)
     {
         if (_isDead) return;
@@ -219,6 +220,9 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
         {
             SetState(StateInfo.Death);
             _isDead = true;
+
+            _shakeSource.ShakeOnChargeKill();
+
             if (info.IsCharge)
                 StartChargedDeathFlight(info.SourceDir, info.KnockbackForce);
             OnDie();

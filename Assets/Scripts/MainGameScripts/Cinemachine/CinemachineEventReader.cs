@@ -7,80 +7,89 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
     [Header("Refs")]
     [SerializeField] private CinemachineFocusing focusing;
 
-    private bool running;
-    private bool endFlag;
-    private int savedCameraSlot = -1;
+    private readonly Queue<CinemachineEventAsset> _queue = new();
+    private Coroutine _runner;
+    private bool _cancelRequested;
+    private bool _running;
 
-    public void EndEvent() => endFlag = false;
-    public void ResetToBaseCam() => endFlag = false;
-    public bool IsRunning => running;
+    public bool IsRunning => _running;
+
+    // 외부 트리거
+    public void EndEvent()
+    {
+        _currentCtx?.EndFlag?.Invoke();
+    }
+
+    public void ResetToBaseCam()
+    {
+        if (focusing != null) focusing.ToDefault();
+    }
 
     public void PlayEvent(CinemachineEventAsset asset)
     {
-        if (running || asset == null) return;
-        StartCoroutine(RunEvent(asset));
+        if (asset == null) return;
+        _queue.Enqueue(asset);
+        if (_runner == null) _runner = StartCoroutine(RunQueue());
+    }
+
+    public void CancelCurrent()
+    {
+        _cancelRequested = true;
+    }
+
+    CinemachineEventContext _currentCtx;
+
+    private IEnumerator RunQueue()
+    {
+        while (_queue.Count > 0)
+        {
+            var asset = _queue.Dequeue();
+            yield return RunEvent(asset);
+        }
+        _runner = null;
     }
 
     private IEnumerator RunEvent(CinemachineEventAsset asset)
     {
-        running = true;
-        endFlag = true;
+        _running = true; _cancelRequested = false;
 
-        if (asset.lockPlayerInputWhileRunning)
-            GlobalInputRouter.Instance.LockInput(true);
-
-        savedCameraSlot = GetCurrentCameraSlotSafe();
-
-        // 단일 디스패처: 스위치는 여기만!
-        foreach (var step in asset.steps)
+        // 컨텍스트 구성
+        _currentCtx = new CinemachineEventContext
         {
-            switch (step.type)
-            {
-                case StepType.LockInput:
-                    GlobalInputRouter.Instance.LockInput(step.lockOn);
-                    break;
+            Focusing = focusing,
+            SavedCameraSlot = GetCurrentCameraSlotSafe(),
+            IsCancelled = () => _cancelRequested,
+            LockInput = (on) => GlobalInputRouter.Instance?.LockInput(on)
+        };
 
-                case StepType.CameraFocus:
-                    FocusToSafe(step.cameraSlot);
-                    break;
-
-                case StepType.Dialogue:
-                    yield return DialogueManager.Instance.StartDialogueAndWait(step.fileName, step.groupName);
-                    break;
-
-                case StepType.WaitEndFlag:
-                    endFlag = true;
-                    yield return new WaitUntil(() => endFlag == false);
-                    break;
-
-                case StepType.Delay:
-                    if (step.seconds > 0f) yield return new WaitForSeconds(step.seconds);
-                    break;
-
-                case StepType.RestoreCamera:
-                    if (focusing != null) focusing.ToDefault();
-                    break;
-            }
-        }
-
-        if (asset.postDelay > 0f)
-            yield return new WaitForSeconds(asset.postDelay);
-
+        // 입력 잠금
         if (asset.lockPlayerInputWhileRunning)
-            GlobalInputRouter.Instance.LockInput(false);
+            _currentCtx.LockInput?.Invoke(true);
 
-        running = false;
-    }
+        // 실행
+        try
+        {
+            foreach (var step in asset.steps)
+            {
+                if (step == null || _cancelRequested) break;
+                yield return step.Execute(_currentCtx);
+            }
+            if (asset.postDelay > 0f) yield return new WaitForSeconds(asset.postDelay);
+        }
+        finally
+        {
+            // 입력 잠금 해제
+            if (asset.lockPlayerInputWhileRunning)
+                _currentCtx.LockInput?.Invoke(false);
 
-    private void FocusToSafe(int slot)
-    {
-        if (focusing != null) focusing.FocusTo(slot);
-        else Debug.LogWarning("[CinemachineEventReader] No focusing assigned.");
+            _currentCtx = null;
+            _running = false;
+        }
     }
 
     private int GetCurrentCameraSlotSafe()
     {
-        // focusing에 질의 API가 없으면 임시로 0
-        return 0;
+        // Focusing에 질의 API 있으면 사용하세요.
+        return focusing ? focusing.CurrentSlotOrDefault() : 0;
     }
 }

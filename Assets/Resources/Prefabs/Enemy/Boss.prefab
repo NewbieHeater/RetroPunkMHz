@@ -1140,7 +1140,7 @@ GameObject:
   - component: {fileID: 6820041608938276105}
   - component: {fileID: 2176409165036291788}
   - component: {fileID: 2033816613571562266}
-  - component: {fileID: 7590585643167706849}
+  - component: {fileID: 5891170464469952747}
   m_Layer: 5
   m_Name: HpCanvas
   m_TagString: Untagged
@@ -1231,7 +1231,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7590585643167706849
+--- !u!114 &5891170464469952747
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1240,9 +1240,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3426704769439911307}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94fba476a7a51ff4cb499a025dc164de, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b4576a6ec76f78499e52fa4c5968bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  source: {fileID: 0}
+  hpText: {fileID: 3129958531061675061}
+  smooth: 1
 --- !u!1 &3714204440217862717
 GameObject:
   m_ObjectHideFlags: 0

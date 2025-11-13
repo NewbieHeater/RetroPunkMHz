@@ -1140,7 +1140,7 @@ GameObject:
   - component: {fileID: 6820041608938276105}
   - component: {fileID: 2176409165036291788}
   - component: {fileID: 2033816613571562266}
-  - component: {fileID: 7590585643167706849}
+  - component: {fileID: 1634853689134244082}
   m_Layer: 5
   m_Name: HpCanvas
   m_TagString: Untagged
@@ -1231,7 +1231,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &7590585643167706849
+--- !u!114 &1634853689134244082
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1240,9 +1240,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3426704769439911307}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94fba476a7a51ff4cb499a025dc164de, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b4576a6ec76f78499e52fa4c5968bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  source: {fileID: 3957257914342025184}
+  hpText: {fileID: 3129958531061675061}
+  smooth: 1
 --- !u!1 &3714204440217862717
 GameObject:
   m_ObjectHideFlags: 0
@@ -3661,7 +3664,6 @@ GameObject:
   - component: {fileID: 1379709997423617245}
   - component: {fileID: 3957257914342025184}
   - component: {fileID: 2477559434165000451}
-  - component: {fileID: 1775390736493242420}
   - component: {fileID: 6348818977408059833}
   - component: {fileID: 7656398348040131433}
   - component: {fileID: 5337067924840425218}
@@ -3704,22 +3706,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba91803c4c75b83448de86385094ee28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 0}
-  _animator: {fileID: 0}
-  _nav: {fileID: 0}
-  _patrolController: {fileID: 0}
-  _animatorProxy: {fileID: 0}
-  _defaultApexHeight: 2
-  _getBackAvailable: 0
   _findRange: 1.5
-  _meleeAttackRange: 2
-  _rangeAttackRange: 2
   _aggroRange: 5
-  _maxDist: 5
+  _attackRange: 2.5
   _viewAngle: 45
   _obstacleMask:
     serializedVersion: 2
-    m_Bits: 1216
+    m_Bits: 1088
+  _maxHp: 100
+  _explosionRadius: 0
+  _explodeOnHitMask:
+    serializedVersion: 2
+    m_Bits: 0
+  _chargedDeathTimeout: 4
+  pathProvider: {fileID: 0}
+  moveSpeed: 0.8
+  rotateDegPerSec: 180
+  pingPong: 1
+  arriveEps: 0.05
+  minStartDist: 0.08
+  minProgressAfterAdvance: 0.08
+  _meleeAttackCollider: {fileID: 0}
+  knockbackStrength: 3
+  hitStun: 0.3
+  idleState: Idle
+  moveState: Move
+  attackTrigger: Attack
+  attackTag: Attack
+  hitState: Hit
+  deathState: Death
 --- !u!114 &2477559434165000451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3745,22 +3760,6 @@ MonoBehaviour:
     dwellTime: 1
     needJump: 0
     jumpPower: 0
---- !u!114 &1775390736493242420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8874187368424205674}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56137d95d68ae774fbe84b7461011c8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 0.8
-  rotateDegPerSec: 180
-  pingPong: 1
-  pathProvider: {fileID: 2477559434165000451}
 --- !u!114 &6348818977408059833
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3788,15 +3787,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 3
   stoppingDistance: 0.01
-  climbableLayer:
-    serializedVersion: 2
-    m_Bits: 192
-  wallDetectDistance: 0.5
-  climbSpeed: 2
   jumpApexHeight: 10
   isReset: 0
-  IsEnabled: 1
-  wallOffset: 0.05
 --- !u!54 &5337067924840425218
 Rigidbody:
   m_ObjectHideFlags: 0

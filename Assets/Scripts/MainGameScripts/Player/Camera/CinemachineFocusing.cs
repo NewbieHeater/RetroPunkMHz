@@ -31,4 +31,9 @@ public class CinemachineFocusing : MonoBehaviour
             vcams[i].Priority = 5;
         }
     }
+
+    public int CurrentSlotOrDefault()
+    {
+        return 0;
+    }
 }

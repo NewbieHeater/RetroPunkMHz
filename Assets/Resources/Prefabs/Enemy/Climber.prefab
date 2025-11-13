@@ -259,25 +259,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd347473f2d6ccf4ba3040a02430252a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _defaultApexHeight: 2
-  _getBackAvailable: 0
   _findRange: 1.5
-  _meleeAttackRange: 2
-  _rangeAttackRange: 2
   _aggroRange: 5
   _attackRange: 5
-  _maxDist: 5
   _viewAngle: 55
   _obstacleMask:
     serializedVersion: 2
     m_Bits: 64
+  _maxHp: 100
+  _explosionRadius: 0
+  _explodeOnHitMask:
+    serializedVersion: 2
+    m_Bits: 0
+  _chargedDeathTimeout: 4
   pathProvider: {fileID: 0}
   moveSpeed: 4
   rotateDegPerSec: 180
   pingPong: 1
   arriveEps: 0.05
-  _minProgressAfterAdvance: 0.08
-  _minStartDistance: 0.08
+  minStartDist: 0.08
+  minProgressAfterAdvance: 0.08
   _meleeAttackCollider: {fileID: 0}
   _windup: 0.4
   _strike: 0.2
@@ -298,11 +299,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 6
   stoppingDistance: 0.01
-  wallDetectDistance: 0.61
-  climbSpeed: 2
   jumpApexHeight: 30
   isReset: 0
-  IsEnabled: 1
 --- !u!136 &157189638260602493
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -659,7 +657,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 378393517404049899, guid: 21b2d1a3d4a8cfc42850305ed9c18e42, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5445175129166763748}
+      addedObject: {fileID: 4009493492462221855}
   m_SourcePrefab: {fileID: 100100000, guid: 21b2d1a3d4a8cfc42850305ed9c18e42, type: 3}
 --- !u!224 &244764592082467937 stripped
 RectTransform:
@@ -671,7 +669,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 378393517404049899, guid: 21b2d1a3d4a8cfc42850305ed9c18e42, type: 3}
   m_PrefabInstance: {fileID: 2770338943975062292}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5445175129166763748
+--- !u!114 &4009493492462221855
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -680,6 +678,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 2536206574821419775}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94fba476a7a51ff4cb499a025dc164de, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b4576a6ec76f78499e52fa4c5968bf1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  source: {fileID: 2618376351790307894}
+  hpText: {fileID: 2869825503643407169}
+  smooth: 1
+--- !u!114 &2869825503643407169 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 117537244446058581, guid: 21b2d1a3d4a8cfc42850305ed9c18e42, type: 3}
+  m_PrefabInstance: {fileID: 2770338943975062292}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
