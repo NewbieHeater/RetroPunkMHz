@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIMangers : Singleton<UIMangers>
+public class UIManagers : Singleton<UIManagers>
 {
     public GameObject UIObjects;
 

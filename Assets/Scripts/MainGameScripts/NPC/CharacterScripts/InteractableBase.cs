@@ -81,7 +81,7 @@ public abstract class InteractableBase : MonoBehaviour
     protected virtual void OnShowPrompt(string text)
     {
         if (promptUI != null) promptUI.SetActive(true);
-        promptText.text = text;
+        if (promptText != null) promptText.text = text;
     }
 
     protected virtual void OnHidePrompt()
@@ -89,7 +89,7 @@ public abstract class InteractableBase : MonoBehaviour
         if (promptUI != null) promptUI.SetActive(false);
     }
 
-    protected virtual void ToglePrompt(string text)
+    protected virtual void TogglePrompt(string text)
     {
         if (promptUI != null) promptUI.SetActive(!promptUI.activeSelf);
         promptText.text = text;
@@ -110,16 +110,14 @@ public abstract class InteractableBase : MonoBehaviour
 
     public void ReevaluatePrompt()
     {
+        if (promptUI == null || promptText == null) return;
+
         bool shouldShow = _focused && InRange() && IsAvailable();
 
         if (shouldShow && !promptUI.activeSelf)
-        {
             OnShowPrompt(GetPromptText());
-        }
         else if (!shouldShow && promptUI.activeSelf)
-        {
             OnHidePrompt();
-        }
     }
 
     // === 실제 상호작용 ===
@@ -131,7 +129,7 @@ public abstract class InteractableBase : MonoBehaviour
         {
             if (singleUse) _consumed = true;
             // 성공 시 프롬프트는 숨김(상태에 따라 유지하고 싶으면 주석 처리)
-            ToglePrompt(GetPromptText());
+            TogglePrompt(GetPromptText());
         }
     }
 

@@ -8,6 +8,7 @@ public enum StateInfo
     Attack,
     Move,
     Hit,
+    Death,
 }
 
 public class EnemyRobot : EnemyBase
@@ -38,6 +39,7 @@ public class EnemyRobot : EnemyBase
             break;
             case StateInfo.Move:
                 _patrolController.Tick();
+
                 if (IsPlayerInSight(_aggroRange))
                 {
                     _patrolController.Exit();
@@ -61,26 +63,17 @@ public class EnemyRobot : EnemyBase
         }
     }
 
+    #region StateChange
     protected override void SetState(StateInfo next)
     {
-        // Exit 훅
-        switch (_state)
-        {
-            case StateInfo.Move:
-                _patrolController.Exit();              // nav.isStopped = true
-                break;
-            case StateInfo.Attack:
-                _meleeAttackCollider.enabled = false;  // 공격 끝나면 안전하게 끄기
-                break;
-            case StateInfo.Hit:
-                time = 0f;                             // 히트 타이머 리셋
-                break;
-        }
-
+        ExitState(_state);
         _state = next;
+        EnterState(_state);
+    }
 
-        // Enter 훅
-        switch (_state)
+    protected override void EnterState(StateInfo cur)
+    {
+        switch (cur)
         {
             case StateInfo.Move:
                 _patrolController.Enter();
@@ -95,6 +88,21 @@ public class EnemyRobot : EnemyBase
         }
     }
 
+    protected override void ExitState(StateInfo cur)
+    {
+        switch (cur)
+        {
+            case StateInfo.Move:
+                _patrolController.Exit();              // nav.isStopped = true
+                break;
+            case StateInfo.Attack:
+                _meleeAttackCollider.enabled = false;  // 공격 끝나면 안전하게 끄기
+                break;
+            case StateInfo.Hit:
+                time = 0f;                             // 히트 타이머 리셋
+                break;
+        }
+    }
 
     private float knockbackStrength = 3;
     private float _hitTime = 0.3f;
@@ -111,6 +119,7 @@ public class EnemyRobot : EnemyBase
             SetState(StateInfo.Move);
         }
     }
+    #endregion
 
 
     private void Attack()

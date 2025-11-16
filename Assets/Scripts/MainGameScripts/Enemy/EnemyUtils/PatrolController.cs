@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PathProvider))]
 public sealed class PatrolController : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 0.8f;
@@ -20,6 +21,7 @@ public sealed class PatrolController : MonoBehaviour
         this.nav = nav; this.anim = anim;
         defs = pathProvider.Definitions;
         pts = pathProvider.BuildWorldPoints(transform);
+        pathProvider = GetComponent<PathProvider>();
     }
 
     public void Enter()

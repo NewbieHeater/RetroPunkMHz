@@ -7,7 +7,7 @@ public class TestScri : MonoBehaviour
     public CinemachineEventAsset CameraAndDialogue;
     public CinemachineEventAsset CameraOnly;
     public CinemachineEventAsset DialogueOnly;
-
+    public CutsceneAsset cutscene;
 
     // Update is called once per frame
     void Update()
@@ -24,7 +24,12 @@ public class TestScri : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            CinemachineEventReader.Instance.ResetToBaseCam();
+            if (cutscene != null)
+                CutsceneManager.Instance.Play(cutscene, onFinished: () =>
+                {
+                    Debug.Log("ÄÆ¾À ³¡!");
+                    // ÇÊ¿ä ½Ã DialogueManager.Instance.ResumeDialogue();
+                });
         }
     }
 }
