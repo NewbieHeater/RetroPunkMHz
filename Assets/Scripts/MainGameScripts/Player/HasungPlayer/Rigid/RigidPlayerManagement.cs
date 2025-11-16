@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Windows;
 
 public struct DamageInfo
 {
@@ -13,20 +12,26 @@ public struct DamageInfo
 public class RigidPlayerManagement : MonoBehaviour
 {
     [Header("Components (assign or auto-resolve)")]
-    [SerializeField] private GroundDetector groundDetector;
-    [SerializeField] private RigidMovementController movementController;
-    [SerializeField] private RigidJumpController jumpController;
-    [SerializeField] private AttackController attackController;
-    [SerializeField] private PlayerAnimatorView animatorView; // IPlayerAnimatorView
+    private GroundDetector groundDetector;
+    private RigidMovementController movementController;
+    private RigidJumpController jumpController;
+    private AttackController attackController;
+    private PlayerAnimatorView animatorView; // IPlayerAnimatorView
     [SerializeField] private Glitch glitchPasser;
+
+    [Header("Player Stats")]
+    [SerializeField] private PlayerStats stats;
 
     public bool IsGrounded = false;
     public bool IsEnabled = true;
-    public float InputX {  get; private set; }
+    public float InputX { get; private set; }
 
     private void Awake()
     {
-        // 비어있으면 가져오기(인스펙터창에 드래그시 그걸로 유지)
+        // 스탯 획득
+        //stats = new PlayerStats();
+
+        // 비어있으면 가져오기(인스펙터에 지정 시 유지)
         if (!groundDetector) groundDetector = GetComponent<GroundDetector>();
         if (!movementController) movementController = GetComponent<RigidMovementController>();
         if (!jumpController) jumpController = GetComponent<RigidJumpController>();
@@ -35,9 +40,9 @@ public class RigidPlayerManagement : MonoBehaviour
         if (!glitchPasser) glitchPasser = GetComponent<Glitch>();
 
         // 의존성 주입
-        movementController.Initialize(groundDetector, animatorView, glitchPasser);
-        jumpController.Initialize(groundDetector, animatorView);
-        attackController?.Initialize();
+        movementController?.Initialize(groundDetector, animatorView, glitchPasser, stats);
+        jumpController?.Initialize(groundDetector, animatorView);
+        attackController?.Initialize(stats);
     }
 
     private void Update()
@@ -48,11 +53,9 @@ public class RigidPlayerManagement : MonoBehaviour
         InputX = input.moveX;
 
         movementController?.OnUpdate(Time.deltaTime, input);
-        jumpController?.OnUpdate(Time.fixedDeltaTime, input);
+        jumpController?.OnUpdate(Time.deltaTime, input);
 
-        // 나중에 바꿔야함
-        // 중요
-        // 기억할것
+        // 중요: 입력은 Update에서
         attackController?.HandleInput();
     }
 
@@ -61,12 +64,14 @@ public class RigidPlayerManagement : MonoBehaviour
         if (!IsEnabled) return;
 
         groundDetector?.UpdateGroundStatus();
-        IsGrounded = groundDetector.IsGrounded;
+        IsGrounded = groundDetector && groundDetector.IsGrounded;
 
         var input = GlobalInputRouter.Instance.CurrentFrame;
+
         movementController?.OnFixedStep(Time.fixedDeltaTime, input);
         jumpController?.OnFixedStep(Time.fixedDeltaTime, input);
 
+        // 판정/피직스는 Fixed에서
         attackController?.ProcessAttack();
     }
 

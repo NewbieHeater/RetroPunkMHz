@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RigidNavigation : MonoBehaviour
@@ -9,17 +8,12 @@ public class RigidNavigation : MonoBehaviour
     public enum MoveMode { Walk, Climb, Jump }
     private MoveMode mode;
 
-    [Header("Ground 설정")]
-    [SerializeField] private LayerMask groundLayer;
+    private LayerMask groundLayer;
 
     [Header("공통 설정")]
     [SerializeField] private float speed = 3f;
     [SerializeField] public float stoppingDistance = 0.01f;
 
-    [Header("Climb 설정")]
-    [SerializeField] private LayerMask climbableLayer;
-    [SerializeField] private float wallDetectDistance = 0.1f;
-    [SerializeField] private float climbSpeed = 2f;
 
     [Header("Jump 설정")]
     [SerializeField] private float jumpApexHeight = 30f;
@@ -27,6 +21,7 @@ public class RigidNavigation : MonoBehaviour
     //플래그 변수
     public bool hasPath { get; private set; }
     public bool isStopped { get; set; }
+    public bool IsEnabled { get; private set; } = true;
     public bool isGrounded { get; private set; }
     private bool jumpLaunched;
 
@@ -39,6 +34,7 @@ public class RigidNavigation : MonoBehaviour
 
     private void Awake()
     {
+        groundLayer = LayerMask.GetMask("Ground");
         rigid = GetComponent<Rigidbody>();
         hasPath = false;
         isStopped = false;
@@ -51,7 +47,7 @@ public class RigidNavigation : MonoBehaviour
         speed = newSpeed;
     }
 
-    private void SetDestination(Vector3 dst, MoveMode moveMode, System.Action extraSetup = null)
+    public void SetDestination(Vector3 dst, MoveMode moveMode, System.Action extraSetup = null)
     {
         ResetState();
         mode = moveMode;
@@ -86,6 +82,9 @@ public class RigidNavigation : MonoBehaviour
     public float RemainingDistance()
         => Mathf.Abs(transform.position.x - targetPos.x);
 
+    public float RemainingDistanceVector3()
+        => (transform.position - targetPos).magnitude;
+
     public void ResetPath()
     {
         ResetState();
@@ -95,11 +94,28 @@ public class RigidNavigation : MonoBehaviour
     private void ResetState()
     {
         //rigid.velocity = resetVector;
-        rigid.useGravity = true;
+        //rigid.useGravity = true;
         jumpLaunched = false;
         isReset = true;
     }
     [SerializeField] private bool isReset = false;
+    public void SetEnabled(bool on)
+    {
+        if (IsEnabled == on) return;
+        IsEnabled = on;
+
+        if (!on)
+        {
+            // 네비 드라이브 끔: 경로/내부상태 초기화
+            ResetPath();
+            // 필요시 rb 속도도 정리 (상황 따라 제거 가능)
+            // rb.velocity = new Vector3(0, rb.velocity.y, 0);
+        }
+        else
+        {
+            // 재개 시 초기화할 항목이 있으면 세팅
+        }
+    }
 
     private void Update()
     {
@@ -115,7 +131,6 @@ public class RigidNavigation : MonoBehaviour
             ResetPath();
         }
     }
-    public bool IsEnabled = true;
     private void FixedUpdate()
     {
         if (!IsEnabled)
@@ -148,45 +163,14 @@ public class RigidNavigation : MonoBehaviour
         Vector3 move = new Vector3(dir * speed * Time.fixedDeltaTime, 0f, 0f);
         rigid.MovePosition(rigid.position + move);
     }
-    private float rotationSpeed = 180f;
-    [SerializeField] float wallOffset = 0.05f;
+
     private void DoClimb()
     {
-        float dir = Mathf.Sign(targetPos.x - transform.position.x);
-        Vector3 forward = Vector3.right * dir;
-        
-        // 벽 감지
-        if (Physics.Raycast(transform.position + Vector3.down * 0.5f, forward, out var hit, wallDetectDistance, climbableLayer))
-        {
-            
-            Quaternion targetRot = Quaternion.Euler(0f, 0f, Vector3.ProjectOnPlane(forward, hit.normal).z + 90);
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation,
-                targetRot,
-                rotationSpeed * Time.deltaTime
-            );
-
-            rigid.useGravity = false;
-            float newY = Mathf.MoveTowards(
-                transform.position.y,
-                targetPos.y,
-                climbSpeed * Time.fixedDeltaTime
-            );
-            float fixX = hit.point.x - forward.x * wallOffset;
-            Vector3 newPos = new Vector3(fixX, newY, 0f);
-            rigid.MovePosition(newPos);
-        }
-        else
-        {
-            transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            Quaternion.identity,         // 세계 기준 앞(필요하면 originalRotation으로)
-            rotationSpeed * Time.deltaTime
-            );
-            //rigid.useGravity = true;
-            DoWalk();
-        }
+        Vector3 dir = (targetPos - transform.position).normalized;
+        transform.position += dir * speed * Time.fixedDeltaTime;
     }
+
+
 
     private void DoJump()
     {

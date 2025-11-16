@@ -9,7 +9,13 @@ public class LevelPlane : MonoBehaviour
     [Tooltip("평면 위 첫 번째 축 (U). Normal과 수직이어야 함")]
     public Vector3 axisU = Vector3.right;
     public float gridSize = 1f;
-    public int gridPreviewHalfExtent = 25;
+
+    [Header("Grid Preview")]
+    public bool enableGrid = false;
+    [Tooltip("그리드 가로 칸 수 (U 방향)")]
+    public int gridCountX = 40;
+    [Tooltip("그리드 세로 칸 수 (V 방향)")]
+    public int gridCountY = 25;
     public Color gizmoColor = new Color(0, 1, 1, 0.35f);
 
     public Vector3 Origin => transform.position;
@@ -55,16 +61,25 @@ public class LevelPlane : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (!enableGrid) return;
         Gizmos.color = gizmoColor;
-        // 미니 패치만 가볍게
-        for (int i = -gridPreviewHalfExtent; i <= gridPreviewHalfExtent; i++)
-        {
-            Vector3 a = UVToWorld(new Vector2(i * gridSize, -gridPreviewHalfExtent * gridSize));
-            Vector3 b = UVToWorld(new Vector2(i * gridSize, gridPreviewHalfExtent * gridSize));
-            Gizmos.DrawLine(a, b);
 
-            Vector3 c = UVToWorld(new Vector2(-gridPreviewHalfExtent * gridSize, i * gridSize));
-            Vector3 d = UVToWorld(new Vector2(gridPreviewHalfExtent * gridSize, i * gridSize));
+        int halfX = gridCountX / 2;
+        int halfY = gridCountY / 2;
+
+        // 세로선 (U 방향으로)
+        for (int x = -halfX; x <= halfX; x++)
+        {
+            Vector3 a = UVToWorld(new Vector2(x * gridSize, -halfY * gridSize));
+            Vector3 b = UVToWorld(new Vector2(x * gridSize, halfY * gridSize));
+            Gizmos.DrawLine(a, b);
+        }
+
+        // 가로선 (V 방향으로)
+        for (int y = -halfY; y <= halfY; y++)
+        {
+            Vector3 c = UVToWorld(new Vector2(-halfX * gridSize, y * gridSize));
+            Vector3 d = UVToWorld(new Vector2(halfX * gridSize, y * gridSize));
             Gizmos.DrawLine(c, d);
         }
     }

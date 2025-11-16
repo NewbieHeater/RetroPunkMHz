@@ -1,89 +1,95 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CinemachineEventReader : Singleton<CinemachineEventReader>
 {
     [Header("Refs")]
-    [SerializeField] private CinemachineFocusing focusing; // FocusTo(int) 보유 스크립트
+    [SerializeField] private CinemachineFocusing focusing;
 
+    private readonly Queue<CinemachineEventAsset> _queue = new();
+    private Coroutine _runner;
+    private bool _cancelRequested;
+    private bool _running;
 
-    private bool running;
-    private int savedCameraSlot = -1;
-    private bool eventEnd;
+    public bool IsRunning => _running;
+
+    // 외부 트리거
     public void EndEvent()
     {
-        eventEnd = false;
-    }
-
-    public bool IsRunning => running;
-
-    public void PlayEvent(CinemachineEventAsset asset)
-    {
-        if (running) return;
-        StartCoroutine(RunEvent(asset));
-    }
-
-    private IEnumerator RunEvent(CinemachineEventAsset asset)
-    {
-        running = true;
-        eventEnd = true;
-        if (asset.lockPlayerInputWhileRunning)
-            GlobalInputRouter.Instance.LockInput(true);
-
-        savedCameraSlot = GetCurrentCameraSlotSafe();
-        ApplyBlendHint(asset.blendHint);
-
-        switch (asset.mode)
-        {
-            case CinemachineEventAsset.EventMode.CameraAndDialogue:
-                FocusToSafe(asset.cameraSlot);
-                yield return DialogueManager.Instance.StartDialogueAndWait(asset.fileName, asset.groupName);
-                break;
-
-            case CinemachineEventAsset.EventMode.DialogueOnly:
-                // 카메라는 유지
-                yield return DialogueManager.Instance.StartDialogueAndWait(asset.fileName, asset.groupName);
-                break;
-
-            case CinemachineEventAsset.EventMode.CameraOnly:
-                FocusToSafe(asset.cameraSlot);
-                yield return new WaitUntil(() => !eventEnd);
-                break;
-        }
-
-        if (asset.restoreCameraAfter && savedCameraSlot >= 0)
-            if (focusing != null) focusing.ToDefault();
-
-        if (asset.postDelay > 0f)
-            yield return new WaitForSeconds(asset.postDelay);
-
-        if (asset.lockPlayerInputWhileRunning)
-            GlobalInputRouter.Instance.LockInput(false);
-
-        running = false;
-    }
-
-
-    private void FocusToSafe(int slot)
-    {
-        if (focusing != null) focusing.FocusTo(slot);
-        else Debug.LogWarning("[CinemachineEventReader] No focusing assigned.");
+        _currentCtx?.EndFlag?.Invoke();
     }
 
     public void ResetToBaseCam()
     {
-        eventEnd = false;    
+        if (focusing != null) focusing.ToDefault();
+    }
+
+    public void PlayEvent(CinemachineEventAsset asset)
+    {
+        if (asset == null) return;
+        _queue.Enqueue(asset);
+        if (_runner == null) _runner = StartCoroutine(RunQueue());
+    }
+
+    public void CancelCurrent()
+    {
+        _cancelRequested = true;
+    }
+
+    CinemachineEventContext _currentCtx;
+
+    private IEnumerator RunQueue()
+    {
+        while (_queue.Count > 0)
+        {
+            var asset = _queue.Dequeue();
+            yield return RunEvent(asset);
+        }
+        _runner = null;
+    }
+
+    private IEnumerator RunEvent(CinemachineEventAsset asset)
+    {
+        _running = true; _cancelRequested = false;
+
+        // 컨텍스트 구성
+        _currentCtx = new CinemachineEventContext
+        {
+            Focusing = focusing,
+            SavedCameraSlot = GetCurrentCameraSlotSafe(),
+            IsCancelled = () => _cancelRequested,
+            LockInput = (on) => GlobalInputRouter.Instance?.LockInput(on)
+        };
+
+        // 입력 잠금
+        if (asset.lockPlayerInputWhileRunning)
+            _currentCtx.LockInput?.Invoke(true);
+
+        // 실행
+        try
+        {
+            foreach (var step in asset.steps)
+            {
+                if (step == null || _cancelRequested) break;
+                yield return step.Execute(_currentCtx);
+            }
+            if (asset.postDelay > 0f) yield return new WaitForSeconds(asset.postDelay);
+        }
+        finally
+        {
+            // 입력 잠금 해제
+            if (asset.lockPlayerInputWhileRunning)
+                _currentCtx.LockInput?.Invoke(false);
+
+            _currentCtx = null;
+            _running = false;
+        }
     }
 
     private int GetCurrentCameraSlotSafe()
     {
-        // focusing에 현재 슬롯을 질의할 API가 없다면 캐시를 관리하거나 0으로 가정
-        return 0;
-    }
-
-    private void ApplyBlendHint(CinemachineEventAsset.BlendHint hint)
-    {
-        // focusing 또는 Cinemachine Brain Blend 세팅에 힌트를 전달하는 훅
-        // 필요 시 구현
+        // Focusing에 질의 API 있으면 사용하세요.
+        return focusing ? focusing.CurrentSlotOrDefault() : 0;
     }
 }

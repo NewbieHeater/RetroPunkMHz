@@ -58,7 +58,6 @@ public class Boss : BTRunner
        
     }
     bool InConcentrationMode = false;
-    private bool inCombo = true;
 
     protected override BTNode BuildTree()
     {
