@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
@@ -37,5 +38,9 @@ public class TitleManager : MonoBehaviour
     public void CamNewGame(bool flag)
     {
         CamAnim.SetBool("NewGame", flag);
+    }
+    public void StartNewGame()
+    {
+        SceneManager.LoadScene("sangyeon_workspace");
     }
 }

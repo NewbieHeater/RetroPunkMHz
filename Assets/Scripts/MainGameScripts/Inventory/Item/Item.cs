@@ -1,26 +1,26 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Flags]
-public enum ItemType  // ¾ÆÀÌÅÛ À¯Çü
+public enum ItemType  // ì•„ì´í…œ ìœ í˜•
 {
     /// <summary>
-    /// NONE TypeÀº ¾ÆÀÌÅÛÀ» ½ÀµæÇÏ±âÀ§ÇØ EÅ°¸¦ ´©¸¥°æ¿ì, ÀÎº¥Åä¸®¿¡ µé¾î¿ÀÁö ¾Ê´Â´Ù.
-    /// Æ¯º°ÇÑ »óÈ£ÀÛ¿ëÀÌ ÀÖ´Â ¿ÀºêÁ§Æ®·Î Ãë±ŞÇÑ´Ù.
+    /// NONE Typeì€ ì•„ì´í…œì„ ìŠµë“í•˜ê¸°ìœ„í•´ Eí‚¤ë¥¼ ëˆ„ë¥¸ê²½ìš°, ì¸ë²¤í† ë¦¬ì— ë“¤ì–´ì˜¤ì§€ ì•ŠëŠ”ë‹¤.
+    /// íŠ¹ë³„í•œ ìƒí˜¸ì‘ìš©ì´ ìˆëŠ” ì˜¤ë¸Œì íŠ¸ë¡œ ì·¨ê¸‰í•œë‹¤.
     /// </summary>
     NONE = 0b0, //0
     SKILL = 0b1, //1
 
-    //Àåºñ ¾ÆÀÌÅÛ ¿µ¿ª
-    //Àåºñ ¾ÆÀÌÅÛ Å¸ÀÔ¿¡¼­ Ãß°¡µÇ´Â°æ¿ì, Áõ°¡ÇÏ´Â °ªÀ¸·Î Ãß°¡ÇÑ´Ù.
+    //ì¥ë¹„ ì•„ì´í…œ ì˜ì—­
+    //ì¥ë¹„ ì•„ì´í…œ íƒ€ì…ì—ì„œ ì¶”ê°€ë˜ëŠ”ê²½ìš°, ì¦ê°€í•˜ëŠ” ê°’ìœ¼ë¡œ ì¶”ê°€í•œë‹¤.
     Equipment_HELMET = 0b10, //2
     Equipment_ARMORPLATE = 0b100, //4
     Equipment_GLOVE = 0b1000, //8
     Equipment_PANTS = 0b10000, //16
     Equipment_SHOES = 0b100000, //32
 
-    //Àåºñ ¾ÆÀÌÅÛÀÌ ¾Æ´Ñ ¾ÆÀÌÅÛµé(¼Ò¸ğ, ±âÅ¸, Àç·á, Äù½ºÆ®¾ÆÀÌÅÛ µîµî)
+    //ì¥ë¹„ ì•„ì´í…œì´ ì•„ë‹Œ ì•„ì´í…œë“¤(ì†Œëª¨, ê¸°íƒ€, ì¬ë£Œ, í€˜ìŠ¤íŠ¸ì•„ì´í…œ ë“±ë“±)
     Etc = 0b1000000, //64
     Consumable = 0b10000000, //128
     Ingredient = 0b100000000, //256
@@ -28,12 +28,12 @@ public enum ItemType  // ¾ÆÀÌÅÛ À¯Çü
 }
 
 [CreateAssetMenu(fileName = "Item", menuName = "Add Item/Item")]
-public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X 
+public class Item : ScriptableObject  // ê²Œì„ ì˜¤ë¸Œì íŠ¸ì— ë¶™ì¼ í•„ìš” X 
 {
-    [Header("°íÀ¯ÇÑ ¾ÆÀÌÅÛÀÇ ID(Áßº¹ºÒ°¡)")]
+    [Header("ê³ ìœ í•œ ì•„ì´í…œì˜ ID(ì¤‘ë³µë¶ˆê°€)")]
     [SerializeField] private int mItemID;
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÇ °íÀ¯ ¹øÈ£
+    /// ì•„ì´í…œì˜ ê³ ìœ  ë²ˆí˜¸
     /// </summary>
     /// <value></value>
     public int ItemID
@@ -44,10 +44,10 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("¾ÆÀÌÅÛÀÇ ÁßÃ¸ÀÌ °¡´ÉÇÑ°¡?")]
+    [Header("ì•„ì´í…œì˜ ì¤‘ì²©ì´ ê°€ëŠ¥í•œê°€?")]
     [SerializeField] private bool mCanOverlap;
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÌ ÁßÃ¸ÀÌ °¡´ÉÇÑ°¡?
+    /// ì•„ì´í…œì´ ì¤‘ì²©ì´ ê°€ëŠ¥í•œê°€?
     /// </summary>
     /// <value></value>
     public bool CanOverlap
@@ -58,10 +58,10 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("»ç¿ë(»óÈ£ÀÛ¿ë)ÀÌ °¡´ÉÇÑ ¾ÆÀÌÅÛÀÎ°¡?")]
+    [Header("ì‚¬ìš©(ìƒí˜¸ì‘ìš©)ì´ ê°€ëŠ¥í•œ ì•„ì´í…œì¸ê°€?")]
     [SerializeField] private bool mIsInteractivity;
     /// <summary>
-    /// »ç¿ë(»óÈ£ÀÛ¿ë)ÀÌ °¡´ÉÇÑ ¾ÆÀÌÅÛÀÎ°¡?
+    /// ì‚¬ìš©(ìƒí˜¸ì‘ìš©)ì´ ê°€ëŠ¥í•œ ì•„ì´í…œì¸ê°€?
     /// </summary>
     /// <value></value>
     public bool IsInteractivity
@@ -72,10 +72,10 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("¾ÆÀÌÅÛÀ» »ç¿ëÇÏ¸é »ç¶óÁö´Â°¡?")]
+    [Header("ì•„ì´í…œì„ ì‚¬ìš©í•˜ë©´ ì‚¬ë¼ì§€ëŠ”ê°€?")]
     [SerializeField] private bool mIsConsumable;
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» »ç¿ëÇÏ¸é ÇÑ°³¾¿ »ç¶óÁö´Â°¡?
+    /// ì•„ì´í…œì„ ì‚¬ìš©í•˜ë©´ í•œê°œì”© ì‚¬ë¼ì§€ëŠ”ê°€?
     /// </summary>
     /// <value></value>
     public bool IsConsumable
@@ -86,10 +86,10 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("¾ÆÀÌÅÛÀ» »ç¿ë½Ã ÄğÅ¸ÀÓ")]
+    [Header("ì•„ì´í…œì„ ì‚¬ìš©ì‹œ ì¿¨íƒ€ì„")]
     [SerializeField] private float mItemCooltime = -1;
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÇ ÄğÅ¸ÀÓ
+    /// ì•„ì´í…œì˜ ì¿¨íƒ€ì„
     /// </summary>
     /// <value></value>
     public float Cooltime
@@ -100,10 +100,10 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("¾ÆÀÌÅÛÀÇ Å¸ÀÔ")]
+    [Header("ì•„ì´í…œì˜ íƒ€ì…")]
     [SerializeField] private ItemType mItemType;
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÇ À¯Çü
+    /// ì•„ì´í…œì˜ ìœ í˜•
     /// </summary>
     /// <value></value>
     public ItemType Type
@@ -114,7 +114,7 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("ÀÎº¥Åä¸®¿¡¼­ º¸¿©Áú ¾ÆÀÌÅÛÀÇ ÀÌ¹ÌÁö")]
+    [Header("ì¸ë²¤í† ë¦¬ì—ì„œ ë³´ì—¬ì§ˆ ì•„ì´í…œì˜ ì´ë¯¸ì§€")]
     [SerializeField] private Sprite mItemImage;
     public Sprite Image
     {
@@ -124,7 +124,7 @@ public class Item : ScriptableObject  // °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÙÀÏ ÇÊ¿ä X
         }
     }
 
-    [Header("ÀÎº¥Åä¸®¿¡¼­ º¸¿©Áú ¾ÆÀÌÅÛÀÇ ¼³¸í")]
+    [Header("ì¸ë²¤í† ë¦¬ì—ì„œ ë³´ì—¬ì§ˆ ì•„ì´í…œì˜ ì„¤ëª…")]
     [SerializeField] public string mItemDescription;
     public string Description
     {

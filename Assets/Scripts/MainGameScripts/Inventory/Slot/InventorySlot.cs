@@ -1,23 +1,25 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÀÎº¥Åä¸® ½½·Ô ÇÏ³ª¸¦ ´ã´ç
+/// ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ í•˜ë‚˜ë¥¼ ë‹´ë‹¹
 /// </summary>
 public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     private Item _item;
     public Item Item => _item;
+    public int ItemCount => _itemCount;
 
-    [Header("ÇØ´ç ½½·Ô¿¡ ¾î¶°ÇÑ Å¸ÀÔ¸¸ µé¾î¿Ã ¼ö ÀÖ´ÂÁö Å¸ÀÔ ¸¶½ºÅ©")]
+    [Header("í•´ë‹¹ ìŠ¬ë¡¯ì— ì–´ë– í•œ íƒ€ì…ë§Œ ë“¤ì–´ì˜¬ ìˆ˜ ìˆëŠ”ì§€ íƒ€ì… ë§ˆìŠ¤í¬")]
     [SerializeField] private ItemType _slotMask;
 
     private int _itemCount;
 
-    [Header("¾ÆÀÌÅÛ ½½·Ô¿¡ ÀÖ´Â UI ¿ÀºêÁ§Æ®")]
+    [Header("ì•„ì´í…œ ìŠ¬ë¡¯ì— ìˆëŠ” UI ì˜¤ë¸Œì íŠ¸")]
     [SerializeField] private Image _itemImage;
     [SerializeField] private Image _cooltimeImage;
     [SerializeField] private Text _textCount;
@@ -165,10 +167,32 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        Uiclickset _clickset = GetComponent<Uiclickset>();
+        string _currentscene = SceneManager.GetActiveScene().name;
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             if (_slotMask == ItemType.SKILL) return;
             UseItem();
+        }
+
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            
+            if (_item != null && _item.ItemID == 1)
+            {
+                InventorySlot[] allSlots = FindObjectsOfType<InventorySlot>();
+                InventorySave.Instance.SaveInventory(allSlots);
+
+                SceneManager.LoadScene("eto_room");
+            }
+            else if (_currentscene == "eto_room"&& _item != null && _item.ItemID == 2)
+            {
+                _clickset.HandleInventoryClick();
+            }
+            else if (_currentscene == "eto_room" && _item != null && _item.ItemID == 3)
+            {
+                _clickset.HandleInventoryClick1();
+            }
         }
     }
 
@@ -179,6 +203,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
             _itemDescription.OpenUI(_item.name, _item.Description);
             _isTooltipActive = true;
         }
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -198,4 +223,6 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
             _isTooltipActive = false;
         }
     }
+
+    
 }
