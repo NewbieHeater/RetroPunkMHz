@@ -1,54 +1,76 @@
-using System.Text;
+ï»¿using System.Text;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀÇ ¼³¸íÀ» º¸µµ·Ï ÇÑ´Ù.
+/// ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œì˜ ì„¤ëª…ì„ ë³´ë„ë¡ í•œë‹¤.
 /// </summary>
 public class ItemDescription : MonoBehaviour
 {
-    [Header("ÅØ½ºÆ® °ü·Ã ¿ÀºêÁ§Æ®")]
+    [Header("í…ìŠ¤íŠ¸ ê´€ë ¨ ì˜¤ë¸Œì íŠ¸")]
     [SerializeField] private GameObject _toolTipObj;
     [SerializeField] private Canvas _canvas;
 
 
-    private TextMeshProUGUI _textArea; //ÅØ½ºÆ® ¶óº§
-    private RectTransform _rectTransform; //UI Æ®·£½ºÆû
+    [SerializeField] private TextMeshProUGUI _textArea; //í…ìŠ¤íŠ¸ ë¼ë²¨
+    [SerializeField] private RectTransform _rectTransform; //UI íŠ¸ëœìŠ¤í¼
 
-    private StringBuilder _stringBuilder; //½ºÆ®¸µ ºô´õ
+    private StringBuilder _stringBuilder; //ìŠ¤íŠ¸ë§ ë¹Œë”
 
     private void Start()
     {
-        _textArea = _toolTipObj.GetComponentInChildren<TextMeshProUGUI>();
-        _rectTransform = _canvas.GetComponent<RectTransform>();
+        //_textArea = _toolTipObj.GetComponentInChildren<TextMeshProUGUI>(true);
+        //_rectTransform = _canvas.GetComponent<RectTransform>();
 
         _stringBuilder = new StringBuilder();
 
-        _toolTipObj.SetActive(false);
+        if (_toolTipObj != null)
+            _toolTipObj.SetActive(false);
+        
+    }
+    private void OnEnable()
+    {
+        SceneManager.activeSceneChanged += OnSceneChanged;
     }
 
+    private void OnDisable()
+    {
+        SceneManager.activeSceneChanged -= OnSceneChanged;
+    }
+
+    private void OnSceneChanged(Scene oldScene, Scene newScene)
+    {
+        if (_toolTipObj != null)
+            _toolTipObj.SetActive(false);
+
+        //_toolTipObj = null;   
+        //_textArea = null;
+        //_canvas = null;
+    }
     public void LateUpdate()
     {
+        if (_toolTipObj == null) return;
         //if (mToolTipObj.activeInHierarchy) CalcMousePosition();
     }
 
     /// <summary>
-    /// InventorySlot¿¡¼­ È£ÃâµÇ¸ç ¾ÆÀÌÅÛ Á¤º¸¸¦ º¸¿©ÁØ´Ù.
+    /// InventorySlotì—ì„œ í˜¸ì¶œë˜ë©° ì•„ì´í…œ ì •ë³´ë¥¼ ë³´ì—¬ì¤€ë‹¤.
     /// </summary>
     /// <param name="id"></param>
     public void OpenUI(string name, string Description)
     {
         _stringBuilder.Clear();
 
-        //ÀÌ¸§ °¡Á®¿À±â
+        //ì´ë¦„ ê°€ì ¸ì˜¤ê¸°
         _stringBuilder.Append("<b>");
         _stringBuilder.AppendLine(name);
         _stringBuilder.Append("</b>");
 
-        //¼³¸í °¡Á®¿À±â
+        //ì„¤ëª… ê°€ì ¸ì˜¤ê¸°
         _stringBuilder.AppendLine(Description);
 
-        //ÅØ½ºÆ® replace
+        //í…ìŠ¤íŠ¸ replace
         _textArea.SetText(_stringBuilder.ToString());
         _toolTipObj.SetActive(true);
     }
@@ -56,21 +78,21 @@ public class ItemDescription : MonoBehaviour
     //{
     //    mStringBuilder.Clear();
 
-    //    //ÀÌ¸§ °¡Á®¿À±â
+    //    //ì´ë¦„ ê°€ì ¸ì˜¤ê¸°
     //    mStringBuilder.Append("<b>");
     //    mStringBuilder.AppendLine(mItemDataManager.GetName(id));
     //    mStringBuilder.Append("</b>");
 
-    //    //¼³¸í °¡Á®¿À±â
+    //    //ì„¤ëª… ê°€ì ¸ì˜¤ê¸°
     //    mStringBuilder.AppendLine();
     //    mStringBuilder.AppendLine(mItemDataManager.GetDescription(id));
 
-    //    //ÅØ½ºÆ® replace
+    //    //í…ìŠ¤íŠ¸ replace
     //    mTextArea.SetText(mStringBuilder.ToString());
     //    mToolTipObj.SetActive(true);
     //}
     /// <summary>
-    /// ¼³¸í UI¸¦ ´İ´Â´Ù.
+    /// ì„¤ëª… UIë¥¼ ë‹«ëŠ”ë‹¤.
     /// </summary>
     public void CloseUI()
     {
@@ -78,24 +100,24 @@ public class ItemDescription : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸¶¿ì½ºÀÇ À§Ä¡¸¦ °è»êÇÏ¿© ¼³¸íUI°¡ ¸¶¿ì½º¸¦ µû¶ó´Ù´Ï°Ô ÇÑ´Ù.
+    /// ë§ˆìš°ìŠ¤ì˜ ìœ„ì¹˜ë¥¼ ê³„ì‚°í•˜ì—¬ ì„¤ëª…UIê°€ ë§ˆìš°ìŠ¤ë¥¼ ë”°ë¼ë‹¤ë‹ˆê²Œ í•œë‹¤.
     /// </summary>
     //private void CalcMousePosition()
     //{
-    //    Vector2 localPosition; // º¯È¯µÈ canvas³» ÇöÀç ÁÂÇ¥
-    //    Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y); //¸¶¿ì½ºÀÇ ÇöÀç À§Ä¡
+    //    Vector2 localPosition; // ë³€í™˜ëœ canvasë‚´ í˜„ì¬ ì¢Œí‘œ
+    //    Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y); //ë§ˆìš°ìŠ¤ì˜ í˜„ì¬ ìœ„ì¹˜
 
-    //    // ÅØ½ºÆ® ¶óº§À» °¡Á®¿Â´Ù.
+    //    // í…ìŠ¤íŠ¸ ë¼ë²¨ì„ ê°€ì ¸ì˜¨ë‹¤.
     //    RectTransform rt = mToolTipObj.transform as RectTransform;
 
-    //    // ¸¶¿ì½º ÁÂÇ¥¸¦ canvas³»¿¡¼­ÀÇ ÁÂÇ¥·Î º¯È¯
+    //    // ë§ˆìš°ìŠ¤ ì¢Œí‘œë¥¼ canvasë‚´ì—ì„œì˜ ì¢Œí‘œë¡œ ë³€í™˜
     //    RectTransformUtility.ScreenPointToLocalPointInRectangle(mRectTransform, mousePosition, mCanvas.worldCamera, out localPosition);
 
-    //    //ÅøÆÁÀÌ ¸¶¿ì½º ±âÁØ ¿ìÃø¿¡ ³ª¿À´Â°ÍÀ» °í·ÁÇÏ¿© ¸¶¿ì½ºÀÇ À§Ä¡°¡ °¡·Î±æÀÌ ±âÁØ 75%¸¦ ÃÊ°úÇÏ¸é ¸¶¿ì½º±âÁØ ¿ìÃøÀ¸·Î ³ªÅ¸³ªµµ·Ï ÇÑ´Ù.
-    //    //°è»ê½ÄÀº ÇöÀç ³ªÅ¸³­ ÅØ½ºÆ®UIÀÇ °¡·Î±æÀÌ¸¸Å­À» »©ÁÖ¸ç, *0.5f´Â ScaleÀÌ 0.5f·Î ¼³Á¤µÇ¾îÀÖ±â¶§¹®¿¡ »ç¿ë
+    //    //íˆ´íŒì´ ë§ˆìš°ìŠ¤ ê¸°ì¤€ ìš°ì¸¡ì— ë‚˜ì˜¤ëŠ”ê²ƒì„ ê³ ë ¤í•˜ì—¬ ë§ˆìš°ìŠ¤ì˜ ìœ„ì¹˜ê°€ ê°€ë¡œê¸¸ì´ ê¸°ì¤€ 75%ë¥¼ ì´ˆê³¼í•˜ë©´ ë§ˆìš°ìŠ¤ê¸°ì¤€ ìš°ì¸¡ìœ¼ë¡œ ë‚˜íƒ€ë‚˜ë„ë¡ í•œë‹¤.
+    //    //ê³„ì‚°ì‹ì€ í˜„ì¬ ë‚˜íƒ€ë‚œ í…ìŠ¤íŠ¸UIì˜ ê°€ë¡œê¸¸ì´ë§Œí¼ì„ ë¹¼ì£¼ë©°, *0.5fëŠ” Scaleì´ 0.5fë¡œ ì„¤ì •ë˜ì–´ìˆê¸°ë•Œë¬¸ì— ì‚¬ìš©
     //    if (mousePosition.x > Screen.width * 0.75f) { localPosition.x -= rt.sizeDelta.x * 0.5f; }
 
-    //    // À§Ä¡ º¯°æ
+    //    // ìœ„ì¹˜ ë³€ê²½
     //    rt.anchoredPosition = localPosition;
     //}
 }
