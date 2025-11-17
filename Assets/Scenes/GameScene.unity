@@ -5332,7 +5332,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 394728620}
-  - component: {fileID: 394728619}
+  - component: {fileID: 394728623}
+  - component: {fileID: 394728622}
+  - component: {fileID: 394728621}
   m_Layer: 0
   m_Name: MainStoryManager
   m_TagString: Untagged
@@ -5340,23 +5342,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &394728619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 394728618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ad1854157a8c444cb7752ce07d3ec68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  initialState: {fileID: 11400000, guid: 77c3e3034fffc4e4286d02afada86b62, type: 2}
-  allStates: []
-  allBoolVars: []
-  allIntVars: []
-  allFlags: []
 --- !u!4 &394728620
 Transform:
   m_ObjectHideFlags: 0
@@ -5372,6 +5357,45 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &394728621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394728618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3981ddb40571ef64c88d78093817b45d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &394728622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394728618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fa38043810e27f4a83f36534f14e288, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentStream: {fileID: 0}
+  currentNodeIndex: 0
+--- !u!114 &394728623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 394728618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58f01b3bd17952f4b828ea632a7df1e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  initialStream: {fileID: 11400000, guid: dda23a5ef5a5d734994c926022efe907, type: 2}
 --- !u!4 &395206243 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 300581618661978762, guid: f64c053e08672994c8fba9891da24090, type: 3}
@@ -7075,6 +7099,7 @@ GameObject:
   - component: {fileID: 710141729}
   - component: {fileID: 710141728}
   - component: {fileID: 710141727}
+  - component: {fileID: 710141732}
   - component: {fileID: 710141731}
   m_Layer: 0
   m_Name: NPC
@@ -7190,6 +7215,19 @@ MonoBehaviour:
   promptUI: {fileID: 512936807}
   promptText: {fileID: 2124481606}
   eventAsset: {fileID: 11400000, guid: 1f4314aaefe0b2149919b9cb4bb45322, type: 2}
+--- !u!114 &710141732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710141726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd6b728c19e7124e90da5960bf4f631, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcId: ShopClerk
 --- !u!4 &710313873 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 300581618661978762, guid: f64c053e08672994c8fba9891da24090, type: 3}
