@@ -4,6 +4,7 @@ public class InteractableCineEvent : InteractableBase
 {
     [Header("Cinemachine Event")]
     public CinemachineEventAsset eventAsset;
+    private string npcId = "NPC";
 
     protected override bool OnInteract()
     {
@@ -17,8 +18,8 @@ public class InteractableCineEvent : InteractableBase
         if (CinemachineEventReader.Instance != null && CinemachineEventReader.Instance.IsRunning)
             return false;
 
-        CinemachineEventReader.Instance?.PlayEvent(eventAsset);
-        Debug.Log($"[InteractableCineEvent] {name}: 이벤트 실행");
+        //CinemachineEventReader.Instance?.PlayEvent(eventAsset);
+        GameProgress.I.SetFlag($"TalkedTo.{npcId}", true);
         return true;
     }
 }
