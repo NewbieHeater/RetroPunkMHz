@@ -12,7 +12,6 @@ public class ItemActionManager : MonoBehaviour
     /// </summary>
     public static string _SkillMessage = "ActiveSkill";
 
-    [SerializeField] private RigidPlayerManagement _playerController;
 
     [Header("Preloaded objects into the scene")]
     [SerializeField] private GameObject[] _objects;
@@ -31,26 +30,30 @@ public class ItemActionManager : MonoBehaviour
         {
             case ItemType.SKILL:
                 {
-
-                }
-                break;
-            case ItemType.Consumable:
-                {
                     switch (item.ItemID)
                     {
-                        case (int)ItemCode.SMALL_HEALTH_POTION:
+                        case (int)ItemCode.Communicator:
                             {
-                                //GameManager.Instance.Player.ModifyHP(50);
-                                //SoundManager.Instance.PlaySound2D("Food Drink " + SoundManager.Range(1, 4, true));
-                                break;
-                            }
-                        case (int)ItemCode.SMALL_MANA_POTION:
-                            {
-                                //GameManager.Instance.Player.ModifyMana(50);
-                                //SoundManager.Instance.PlaySound2D("Food Drink " + SoundManager.Range(1, 4, true));
+                                SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
                                 break;
                             }
                     }
+                }
+                break;
+            case ItemType.Placeable://Placeable(설치가능한)으로 만들어두고 
+                {
+                    // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
+                    Uiclickset _clickset = GetComponent<Uiclickset>();
+
+                    // 지금은 다른씬에서 사용하는 Uiclickset에 일일히 오브젝트를 넣어서 해당 오브젝트를 배치시키고있습니다
+                    // 새로운 아이템 넣을떄마다 HandleInventoryClick1, 2, 3... 로 함수가 많아지면 안되겠죠?
+                    // 제가 아이템 스크립터블 오브젝트의 분류에 PlaceableItem으로 만들어둘게요 해당 아이템들은 추가적으로 프리팹을 가질수있게 할겁니다
+                    // 기존의 아이템을 삭제후 다시 PlaceableItem으로 만드세요 Communicator 제외하고요
+                    // create -> AddItem -> PlaceableItem
+                    // 그러면 
+                    // _clickset.HandleInventoryClick(item.itemPrefab); 으로 설치시킬수있겠죠?
+                    // 그러면Uiclickset에서 HandleInventoryClick(GameObject itemPrefab) 함수에 매개변수를 넣어줘야 할겁니다
+
 
                     break;
                 }
@@ -94,6 +97,8 @@ public class ItemActionManager : MonoBehaviour
 
 public enum ItemCode
 {
-    SMALL_HEALTH_POTION,
-    SMALL_MANA_POTION,
+    NULL,
+    Communicator,
+    PC,
+    TurnTable,
 }

@@ -1,21 +1,66 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 여러 아이템을 담을 가장 기본적인 인벤토리
 /// </summary>
-public class InventoryMain : InventoryBase
+public class InventoryMain : Singleton<InventoryMain>
 {
-    public static bool IsInventoryActive = false;  // 인벤토리 활성화 되었는가?
-    
-    new void Awake()
+
+    public static bool IsInventoryActive = false;
+
+    [SerializeField] protected GameObject _inventoryBase; // Inventory 최상위 부모(활성/비활성 목적)
+    [SerializeField] protected GameObject _inventorySlotsParent;  // Slot들을 담을 부모 게임오브젝트
+    [SerializeField] protected InventorySlot[] _slots;
+    /// <summary>
+    /// 인벤토리 베이스를 초기화 시킨다.
+    /// </summary>
+    protected override void Awake()
     {
         base.Awake();
-    }
+        if (_inventoryBase.activeSelf)
+        {
+            _inventoryBase.SetActive(false);
+        }
 
+        _slots = _inventorySlotsParent.GetComponentsInChildren<InventorySlot>();
+    }
     void Update()
     {
         TryOpenInventory();
     }
+
+    public List<ItemData> savedItems = new List<ItemData>();
+
+    // 슬롯 정보를 저장
+    public void SaveFromSlots()
+    {
+        savedItems.Clear();
+
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            if (_slots[i].Item != null)
+            {
+                savedItems.Add(
+                    new ItemData(i, _slots[i].Item, _slots[i].ItemCount)
+                );
+            }
+        }
+    }
+
+    // 씬이 로드될 때 슬롯에 다시 정보를 넣는 용도 or UI교체
+    public void LoadToSlots()
+    {
+        foreach (var data in savedItems)
+        {
+            if (data.slotIndex < _slots.Length)
+            {
+                _slots[data.slotIndex].AddItem(data.item, data.count);
+            }
+        }
+    }
+
 
     /// <summary>
     /// 인벤토리를 I키를 눌러 열거나 닫는다.
@@ -95,6 +140,8 @@ public class InventoryMain : InventoryBase
         {
             targetSlot.AddItem(item, count);
         }
+
+
     }
 
 

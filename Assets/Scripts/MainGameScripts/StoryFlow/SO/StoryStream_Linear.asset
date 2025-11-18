@@ -13,14 +13,41 @@ MonoBehaviour:
   m_Name: StoryStream_Linear
   m_EditorClassIdentifier: 
   nodes:
-  - onEnter: []
+  - playDialogueOnEnter: 1
+    enterDialogueFile: Hamburger
+    enterDialogueGroup: OrderHamburger1
+    waitEnterDialogue: 1
+    playDialogueOnClear: 0
+    clearDialogueFile: 
+    clearDialogueGroup: 
+    waitClearDialogue: 1
+    onEnter: []
+    onClear: []
+    conditions: []
+    tasks: []
+  - playDialogueOnEnter: 0
+    enterDialogueFile: 
+    enterDialogueGroup: 
+    waitEnterDialogue: 1
+    playDialogueOnClear: 1
+    clearDialogueFile: Hamburger
+    clearDialogueGroup: OrderHamburger2
+    waitClearDialogue: 1
+    onEnter: []
     onClear: []
     conditions:
     - {fileID: 11400000, guid: abc5c20e526d02f4cbd0b7a9680e3a65, type: 2}
     tasks: []
-  - onEnter: []
-    onClear:
-    - {fileID: 11400000, guid: 725860589f11fd24eb6b105d8bcfb668, type: 2}
+  - playDialogueOnEnter: 0
+    enterDialogueFile: 
+    enterDialogueGroup: 
+    waitEnterDialogue: 1
+    playDialogueOnClear: 1
+    clearDialogueFile: Hamburger
+    clearDialogueGroup: OrderHamburger3
+    waitClearDialogue: 1
+    onEnter: []
+    onClear: []
     conditions:
     - {fileID: 11400000, guid: abc5c20e526d02f4cbd0b7a9680e3a65, type: 2}
     tasks: []

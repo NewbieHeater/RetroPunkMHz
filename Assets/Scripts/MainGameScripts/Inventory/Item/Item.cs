@@ -23,11 +23,11 @@ public enum ItemType  // 아이템 유형
     //장비 아이템이 아닌 아이템들(소모, 기타, 재료, 퀘스트아이템 등등)
     Etc = 0b1000000, //64
     Consumable = 0b10000000, //128
-    Ingredient = 0b100000000, //256
+    Placeable = 0b100000000, //256
     Quest = 0b1000000000, //512
 }
 
-[CreateAssetMenu(fileName = "Item", menuName = "Add Item/Item")]
+[CreateAssetMenu(fileName = "Item", menuName = "Add Item/Item/BaseItem")]
 public class Item : ScriptableObject  // 게임 오브젝트에 붙일 필요 X 
 {
     [Header("고유한 아이템의 ID(중복불가)")]
@@ -133,4 +133,6 @@ public class Item : ScriptableObject  // 게임 오브젝트에 붙일 필요 X
             return mItemDescription;
         }
     }
+
+
 }

@@ -61,7 +61,24 @@ public class StreamRunner : MonoBehaviour
 
     private IEnumerator EnterNodeRoutine(Node node)
     {
+        // 1) onEnter 대사
+        if (node.playDialogueOnEnter &&
+            DialogueManager.Instance != null &&
+            !string.IsNullOrEmpty(node.enterDialogueFile) &&
+            !string.IsNullOrEmpty(node.enterDialogueGroup))
+        {
+            if (node.waitEnterDialogue)
+                yield return DialogueManager.Instance.StartDialogueAndWait(
+                    node.enterDialogueFile, node.enterDialogueGroup);
+            else
+                DialogueManager.Instance.StartDialogue(
+                    node.enterDialogueFile, node.enterDialogueGroup);
+        }
+
+        // 2) 기타 onEnter 이벤트(SO)
         yield return RunEventsSequentially(node.onEnter);
+
+        // 3) 노드 시작 직후 평가
         Evaluate();
     }
 
@@ -82,7 +99,6 @@ public class StreamRunner : MonoBehaviour
         int index = GameProgress.I.currentNodeIndex;
         if (index < 0 || index >= stream.nodes.Count)
         {
-            // 이미 마지막을 지난 상태 → 다음 스트림 처리
             ResolveAndStartNextStream(stream);
             isBusy = false;
             yield break;
@@ -91,7 +107,7 @@ public class StreamRunner : MonoBehaviour
         var node = stream.nodes[index];
         string nodeKey = $"{stream.name}:{index}";
 
-        // 1) Task 처리
+        // ---- Task 처리 ----
         foreach (var task in node.tasks)
         {
             if (GameProgress.I.IsTaskCompleted(nodeKey, task.id)) continue;
@@ -104,16 +120,30 @@ public class StreamRunner : MonoBehaviour
             }
         }
 
-        // 2) 노드 완료 판정
+        // ---- 노드 완료 판정 ----
         bool condOk = node.conditions.All(c => c != null && c.IsMet());
         bool tasksOk = node.tasks.All(t => GameProgress.I.IsTaskCompleted(nodeKey, t.id));
 
         if (condOk && tasksOk)
         {
-            // 3) onClear 실행
+            // 1) onClear 대사
+            if (node.playDialogueOnClear &&
+                DialogueManager.Instance != null &&
+                !string.IsNullOrEmpty(node.clearDialogueFile) &&
+                !string.IsNullOrEmpty(node.clearDialogueGroup))
+            {
+                if (node.waitClearDialogue)
+                    yield return DialogueManager.Instance.StartDialogueAndWait(
+                        node.clearDialogueFile, node.clearDialogueGroup);
+                else
+                    DialogueManager.Instance.StartDialogue(
+                        node.clearDialogueFile, node.clearDialogueGroup);
+            }
+
+            // 2) 기타 onClear 이벤트
             yield return RunEventsSequentially(node.onClear);
 
-            // 4) 다음 노드(index+1)로 이동
+            // 3) 다음 노드로 직진
             int nextIndex = index + 1;
             if (nextIndex < stream.nodes.Count)
             {
@@ -122,13 +152,13 @@ public class StreamRunner : MonoBehaviour
             }
             else
             {
-                // 스트림 끝 → 다음 스트림 처리
                 ResolveAndStartNextStream(stream);
             }
         }
 
         isBusy = false;
     }
+
 
     private void ResolveAndStartNextStream(StoryStream stream)
     {
@@ -152,7 +182,6 @@ public class StreamRunner : MonoBehaviour
 
         if (next != null)
             StartStream(next);
-        // else: 모든 스토리 종료
     }
 
     private IEnumerator RunEventsSequentially(System.Collections.Generic.List<GameEventSO> events)

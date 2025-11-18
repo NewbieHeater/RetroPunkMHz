@@ -1,0 +1,83 @@
+{
+  "groups": [
+    {
+      "groupName": "OrderHamburger1",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Eto",
+          "sprite": "neutral",
+          "text": "아 배고프다",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Eto",
+          "sprite": "neutral",
+          "text": "햄버거나 먹을까?",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+
+    },
+    {
+      "groupName": "OrderHamburger2",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Eto",
+          "sprite": "neutral",
+          "text": "여기 치즈버거 하나요",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "ai",
+          "sprite": "neutral",
+          "text": "네 잠시만 기다려주세요...여기있습니다",
+          "next": "3",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "3",
+          "speaker": "Eto",
+          "sprite": "neutral",
+          "text": "감사합니다",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+    },
+    {
+      "groupName": "OrderHamburger3",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Eto",
+          "sprite": "neutral",
+          "text": "맛있겠다",
+          "next": "2",
+          "eventKey": "",
+          "choices": null
+        },
+        {
+          "id": "2",
+          "speaker": "Eto",
+          "sprite": "neutral",
+          "text": "감사합니다",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+    }
+  ]
+}

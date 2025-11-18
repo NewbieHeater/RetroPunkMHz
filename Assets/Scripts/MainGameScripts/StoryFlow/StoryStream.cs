@@ -1,3 +1,4 @@
+// Scripts/Story/StoryStream.cs
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,20 +9,36 @@ public class StoryStream : ScriptableObject
     [Tooltip("이 스트림의 노드들. index 순서대로 실행됩니다.")]
     public List<Node> nodes = new();
 
-    [Tooltip("이 스트림이 끝났을 때, 조건에 따라 다음 스트림을 고릅니다(위→아래 우선). 비워도 됩니다.")]
     public List<NextStreamRule> nextStreamRules = new();
-
-    [Tooltip("어떤 룰도 만족하지 않을 때 이동할 기본 다음 스트림(비면 전체 진행 종료)")]
     public StoryStream defaultNextStream;
 }
 
 [Serializable]
 public class Node
 {
-    [Tooltip("노드 입장 시 실행되는 이벤트(대사, 컷신 등)")]
+    // ====== 대화 설정 (onEnter) ======
+    [Header("Dialogue (On Enter)")]
+    public bool playDialogueOnEnter;
+    [Tooltip("Resources 경로, 예: NPCDialogues/Hamburger")]
+    public string enterDialogueFile;
+    [Tooltip("그룹명, 예: Start, Order, End")]
+    public string enterDialogueGroup;
+    [Tooltip("대사가 끝날 때까지 기다릴지 여부")]
+    public bool waitEnterDialogue = true;
+
+    // ====== 대화 설정 (onClear) ======
+    [Header("Dialogue (On Clear)")]
+    public bool playDialogueOnClear;
+    public string clearDialogueFile;
+    public string clearDialogueGroup;
+    public bool waitClearDialogue = true;
+
+    // ====== 나머지 이벤트/조건 ======
+    [Header("Events / Conditions")]
+    [Tooltip("노드 입장 시 실행할 기타 이벤트 (대사 제외)")]
     public List<GameEventSO> onEnter = new();
 
-    [Tooltip("노드 완료 시 실행되는 이벤트(대사, 보상 등)")]
+    [Tooltip("노드 완료 시 실행할 기타 이벤트 (대사 제외)")]
     public List<GameEventSO> onClear = new();
 
     [Tooltip("노드 완료를 위한 조건(AND)")]
@@ -42,6 +59,6 @@ public class NodeTask
 [Serializable]
 public class NextStreamRule
 {
-    public List<ConditionSO> conditions = new(); // AND
+    public List<ConditionSO> conditions = new();
     public StoryStream nextStream;
 }
