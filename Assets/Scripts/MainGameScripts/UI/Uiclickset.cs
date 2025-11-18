@@ -41,6 +41,7 @@ public class Uiclickset : MonoBehaviour
 
     public void HandleInventoryClick(GameObject _itemprefab)
     {
+        Debug.Log("짜잔");
         if (_placementManager == null)
         {
             Debug.Log("설치 매니저 없음 (에토방이 아님)");

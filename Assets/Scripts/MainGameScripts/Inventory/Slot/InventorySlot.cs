@@ -149,6 +149,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     public void UseItem()
     {
+        Debug.Log("두둥");
         if (_item == null) return;
         if (!_item.IsInteractivity) return;
         // if (ItemCooltimeManager.Instance.GetCurrentCooltime(_item.ItemID) > 0) return;
@@ -167,6 +168,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        Debug.Log("찌릿");
         Uiclickset _clickset = GetComponent<Uiclickset>();
         //string _currentscene = SceneManager.GetActiveScene().name;
         if (eventData.button == PointerEventData.InputButton.Right)

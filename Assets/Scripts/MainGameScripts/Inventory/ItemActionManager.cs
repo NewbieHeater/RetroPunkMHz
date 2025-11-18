@@ -16,7 +16,7 @@ public class ItemActionManager : MonoBehaviour
 
     [Header("Preloaded objects into the scene")]
     [SerializeField] private GameObject[] _objects;
-
+    
     /// <summary>
     /// 아이템 사용 이벤트 호출
     /// 각 아이템마다 실행되는 기능을 수행
@@ -34,15 +34,28 @@ public class ItemActionManager : MonoBehaviour
                     switch (item.ItemID)
                     {
                         case (int)ItemCode.Communicator:
-                            {
-                                SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
+                        {
+                                if(SceneManagerEx.Instance.isGameSceneActive == false)
+                                {
+                                    Debug.Log("후후");
+                                    SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
+                                    SceneManagerEx.Instance.isGameSceneActive = true;
+                                    
+                                }
+                                else if(SceneManagerEx.Instance.isGameSceneActive == true)
+                                {
+                                    Debug.Log("호호");
+                                    SceneManagerEx.Instance.LoadScene(Define.Scene.GameScene);
+                                    SceneManagerEx.Instance.isGameSceneActive = false;
+                                }
                                 break;
-                            }
+                        }
                     }
                 }
                 break;
             case ItemType.Placeable://Placeable(설치가능한)으로 만들어두고 
                 {
+                    Debug.Log("두둥");
                     // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
                     Uiclickset _clickset = GetComponent<Uiclickset>();
                     _clickset.HandleInventoryClick(item.itemPrefab);
