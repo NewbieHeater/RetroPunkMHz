@@ -1,14 +1,15 @@
+ï»¿using Unity.VisualScripting;
 using UnityEngine;
 
 
 /// <summary>
-/// ¾À ³»ÀÇ ¸Å´ÏÀú ¿ÀºêÁ§Æ®¿¡ ÇÒ´ç
-/// ¾ÆÀÌÅÛ(¶Ç´Â Á¤Àû ¹°Ã¼)°ú »óÈ£ÀÛ¿ëÇÏ°Å³ª, ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀ» »ç¿ëÇÏ¸é Æ¯¼ö ÀÌº¥Æ®¸¦ ¹ß»ı½ÃÅ´
+/// ì”¬ ë‚´ì˜ ë§¤ë‹ˆì € ì˜¤ë¸Œì íŠ¸ì— í• ë‹¹
+/// ì•„ì´í…œ(ë˜ëŠ” ì •ì  ë¬¼ì²´)ê³¼ ìƒí˜¸ì‘ìš©í•˜ê±°ë‚˜, ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œì„ ì‚¬ìš©í•˜ë©´ íŠ¹ìˆ˜ ì´ë²¤íŠ¸ë¥¼ ë°œìƒì‹œí‚´
 /// </summary>
 public class ItemActionManager : MonoBehaviour
 {
     /// <summary>
-    /// ¸Ş½ÃÁö¸¦ ÁÖ°í¹Ş´Â°æ¿ì ½ºÅ³¿¡ ´ëÇÑ ¸Ş½ÃÁö ¾à¼Ó
+    /// ë©”ì‹œì§€ë¥¼ ì£¼ê³ ë°›ëŠ”ê²½ìš° ìŠ¤í‚¬ì— ëŒ€í•œ ë©”ì‹œì§€ ì•½ì†
     /// </summary>
     public static string _SkillMessage = "ActiveSkill";
 
@@ -17,11 +18,11 @@ public class ItemActionManager : MonoBehaviour
     [SerializeField] private GameObject[] _objects;
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ »ç¿ë ÀÌº¥Æ® È£Ãâ
-    /// °¢ ¾ÆÀÌÅÛ¸¶´Ù ½ÇÇàµÇ´Â ±â´ÉÀ» ¼öÇà
+    /// ì•„ì´í…œ ì‚¬ìš© ì´ë²¤íŠ¸ í˜¸ì¶œ
+    /// ê° ì•„ì´í…œë§ˆë‹¤ ì‹¤í–‰ë˜ëŠ” ê¸°ëŠ¥ì„ ìˆ˜í–‰
     /// </summary>
     /// <param name="item"></param>
-    /// <returns>½ÇÇàÀÌ Á¤»óÀûÀ¸·Î ÀÌ·ç¾î Á³´Â°¡?</returns>
+    /// <returns>ì‹¤í–‰ì´ ì •ìƒì ìœ¼ë¡œ ì´ë£¨ì–´ ì¡ŒëŠ”ê°€?</returns>
     public bool UseItem(Item item)
     {
         Debug.Log("UseItemEvent");
@@ -40,19 +41,19 @@ public class ItemActionManager : MonoBehaviour
                     }
                 }
                 break;
-            case ItemType.Placeable://Placeable(¼³Ä¡°¡´ÉÇÑ)À¸·Î ¸¸µé¾îµÎ°í 
+            case ItemType.Placeable://Placeable(ì„¤ì¹˜ê°€ëŠ¥í•œ)ìœ¼ë¡œ ë§Œë“¤ì–´ë‘ê³  
                 {
-                    // ¾Æ¸¶ ÀÌºÎºĞÀº getcomponent¸»°í ´Ù¸¥°Å ½á¾ßÇÏ°ÚÁÒ?
+                    // ì•„ë§ˆ ì´ë¶€ë¶„ì€ getcomponentë§ê³  ë‹¤ë¥¸ê±° ì¨ì•¼í•˜ê² ì£ ?
                     Uiclickset _clickset = GetComponent<Uiclickset>();
-
-                    // Áö±İÀº ´Ù¸¥¾À¿¡¼­ »ç¿ëÇÏ´Â Uiclickset¿¡ ÀÏÀÏÈ÷ ¿ÀºêÁ§Æ®¸¦ ³Ö¾î¼­ ÇØ´ç ¿ÀºêÁ§Æ®¸¦ ¹èÄ¡½ÃÅ°°íÀÖ½À´Ï´Ù
-                    // »õ·Î¿î ¾ÆÀÌÅÛ ³ÖÀ»‹š¸¶´Ù HandleInventoryClick1, 2, 3... ·Î ÇÔ¼ö°¡ ¸¹¾ÆÁö¸é ¾ÈµÇ°ÚÁÒ?
-                    // Á¦°¡ ¾ÆÀÌÅÛ ½ºÅ©¸³ÅÍºí ¿ÀºêÁ§Æ®ÀÇ ºĞ·ù¿¡ PlaceableItemÀ¸·Î ¸¸µé¾îµÑ°Ô¿ä ÇØ´ç ¾ÆÀÌÅÛµéÀº Ãß°¡ÀûÀ¸·Î ÇÁ¸®ÆÕÀ» °¡Áú¼öÀÖ°Ô ÇÒ°Ì´Ï´Ù
-                    // ±âÁ¸ÀÇ ¾ÆÀÌÅÛÀ» »èÁ¦ÈÄ ´Ù½Ã PlaceableItemÀ¸·Î ¸¸µå¼¼¿ä Communicator Á¦¿ÜÇÏ°í¿ä
+                    _clickset.HandleInventoryClick(item.itemPrefab);
+                    // ì§€ê¸ˆì€ ë‹¤ë¥¸ì”¬ì—ì„œ ì‚¬ìš©í•˜ëŠ” Uiclicksetì— ì¼ì¼íˆ ì˜¤ë¸Œì íŠ¸ë¥¼ ë„£ì–´ì„œ í•´ë‹¹ ì˜¤ë¸Œì íŠ¸ë¥¼ ë°°ì¹˜ì‹œí‚¤ê³ ìˆìŠµë‹ˆë‹¤
+                    // ìƒˆë¡œìš´ ì•„ì´í…œ ë„£ì„ë–„ë§ˆë‹¤ HandleInventoryClick1, 2, 3... ë¡œ í•¨ìˆ˜ê°€ ë§ì•„ì§€ë©´ ì•ˆë˜ê² ì£ ?
+                    // ì œê°€ ì•„ì´í…œ ìŠ¤í¬ë¦½í„°ë¸” ì˜¤ë¸Œì íŠ¸ì˜ ë¶„ë¥˜ì— PlaceableItemìœ¼ë¡œ ë§Œë“¤ì–´ë‘˜ê²Œìš” í•´ë‹¹ ì•„ì´í…œë“¤ì€ ì¶”ê°€ì ìœ¼ë¡œ í”„ë¦¬íŒ¹ì„ ê°€ì§ˆìˆ˜ìˆê²Œ í• ê²ë‹ˆë‹¤
+                    // ê¸°ì¡´ì˜ ì•„ì´í…œì„ ì‚­ì œí›„ ë‹¤ì‹œ PlaceableItemìœ¼ë¡œ ë§Œë“œì„¸ìš” Communicator ì œì™¸í•˜ê³ ìš”
                     // create -> AddItem -> PlaceableItem
-                    // ±×·¯¸é 
-                    // _clickset.HandleInventoryClick(item.itemPrefab); À¸·Î ¼³Ä¡½ÃÅ³¼öÀÖ°ÚÁÒ?
-                    // ±×·¯¸éUiclickset¿¡¼­ HandleInventoryClick(GameObject itemPrefab) ÇÔ¼ö¿¡ ¸Å°³º¯¼ö¸¦ ³Ö¾îÁà¾ß ÇÒ°Ì´Ï´Ù
+                    // ê·¸ëŸ¬ë©´ 
+                    // _clickset.HandleInventoryClick(item.itemPrefab); ìœ¼ë¡œ ì„¤ì¹˜ì‹œí‚¬ìˆ˜ìˆê² ì£ ?
+                    // ê·¸ëŸ¬ë©´Uiclicksetì—ì„œ HandleInventoryClick(GameObject itemPrefab) í•¨ìˆ˜ì— ë§¤ê°œë³€ìˆ˜ë¥¼ ë„£ì–´ì¤˜ì•¼ í• ê²ë‹ˆë‹¤
 
 
                     break;
@@ -63,9 +64,9 @@ public class ItemActionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾À ³»¿¡¼­ ¾ÆÀÌÅÛÀ» Áİ°Å³ª, NONEÅ¸ÀÔ(ÁİÁö ¾Ê°í, »óÈ£ÀÛ¿ë Àü¿ë) ¾ÆÀÌÅÛ°ú »óÈ£ÀÛ¿ëÇÑ°æ¿ì ½ÇÇàµÇ´Â ÇÔ¼ö
+    /// ì”¬ ë‚´ì—ì„œ ì•„ì´í…œì„ ì¤ê±°ë‚˜, NONEíƒ€ì…(ì¤ì§€ ì•Šê³ , ìƒí˜¸ì‘ìš© ì „ìš©) ì•„ì´í…œê³¼ ìƒí˜¸ì‘ìš©í•œê²½ìš° ì‹¤í–‰ë˜ëŠ” í•¨ìˆ˜
     /// </summary>
-    /// <param name="itemID">ÇØ´ç ¾ÆÀÌÅÛÀÇ ÄÚµå</param>
+    /// <param name="itemID">í•´ë‹¹ ì•„ì´í…œì˜ ì½”ë“œ</param>
     /// <param name="interactTarget"></param>
     public void InteractionItem(Item item, GameObject interactTarget)
     {
@@ -73,22 +74,22 @@ public class ItemActionManager : MonoBehaviour
 
         if (interactTarget.tag == "NPC")
         {
-            //NPC FSM °¡Á®¿À±â
+            //NPC FSM ê°€ì ¸ì˜¤ê¸°
             //NPCBase targetNPC = interactTarget.GetComponent<NPCBase>();
 
-            //ÇöÀç »óÈ£ÀÛ¿ëÀÌ ºÒ°¡´ÉÇÑ ´ë»óÀÌ¶ó¸é ¸®ÅÏ
+            //í˜„ì¬ ìƒí˜¸ì‘ìš©ì´ ë¶ˆê°€ëŠ¥í•œ ëŒ€ìƒì´ë¼ë©´ ë¦¬í„´
             //if (!targetNPC.CanInteraction || targetNPC.IsQuotePlaying) { return; }
 
-            //»óÈ£ÀÛ¿ë ¸Ş½ÃÁö º¸³¿
+            //ìƒí˜¸ì‘ìš© ë©”ì‹œì§€ ë³´ëƒ„
             //MessageDispatcher.Instance.DispatchMessage(0, "", targetNPC.EntityName, "Interaction");
             return;
         }
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» ½½·Ô¿¡ µå·ÓÇÏ´Â°æ¿ì ¹ß»ıÇÏ´Â ÀÌº¥Æ®ÀÌ´Ù.
+    /// ì•„ì´í…œì„ ìŠ¬ë¡¯ì— ë“œë¡­í•˜ëŠ”ê²½ìš° ë°œìƒí•˜ëŠ” ì´ë²¤íŠ¸ì´ë‹¤.
     /// </summary>
-    /// <param name="slot">µå·ÓµÈ ½½·Ô</param>
+    /// <param name="slot">ë“œë¡­ëœ ìŠ¬ë¡¯</param>
     public void SlotOnDropEvent(InventorySlot slot)
     {
         Debug.Log("SlotOnDropEvent");

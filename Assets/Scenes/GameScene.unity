@@ -4737,10 +4737,7 @@ PrefabInstance:
     - {fileID: 1142371198525120232, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
     - {fileID: 8880146740955626162, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5580395578092695084, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2076000870}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
 --- !u!1001 &348598423
 PrefabInstance:
@@ -17646,6 +17643,7 @@ GameObject:
   - component: {fileID: 1595216700}
   - component: {fileID: 1595216699}
   - component: {fileID: 1595216702}
+  - component: {fileID: 1595216703}
   m_Layer: 0
   m_Name: InventorySystem
   m_TagString: Untagged
@@ -17716,6 +17714,18 @@ MonoBehaviour:
   _canvas: {fileID: 1049561818}
   _textArea: {fileID: 1546454387}
   _rectTransform: {fileID: 0}
+--- !u!114 &1595216703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595216698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d55ba1e6986ded8469ed11c791d29793, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1595385324 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -1655592537409599694, guid: 9c18580b97512ed43885caa0955ca4fb, type: 3}
@@ -23212,20 +23222,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5580395578092695084, guid: ccb3c8a05b28b714ab9e4f0d53ce70b0, type: 3}
   m_PrefabInstance: {fileID: 343708628}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2076000870
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2076000869}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d55ba1e6986ded8469ed11c791d29793, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gameObject: {fileID: 2981962912144855308, guid: db1485edf1bc72c47b7e610c4570007d, type: 3}
-  _gameObject1: {fileID: 2981962912144855308, guid: 6122aceccf7c6584faee616b252c8790, type: 3}
 --- !u!1 &2079856837
 GameObject:
   m_ObjectHideFlags: 0
