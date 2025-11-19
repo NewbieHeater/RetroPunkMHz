@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class Uiclickset : MonoBehaviour
 {
-    
     private EtoRoominstall _placementManager;
     private float _lastclick;
     private float _doubleclicktime = 0.3f;
@@ -39,7 +38,7 @@ public class Uiclickset : MonoBehaviour
     }
 
 
-    public void HandleInventoryClick(GameObject _itemprefab)
+    public void HandleInventoryClick(GameObject itemPrefab)
     {
         Debug.Log("짜잔");
         if (_placementManager == null)
@@ -56,8 +55,6 @@ public class Uiclickset : MonoBehaviour
         }
         _lastclick = Time.time;
     }
-
-    
 }
 
     

@@ -4,9 +4,17 @@ using UnityEngine;
 
 public class ObjectDelect : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] private Item returnItem;
+
+    public void SetReturnItem(Item item)
+    {
+        returnItem = item;
+
+    }
+
     void OnMouseDown()
     {
         Destroy(gameObject);
+        InventoryMain.Instance.AcquireItem(returnItem);
     }
 }
