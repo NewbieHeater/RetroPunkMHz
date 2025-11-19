@@ -1,20 +1,20 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ¿©·¯ ¾ÆÀÌÅÛÀ» ´ãÀ» °¡Àå ±âº»ÀûÀÎ ÀÎº¥Åä¸®
+/// ì—¬ëŸ¬ ì•„ì´í…œì„ ë‹´ì„ ê°€ì¥ ê¸°ë³¸ì ì¸ ì¸ë²¤í† ë¦¬
 /// </summary>
 public class InventoryMain : Singleton<InventoryMain>
 {
 
     public static bool IsInventoryActive = false;
 
-    [SerializeField] protected GameObject _inventoryBase; // Inventory ÃÖ»óÀ§ ºÎ¸ğ(È°¼º/ºñÈ°¼º ¸ñÀû)
-    [SerializeField] protected GameObject _inventorySlotsParent;  // SlotµéÀ» ´ãÀ» ºÎ¸ğ °ÔÀÓ¿ÀºêÁ§Æ®
+    [SerializeField] protected GameObject _inventoryBase; // Inventory ìµœìƒìœ„ ë¶€ëª¨(í™œì„±/ë¹„í™œì„± ëª©ì )
+    [SerializeField] protected GameObject _inventorySlotsParent;  // Slotë“¤ì„ ë‹´ì„ ë¶€ëª¨ ê²Œì„ì˜¤ë¸Œì íŠ¸
     [SerializeField] protected InventorySlot[] _slots;
     /// <summary>
-    /// ÀÎº¥Åä¸® º£ÀÌ½º¸¦ ÃÊ±âÈ­ ½ÃÅ²´Ù.
+    /// ì¸ë²¤í† ë¦¬ ë² ì´ìŠ¤ë¥¼ ì´ˆê¸°í™” ì‹œí‚¨ë‹¤.
     /// </summary>
     protected override void Awake()
     {
@@ -33,7 +33,7 @@ public class InventoryMain : Singleton<InventoryMain>
 
     public List<ItemData> savedItems = new List<ItemData>();
 
-    // ½½·Ô Á¤º¸¸¦ ÀúÀå
+    // ìŠ¬ë¡¯ ì •ë³´ë¥¼ ì €ì¥
     public void SaveFromSlots()
     {
         savedItems.Clear();
@@ -49,7 +49,7 @@ public class InventoryMain : Singleton<InventoryMain>
         }
     }
 
-    // ¾ÀÀÌ ·ÎµåµÉ ¶§ ½½·Ô¿¡ ´Ù½Ã Á¤º¸¸¦ ³Ö´Â ¿ëµµ or UI±³Ã¼
+    // ì”¬ì´ ë¡œë“œë  ë•Œ ìŠ¬ë¡¯ì— ë‹¤ì‹œ ì •ë³´ë¥¼ ë„£ëŠ” ìš©ë„ or UIêµì²´
     public void LoadToSlots()
     {
         foreach (var data in savedItems)
@@ -63,11 +63,11 @@ public class InventoryMain : Singleton<InventoryMain>
 
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¸¦ IÅ°¸¦ ´­·¯ ¿­°Å³ª ´İ´Â´Ù.
+    /// ì¸ë²¤í† ë¦¬ë¥¼ Ií‚¤ë¥¼ ëˆŒëŸ¬ ì—´ê±°ë‚˜ ë‹«ëŠ”ë‹¤.
     /// </summary>
     private void TryOpenInventory()
     {
-        //¿É¼ÇÀÌ ÄÑÁ®ÀÖ´Â°æ¿ì ºñÈ°¼ºÈ­
+        //ì˜µì…˜ì´ ì¼œì ¸ìˆëŠ”ê²½ìš° ë¹„í™œì„±í™”
         if (GameMenuManager.IsOptionActive) { return; }
 
         if (Input.GetKeyDown(KeyCode.I))
@@ -80,26 +80,26 @@ public class InventoryMain : Singleton<InventoryMain>
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¸¦ ¿¬´Ù.
+    /// ì¸ë²¤í† ë¦¬ë¥¼ ì—°ë‹¤.
     /// </summary>
     private void OpenInventory()
     {
         _inventoryBase.SetActive(true);
         IsInventoryActive = true;
 
-        //Ä¿¼­ È°¼ºÈ­
+        //ì»¤ì„œ í™œì„±í™”
         UnlockCursor();
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¸¦ ´İ´Â´Ù.
+    /// ì¸ë²¤í† ë¦¬ë¥¼ ë‹«ëŠ”ë‹¤.
     /// </summary>
     public void CloseInventory()
     {
         _inventoryBase.SetActive(false);
         IsInventoryActive = false;
 
-        //Ä¿¼­ ºñÈ°¼ºÈ­
+        //ì»¤ì„œ ë¹„í™œì„±í™”
         TryLockCursor();
     }
     public void TryLockCursor()
@@ -116,22 +116,22 @@ public class InventoryMain : Singleton<InventoryMain>
     }
 
     /// <summary>
-    /// Æ¯Á¤ ¾ÆÀÌÅÛ ½½·Ô¿¡ ¾ÆÀÌÅÛÀ» µî·Ï½ÃÅ²´Ù
+    /// íŠ¹ì • ì•„ì´í…œ ìŠ¬ë¡¯ì— ì•„ì´í…œì„ ë“±ë¡ì‹œí‚¨ë‹¤
     /// </summary>
-    /// <param name="item">¾î¶² ¾ÆÀÌÅÛ?</param>
-    /// <param name="targetSlot">¾î´À ½½·Ô¿¡?</param>
-    /// <param name="count">°³¼ö´Â?></param>
+    /// <param name="item">ì–´ë–¤ ì•„ì´í…œ?</param>
+    /// <param name="targetSlot">ì–´ëŠ ìŠ¬ë¡¯ì—?</param>
+    /// <param name="count">ê°œìˆ˜ëŠ”?></param>
     public void AcquireItem(Item item, InventorySlot targetSlot, int count = 1)
     {
-        //ÁßÃ¸ÀÌ °¡´ÉÇÏ´Ù¸é?
+        //ì¤‘ì²©ì´ ê°€ëŠ¥í•˜ë‹¤ë©´?
         if (item.CanOverlap)
         {
-            //¸¶½ºÅ©¸¦ »ç¿ëÇÏ¿© ÇØ´ç ½½·ÔÀÌ ¸¶½ºÅ©¿¡ Çã¿ëµÇ´Â À§Ä¡ÀÎ°æ¿ì¿¡¸¸ ¾ÆÀÌÅÛÀ» Áı¾î³Öµµ·Ï ÇÑ´Ù.
+            //ë§ˆìŠ¤í¬ë¥¼ ì‚¬ìš©í•˜ì—¬ í•´ë‹¹ ìŠ¬ë¡¯ì´ ë§ˆìŠ¤í¬ì— í—ˆìš©ë˜ëŠ” ìœ„ì¹˜ì¸ê²½ìš°ì—ë§Œ ì•„ì´í…œì„ ì§‘ì–´ë„£ë„ë¡ í•œë‹¤.
             if (targetSlot.Item != null && targetSlot.IsMask(item))
             {
                 if (targetSlot.Item.ItemID == item.ItemID)
                 {
-                    //ÇöÀç ½½·ÔÀÇ ¾ÆÀÌÅÛ °³¼ö(Count)¸¦ °»½ÅÇÑ´Ù.
+                    //í˜„ì¬ ìŠ¬ë¡¯ì˜ ì•„ì´í…œ ê°œìˆ˜(Count)ë¥¼ ê°±ì‹ í•œë‹¤.
                     targetSlot.UpdateSlotCount(count);
                 }
             }
@@ -147,17 +147,17 @@ public class InventoryMain : Singleton<InventoryMain>
 
     public void AcquireItem(Item item, int count = 1)
     {
-        //ÁßÃ¸ÀÌ °¡´ÉÇÏ´Ù¸é?
+        //ì¤‘ì²©ì´ ê°€ëŠ¥í•˜ë‹¤ë©´?
         if (item.CanOverlap)
         {
             for (int i = 0; i < _slots.Length; i++)
             {
-                //¸¶½ºÅ©¸¦ »ç¿ëÇÏ¿© ÇØ´ç ½½·ÔÀÌ ¸¶½ºÅ©¿¡ Çã¿ëµÇ´Â À§Ä¡ÀÎ°æ¿ì¿¡¸¸ ¾ÆÀÌÅÛÀ» Áı¾î³Öµµ·Ï ÇÑ´Ù.
+                //ë§ˆìŠ¤í¬ë¥¼ ì‚¬ìš©í•˜ì—¬ í•´ë‹¹ ìŠ¬ë¡¯ì´ ë§ˆìŠ¤í¬ì— í—ˆìš©ë˜ëŠ” ìœ„ì¹˜ì¸ê²½ìš°ì—ë§Œ ì•„ì´í…œì„ ì§‘ì–´ë„£ë„ë¡ í•œë‹¤.
                 if (_slots[i].Item != null && _slots[i].IsMask(item))
                 {
                     if (_slots[i].Item.ItemID == item.ItemID)
                     {
-                        //ÇöÀç ½½·ÔÀÇ ¾ÆÀÌÅÛ °³¼ö(Count)¸¦ °»½ÅÇÑ´Ù.
+                        //í˜„ì¬ ìŠ¬ë¡¯ì˜ ì•„ì´í…œ ê°œìˆ˜(Count)ë¥¼ ê°±ì‹ í•œë‹¤.
                         _slots[i].UpdateSlotCount(count);
                         return;
                     }
@@ -165,7 +165,7 @@ public class InventoryMain : Singleton<InventoryMain>
             }
         }
 
-        //Àåºñ ¾ÆÀÌÅÛÀÌ ¾Æ´Ñ°æ¿ì »õ·Î¿î ½½·Ô¿¡ ³õ´Â´Ù.
+        //ì¥ë¹„ ì•„ì´í…œì´ ì•„ë‹Œê²½ìš° ìƒˆë¡œìš´ ìŠ¬ë¡¯ì— ë†“ëŠ”ë‹¤.
         for (int i = 0; i < _slots.Length; i++)
         {
             if (_slots[i].Item == null && _slots[i].IsMask(item))

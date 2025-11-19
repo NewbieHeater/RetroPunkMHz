@@ -137,7 +137,7 @@ public class Item : ScriptableObject  // 게임 오브젝트에 붙일 필요 X
     [Header("배치시 사용할 프리팹")]
     [SerializeField] private GameObject mItemPrefab;
     /// <summary>
-    /// 배치시 사용할 프리팹
+    /// 아이템이 중첩이 가능한가?
     /// </summary>
     /// <value></value>
     public GameObject itemPrefab
@@ -147,4 +147,5 @@ public class Item : ScriptableObject  // 게임 오브젝트에 붙일 필요 X
             return mItemPrefab;
         }
     }
+
 }

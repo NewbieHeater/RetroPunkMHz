@@ -5,11 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class SceneManagerEx : Singleton<SceneManagerEx>
 {
+    public BaseScene PrevScene;
     public BaseScene CurrentScene { get { return GameObject.FindObjectOfType<BaseScene>(); } }
-
 	public void LoadScene(Define.Scene type)
     {
         //Managers.Clear();
+        PrevScene = CurrentScene;
         CurrentScene.Clear();
         SceneManager.LoadScene(GetSceneName(type));
     }
@@ -20,9 +21,14 @@ public class SceneManagerEx : Singleton<SceneManagerEx>
         return name;
     }
 
-    Define.Scene GetCurrentScene()
+    public Define.Scene GetCurrentScene()
     {
         return CurrentScene.SceneType;
+    }
+
+    public Define.Scene GetPrevScene()
+    {
+        return PrevScene.SceneType;
     }
 
     public void Clear()

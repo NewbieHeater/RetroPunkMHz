@@ -40,16 +40,17 @@ public class Uiclickset : MonoBehaviour
 
     public void HandleInventoryClick(GameObject itemPrefab)
     {
+        Debug.Log("짜잔");
         if (_placementManager == null)
         {
             Debug.Log("설치 매니저 없음 (에토방이 아님)");
             return;
         }
-        Debug.Log("짜잔");
-        _placementManager.startPlacing(itemPrefab);
+
         if (Time.deltaTime - _lastclick < _doubleclicktime)
         {
-            
+            Debug.Log("짜잔");
+            _placementManager.startPlacing(_itemprefab);
 
         }
         _lastclick = Time.time;
