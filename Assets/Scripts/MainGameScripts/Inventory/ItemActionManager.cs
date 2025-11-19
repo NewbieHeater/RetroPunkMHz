@@ -35,18 +35,13 @@ public class ItemActionManager : MonoBehaviour
                     {
                         case (int)ItemCode.Communicator:
                         {
-                                if(SceneManagerEx.Instance.isGameSceneActive == false)
+                                if(SceneManagerEx.Instance.GetCurrentScene() == Define.Scene.RoomScene)
                                 {
-                                    Debug.Log("후후");
-                                    SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
-                                    SceneManagerEx.Instance.isGameSceneActive = true;
-                                    
+                                    SceneManagerEx.Instance.LoadScene(SceneManagerEx.Instance.GetPrevScene());
                                 }
-                                else if(SceneManagerEx.Instance.isGameSceneActive == true)
+                                else
                                 {
-                                    Debug.Log("호호");
-                                    SceneManagerEx.Instance.LoadScene(Define.Scene.GameScene);
-                                    SceneManagerEx.Instance.isGameSceneActive = false;
+                                    SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
                                 }
                                 break;
                         }

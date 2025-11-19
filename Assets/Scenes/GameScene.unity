@@ -6401,6 +6401,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9978bc01550a30b43ba24ae7ee677f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PrevScene: {fileID: 0}
 --- !u!4 &518224325
 Transform:
   m_ObjectHideFlags: 0
@@ -14810,51 +14811,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1321305355}
   m_CullTransparentMesh: 1
---- !u!1 &1322009944
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1322009945}
-  - component: {fileID: 1322009946}
-  m_Layer: 0
-  m_Name: InventorySave
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1322009945
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1322009944}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1322009946
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1322009944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5021ecd9e1612ee46b314e607ae222b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  savedSlots: []
 --- !u!1 &1324555253
 GameObject:
   m_ObjectHideFlags: 0
@@ -23829,19 +23785,18 @@ SceneRoots:
   - {fileID: 8194654590419577439}
   - {fileID: 1999892175}
   - {fileID: 367288719}
-  - {fileID: 573817620}
-  - {fileID: 1587111400}
-  - {fileID: 706298333}
+  - {fileID: 479678905}
+  - {fileID: 568354792}
   - {fileID: 282889887}
+  - {fileID: 573817620}
+  - {fileID: 706298333}
   - {fileID: 1942078287}
   - {fileID: 446462850}
   - {fileID: 1566334875}
   - {fileID: 1595216701}
-  - {fileID: 568354792}
-  - {fileID: 479678905}
   - {fileID: 572404061}
   - {fileID: 1100335979}
-  - {fileID: 1322009945}
   - {fileID: 394728620}
   - {fileID: 1735578369}
   - {fileID: 518224325}
+  - {fileID: 1587111400}
