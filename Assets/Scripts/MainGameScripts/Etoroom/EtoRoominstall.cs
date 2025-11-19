@@ -43,6 +43,14 @@ public class EtoRoominstall : MonoBehaviour
         _previewobject = Instantiate(_objectPlace); // 설치가 눈에 보이게 복사
         SetPreviewMaterial(_previewobject, 0.5f); // 투명도 낮추기
 
+        var del = _previewobject.GetComponent<ObjectDelect>();
+        if (del != null)
+            del.enabled = false;
+
+        // 🔹 프리뷰에서는 콜라이더 비활성화 (추천)
+        var colliders = _previewobject.GetComponentsInChildren<Collider>();
+        foreach (var col in colliders)
+            col.enabled = false;
     }
 
     void PlaceObject(Vector3 position) 
