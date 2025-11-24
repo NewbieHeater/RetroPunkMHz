@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2849910427424223971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c4c86081356d941beb334f6436a039, type: 3}
+  m_Name: CameraFocusStep
+  m_EditorClassIdentifier: 
+  cameraSlot: 0
+--- !u!114 &-1764840742799911857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52ecf39fc37b08e4d894b7df55bf10d5, type: 3}
+  m_Name: DialogueStep
+  m_EditorClassIdentifier: 
+  fileName: 
+  groupName: 
+  useContextOverride: 1
+--- !u!114 &-355430007836807327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283a5556e978f9b489894c71ea65a4a4, type: 3}
+  m_Name: LockInputStep
+  m_EditorClassIdentifier: 
+  lockOn: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac6c4a5143cfc894abf22ab8a10ddba6, type: 3}
+  m_Name: New Cinemachine Event Asset
+  m_EditorClassIdentifier: 
+  lockPlayerInputWhileRunning: 1
+  postDelay: 0
+  steps:
+  - {fileID: -355430007836807327}
+  - {fileID: 6154073654282552237}
+  - {fileID: -1764840742799911857}
+  - {fileID: -2849910427424223971}
+--- !u!114 &4125899217571048870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ee9c85ed1b36ff4e984190354865cbb, type: 3}
+  m_Name: RestoreCameraStep
+  m_EditorClassIdentifier: 
+  toSavedSlot: 1
+--- !u!114 &6154073654282552237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c4c86081356d941beb334f6436a039, type: 3}
+  m_Name: CameraFocusStep
+  m_EditorClassIdentifier: 
+  cameraSlot: 1

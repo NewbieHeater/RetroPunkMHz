@@ -110,7 +110,7 @@ public class CinemachineEventAssetEditor : Editor
         menu.AddItem(new GUIContent("Camera Focus"), false, () => CreateAndAddStep<CameraFocusStep>());
         menu.AddItem(new GUIContent("Dialogue"), false, () => CreateAndAddStep<DialogueStep>());
         menu.AddItem(new GUIContent("Wait"), false, () => CreateAndAddStep<WaitStep>());
-        menu.AddItem(new GUIContent("Restore Camera"), false, () => CreateAndAddStep<RestoreCameraStep>());
+        //menu.AddItem(new GUIContent("Restore Camera"), false, () => CreateAndAddStep<RestoreCameraStep>());
 
         menu.ShowAsContext();
     }
@@ -202,10 +202,10 @@ public class CinemachineEventAssetEditor : Editor
         AddStepReference(waitStep);
 
         // 5) Restore
-        var restoreStep = ScriptableObject.CreateInstance<RestoreCameraStep>();
-        restoreStep.name = "RestoreCameraStep";
-        AssetDatabase.AddObjectToAsset(restoreStep, asset);
-        AddStepReference(restoreStep);
+        //var restoreStep = ScriptableObject.CreateInstance<RestoreCameraStep>();
+        //restoreStep.name = "RestoreCameraStep";
+        //AssetDatabase.AddObjectToAsset(restoreStep, asset);
+        //AddStepReference(restoreStep);
 
         serializedObject.ApplyModifiedProperties();
 

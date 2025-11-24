@@ -1,3 +1,4 @@
+using Game.Controls;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -88,7 +89,7 @@ public class EventTriggerComponent : MonoBehaviour
                 case FireMode.ProximityInteract:
                     // 상호작용 키 확인(글로벌 인풋 라우터 이용)
                     var frame = GlobalInputRouter.Instance.CurrentFrame;
-                    if (frame.buttons.IsDown(InputAction.Interact))
+                    if (frame.buttons.IsDown(GameInputAction.Interact))
                     {
                         if (!requireLookAt ||
                             Vector3.Distance(_player.position, transform.position) <= interactMaxDistance)
@@ -114,7 +115,7 @@ public class EventTriggerComponent : MonoBehaviour
         else if (mode == FireMode.ProximityInteract)
         {
             var frame = GlobalInputRouter.Instance ? GlobalInputRouter.Instance.CurrentFrame : default;
-            if (frame.buttons.IsDown(InputAction.Interact))
+            if (frame.buttons.IsDown(GameInputAction.Interact))
             {
                 TryFire();
             }

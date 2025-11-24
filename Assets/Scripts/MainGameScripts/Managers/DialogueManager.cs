@@ -2,17 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DialogueManager : Singleton<DialogueManager>
+public class DialogueManager : MonoBehaviour
 {
 
     public DialogueLoader dialogueLoader;  // DialogueLoader는 JSON 파일을 파싱해 여러 그룹을 관리함
     public DialogueUI dialogueUI;          // 대화 텍스트, 선택지, 초상화 등 UI를 제어하는 스크립트
 
     private bool isAuto = false;
-    public void TogleAuto()
-    {
-        isAuto = !isAuto;
-    }
     private bool isWaitingForChoice = false;
     private bool isDialogueActive = false;
     public bool IsDialogueActive => isDialogueActive;
@@ -35,27 +31,12 @@ public class DialogueManager : Singleton<DialogueManager>
         }
     }
 
-    public IEnumerator StartDialogueAndWait(string fileName, string groupName)
-    {
-        StartDialogue(fileName, groupName);
-        // 대사가 정상적으로 시작되지 않았다면 바로 종료
-        if (!isDialogueActive) yield break;
-
-        // 대사 종료까지 대기
-        yield return new WaitUntil(() => !isDialogueActive);
-    }
-
-    // 필요하면 시네머신 에셋을 직접 받는 오버로드도 제공
-    //public IEnumerator StartDialogueAndWait(CinemachineEventAsset asset)
-    //{
-    //    yield return StartDialogueAndWait(asset.fileName, asset.groupName);
-    //}
-
-    // 오타 정리 (선택)
+    
     public void ToggleAuto() => isAuto = !isAuto;
 
 
-    // fileName: JSON 파일 리소스 경로 (확장자 없이), groupName: "Quest1", "Quest2", "Normal" 등
+
+
     public void StartDialogue(string fileName, string groupName)
     {
         if (isDialogueActive) return;
@@ -100,6 +81,16 @@ public class DialogueManager : Singleton<DialogueManager>
             Debug.LogError("시작 대사 (id: \"1\")가 존재하지 않습니다.");
             EndDialogue();
         }
+    }
+
+    public IEnumerator StartDialogueAndWait(string fileName, string groupName)
+    {
+        StartDialogue(fileName, groupName);
+        // 대사가 정상적으로 시작되지 않았다면 바로 종료
+        if (!isDialogueActive) yield break;
+
+        // 대사 종료까지 대기
+        yield return new WaitUntil(() => !isDialogueActive);
     }
 
     // 현재 대화 그룹(currentDialogue.lines)을 기준으로 id -> DialogueLine으로 매핑함

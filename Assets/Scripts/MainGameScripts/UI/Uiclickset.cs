@@ -50,7 +50,7 @@ public class Uiclickset : MonoBehaviour
         if (Time.deltaTime - _lastclick < _doubleclicktime)
         {
             Debug.Log("짜잔");
-            _placementManager.startPlacing(_itemprefab);
+            _placementManager.startPlacing(itemPrefab);
 
         }
         _lastclick = Time.time;

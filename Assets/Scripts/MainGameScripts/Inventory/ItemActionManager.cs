@@ -1,5 +1,6 @@
 ﻿using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 /// <summary>
@@ -41,6 +42,7 @@ public class ItemActionManager : MonoBehaviour
                                 }
                                 else
                                 {
+                                    //SceneManager.LoadScene("RoomScene", LoadSceneMode.Additive);
                                     SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
                                 }
                                 break;

@@ -1,16 +1,12 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "CineEvent/Steps/Wait")]
 public class WaitStep : EventStep
 {
-    public float seconds = 0.5f;
-
+    public float seconds;
     public override IEnumerator Execute(CinemachineEventContext ctx)
     {
-        if (seconds > 0f)
-            yield return new WaitForSeconds(seconds);
-        else
-            yield break;
+        throw new System.NotImplementedException();
     }
 }

@@ -22,6 +22,8 @@ public class DialogueUI : MonoBehaviour
     private Coroutine typingCoroutine;      // 진행 중인 타이핑 코루틴
     private string currentTypedContent;     // 현재 타이핑 효과로 출력할 전체 문자열
 
+    [SerializeField] private DialogueManager dialogueManager;
+
     private void Start()
     {
         changeAuto.onClick.AddListener(TogleAuto);
@@ -30,7 +32,7 @@ public class DialogueUI : MonoBehaviour
 
     public void TogleAuto()
     {
-        DialogueManager.Instance.TogleAuto();
+        dialogueManager?.ToggleAuto();
     }
 
     // 대화 패널 활성/비활성화
@@ -122,8 +124,8 @@ public class DialogueUI : MonoBehaviour
         isTypingText = false;
         typingCoroutine = null;
         // 대사가 완전히 출력되었음을 DialogueManager에 알림 (Auto 모드 등 처리)
-        if (DialogueManager.Instance != null)
-            DialogueManager.Instance.OnLineFinishDisplaying();
+        if (dialogueManager != null)
+            dialogueManager.OnLineFinishDisplaying();
     }
 
     // 현재 타이핑 중인지 여부 반환
@@ -143,8 +145,8 @@ public class DialogueUI : MonoBehaviour
         if (dialogueText != null && !string.IsNullOrEmpty(currentTypedContent))
             dialogueText.text = currentTypedContent;
         isTypingText = false;
-        if (DialogueManager.Instance != null)
-            DialogueManager.Instance.OnLineFinishDisplaying();
+        if (dialogueManager != null)
+            dialogueManager.OnLineFinishDisplaying();
     }
 
     // 선택지 버튼들을 생성하여 표시 (매개변수 타입을 Choice[]로 변경)
@@ -163,7 +165,7 @@ public class DialogueUI : MonoBehaviour
             int index = i;
             choiceButton.onClick.AddListener(() => {
                 // 선택지 클릭 시 DialogueManager의 SelectChoice 메서드 호출 (구현에 맞춰 수정)
-                DialogueManager.Instance.SelectChoice(index);
+                dialogueManager.SelectChoice(index);
             });
         }
         if (choiceContainer != null)

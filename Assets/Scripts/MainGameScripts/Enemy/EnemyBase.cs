@@ -6,6 +6,12 @@ using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
 public enum StateInfo { Idle, Attack, Move, Hit, Death }
+public class EnemyRuntimeState
+{
+    public Vector3 position;
+    public float hp;
+    public bool isDead;
+}
 
 [RequireComponent(typeof(RigidNavigation))]
 [RequireComponent(typeof(CapsuleCollider))]

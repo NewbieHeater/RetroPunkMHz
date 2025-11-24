@@ -1,3 +1,4 @@
+using Game.Controls;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,7 +31,7 @@ public class VendingMachine : InteractableBase
     private void OpenShop()
     {
         // Interact만 허용 (나머지 공격/이동/점프 전부 차단)
-        GlobalInputRouter.Instance.LockAllowOnly(InputAction.Interact);
+        GlobalInputRouter.Instance.LockAllowOnly(GameInputAction.Interact);
         UIManagers.Instance.ShowUI();
     }
 

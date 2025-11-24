@@ -9,7 +9,6 @@ public class ObjectDelect : MonoBehaviour
     public void SetReturnItem(Item item)
     {
         returnItem = item;
-
     }
 
     void OnMouseDown()

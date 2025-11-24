@@ -1,3 +1,4 @@
+using Game.Controls;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -91,20 +92,20 @@ public class AttackController : MonoBehaviour
         }
 
         // 기본 공격 (쿨다운 체크)
-        if (btns.IsDown(InputAction.Attack) && Time.time >= nextAttackTime)
+        if (btns.IsDown(GameInputAction.Attack) && Time.time >= nextAttackTime)
             PerformPrimaryAttack();
 
         // 차지 시작
-        if (btns.IsDown(InputAction.Charge) || Input.GetMouseButtonDown(1))
+        if (btns.IsDown(GameInputAction.Charge) || Input.GetMouseButtonDown(1))
             StartCharging();
 
         // 차지 유지
-        bool holdCharge = btns.IsHeld(InputAction.Charge) || Input.GetMouseButton(1);
+        bool holdCharge = btns.IsHeld(GameInputAction.Charge) || Input.GetMouseButton(1);
         if (isCharging && holdCharge)
             ContinueCharging();
 
         // 차지 해제/발동
-        bool releaseCharge = btns.IsUp(InputAction.Charge) || Input.GetMouseButtonUp(1);
+        bool releaseCharge = btns.IsUp(GameInputAction.Charge) || Input.GetMouseButtonUp(1);
         if (isCharging && releaseCharge)
             PerformChargedAttack();
     }
