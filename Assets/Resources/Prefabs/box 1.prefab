@@ -161,6 +161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c25568e10497584a971db7135219fde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  returnItem: {fileID: 11400000, guid: 7eff6828c19b24b41b5d91b9fc4d58ef, type: 2}
 --- !u!114 &-1670571603131281023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,3 +174,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29b57998d978cc242be72d5d6bc1323c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerhp: {fileID: 0}

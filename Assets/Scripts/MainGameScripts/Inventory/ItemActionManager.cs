@@ -50,12 +50,31 @@ public class ItemActionManager : MonoBehaviour
                 break;
             case ItemType.Placeable://Placeable(설치가능한)으로 만들어두고 
                 {
-                    Debug.Log("두둥");
-                    // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
-                    Uiclickset _clickset = GetComponent<Uiclickset>();
-                    GameObject itemPrefab = item.itemPrefab;
-                    itemPrefab.GetComponent<ObjectDelect>().SetReturnItem(item);
-                    _clickset.HandleInventoryClick(itemPrefab);
+                    switch (item.ItemID)
+                    {
+                        case (int)ItemCode.TurnTable:
+                        {
+                            Debug.Log("두둥");
+                            // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
+                            Uiclickset _clickset = GetComponent<Uiclickset>();
+                            GameObject itemPrefab = item.itemPrefab;
+                            itemPrefab.GetComponent<ObjectDelect>().SetReturnItem(item);
+                            _clickset.HandleInventoryClick(itemPrefab);
+                            break;
+                        }
+                        case (int)ItemCode.PC:
+                        {
+                            Debug.Log("두둥");
+                            // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
+                            Uiclickset _clickset = GetComponent<Uiclickset>();
+                            GameObject itemPrefab = item.itemPrefab;
+                            itemPrefab.GetComponent<PCdelect>().SetReturnItem(item);
+                            _clickset.HandleInventoryClick(itemPrefab);
+                            break;
+                        }
+                    }
+
+
 
                     break;
                 }
