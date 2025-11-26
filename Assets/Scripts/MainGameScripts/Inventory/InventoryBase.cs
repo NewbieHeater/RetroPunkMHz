@@ -20,7 +20,7 @@ abstract public class InventoryBase : MonoBehaviour
         {
             _inventoryBase.SetActive(false);
         }
-        
+
         _slots = _inventorySlotsParent.GetComponentsInChildren<InventorySlot>();
     }
 }

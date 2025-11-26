@@ -1,3 +1,4 @@
+using Game.Controls;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,12 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
 {
     [Header("Refs")]
     [SerializeField] private CinemachineFocusing focusing;
+    [SerializeField] private DialogueManager dialogueManager;
+    CinemachineEventContext _currentCtx;
+    public CinemachineEventAsset defaultDialogueSequence;
 
-    private readonly Queue<CinemachineEventAsset> _queue = new();
+    private readonly Queue<QueuedEvent> _queue = new();
+
     private Coroutine _runner;
     private bool _cancelRequested;
     private bool _running;
@@ -27,9 +32,8 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
 
     public void PlayEvent(CinemachineEventAsset asset)
     {
-        if (asset == null) return;
-        _queue.Enqueue(asset);
-        if (_runner == null) _runner = StartCoroutine(RunQueue());
+        // 대사 파라미터 없이 호출하는 기존 방식
+        PlayEvent(asset, null, null);
     }
 
     public void CancelCurrent()
@@ -37,36 +41,66 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
         _cancelRequested = true;
     }
 
-    CinemachineEventContext _currentCtx;
+    public struct QueuedEvent
+    {
+        public CinemachineEventAsset asset;
+        public string dialogueFile;
+        public string dialogueGroup;
+    }
+
+    
+
+    public void PlayEvent(CinemachineEventAsset asset, string dialogueFile, string dialogueGroup)
+    {
+        if (asset == null) return;
+
+        _queue.Enqueue(new QueuedEvent
+        {
+            asset = asset,
+            dialogueFile = dialogueFile,
+            dialogueGroup = dialogueGroup
+        });
+
+        if (_runner == null)
+            _runner = StartCoroutine(RunQueue());
+    }
+
+    public void PlayDialogueSequence(string fileName, string groupName)
+    {
+        PlayEvent(defaultDialogueSequence, fileName, groupName);
+    }
 
     private IEnumerator RunQueue()
     {
         while (_queue.Count > 0)
         {
-            var asset = _queue.Dequeue();
-            yield return RunEvent(asset);
+            var qe = _queue.Dequeue();
+            yield return RunEvent(qe);
         }
         _runner = null;
     }
 
-    private IEnumerator RunEvent(CinemachineEventAsset asset)
+    private IEnumerator RunEvent(QueuedEvent qe)
     {
-        _running = true; _cancelRequested = false;
+        var asset = qe.asset;
+        _running = true;
+        _cancelRequested = false;
 
-        // 컨텍스트 구성
         _currentCtx = new CinemachineEventContext
         {
             Focusing = focusing,
             SavedCameraSlot = GetCurrentCameraSlotSafe(),
             IsCancelled = () => _cancelRequested,
-            LockInput = (on) => GlobalInputRouter.Instance?.LockInput(on)
+            LockInput = (on) => GlobalInputRouter.Instance?.LockInput(on),
+
+            DialogueManager = dialogueManager,
+            DialogueFileName = qe.dialogueFile,
+            DialogueGroupName = qe.dialogueGroup
         };
 
-        // 입력 잠금
         if (asset.lockPlayerInputWhileRunning)
             _currentCtx.LockInput?.Invoke(true);
 
-        // 실행
         try
         {
             foreach (var step in asset.steps)
@@ -74,11 +108,12 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
                 if (step == null || _cancelRequested) break;
                 yield return step.Execute(_currentCtx);
             }
-            if (asset.postDelay > 0f) yield return new WaitForSeconds(asset.postDelay);
+
+            if (asset.postDelay > 0f)
+                yield return new WaitForSeconds(asset.postDelay);
         }
         finally
         {
-            // 입력 잠금 해제
             if (asset.lockPlayerInputWhileRunning)
                 _currentCtx.LockInput?.Invoke(false);
 

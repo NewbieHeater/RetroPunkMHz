@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
+
 using System.Collections;
 using System.Collections.Generic;
 
@@ -149,6 +149,7 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     public void UseItem()
     {
+        Debug.Log("두둥");
         if (_item == null) return;
         if (!_item.IsInteractivity) return;
         // if (ItemCooltimeManager.Instance.GetCurrentCooltime(_item.ItemID) > 0) return;
@@ -167,33 +168,39 @@ public class InventorySlot : MonoBehaviour, IPointerClickHandler, IBeginDragHand
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        Debug.Log("찌릿");
         Uiclickset _clickset = GetComponent<Uiclickset>();
-        string _currentscene = SceneManager.GetActiveScene().name;
+        //string _currentscene = SceneManager.GetActiveScene().name;
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             if (_slotMask == ItemType.SKILL) return;
-            UseItem();
+            
         }
 
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            
-            if (_item != null && _item.ItemID == 1)
-            {
-                InventorySlot[] allSlots = FindObjectsOfType<InventorySlot>();
-                InventorySave.Instance.SaveInventory(allSlots);
-
-                SceneManager.LoadScene("eto_room");
-            }
-            else if (_currentscene == "eto_room"&& _item != null && _item.ItemID == 2)
-            {
-                _clickset.HandleInventoryClick();
-            }
-            else if (_currentscene == "eto_room" && _item != null && _item.ItemID == 3)
-            {
-                _clickset.HandleInventoryClick1();
-            }
+            UseItem();
         }
+
+        //if (eventData.button == PointerEventData.InputButton.Left)
+        //{
+
+            //    if (_item != null && _item.ItemID == 1)
+            //    {
+            //        InventorySlot[] allSlots = FindObjectsOfType<InventorySlot>();
+            //        InventorySave.Instance.SaveInventory(allSlots);
+
+            //        SceneManager.LoadScene("eto_room");
+            //    }
+            //    else if (_currentscene == "eto_room"&& _item != null && _item.ItemID == 2)
+            //    {
+            //        _clickset.HandleInventoryClick();
+            //    }
+            //    else if (_currentscene == "eto_room" && _item != null && _item.ItemID == 3)
+            //    {
+            //        _clickset.HandleInventoryClick1();
+            //    }
+            //}
     }
 
     public void OnPointerEnter(PointerEventData eventData)

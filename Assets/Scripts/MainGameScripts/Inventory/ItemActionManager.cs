@@ -1,28 +1,29 @@
+ï»¿using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 /// <summary>
-/// ¾À ³»ÀÇ ¸Å´ÏÀú ¿ÀºêÁ§Æ®¿¡ ÇÒ´ç
-/// ¾ÆÀÌÅÛ(¶Ç´Â Á¤Àû ¹°Ã¼)°ú »óÈ£ÀÛ¿ëÇÏ°Å³ª, ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀ» »ç¿ëÇÏ¸é Æ¯¼ö ÀÌº¥Æ®¸¦ ¹ß»ı½ÃÅ´
+/// ì”¬ ë‚´ì˜ ë§¤ë‹ˆì € ì˜¤ë¸Œì íŠ¸ì— í• ë‹¹
+/// ì•„ì´í…œ(ë˜ëŠ” ì •ì  ë¬¼ì²´)ê³¼ ìƒí˜¸ì‘ìš©í•˜ê±°ë‚˜, ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œì„ ì‚¬ìš©í•˜ë©´ íŠ¹ìˆ˜ ì´ë²¤íŠ¸ë¥¼ ë°œìƒì‹œí‚´
 /// </summary>
 public class ItemActionManager : MonoBehaviour
 {
     /// <summary>
-    /// ¸Ş½ÃÁö¸¦ ÁÖ°í¹Ş´Â°æ¿ì ½ºÅ³¿¡ ´ëÇÑ ¸Ş½ÃÁö ¾à¼Ó
+    /// ë©”ì‹œì§€ë¥¼ ì£¼ê³ ë°›ëŠ”ê²½ìš° ìŠ¤í‚¬ì— ëŒ€í•œ ë©”ì‹œì§€ ì•½ì†
     /// </summary>
     public static string _SkillMessage = "ActiveSkill";
 
-    [SerializeField] private RigidPlayerManagement _playerController;
 
     [Header("Preloaded objects into the scene")]
     [SerializeField] private GameObject[] _objects;
-
+    
     /// <summary>
-    /// ¾ÆÀÌÅÛ »ç¿ë ÀÌº¥Æ® È£Ãâ
-    /// °¢ ¾ÆÀÌÅÛ¸¶´Ù ½ÇÇàµÇ´Â ±â´ÉÀ» ¼öÇà
+    /// ì•„ì´í…œ ì‚¬ìš© ì´ë²¤íŠ¸ í˜¸ì¶œ
+    /// ê° ì•„ì´í…œë§ˆë‹¤ ì‹¤í–‰ë˜ëŠ” ê¸°ëŠ¥ì„ ìˆ˜í–‰
     /// </summary>
     /// <param name="item"></param>
-    /// <returns>½ÇÇàÀÌ Á¤»óÀûÀ¸·Î ÀÌ·ç¾î Á³´Â°¡?</returns>
+    /// <returns>ì‹¤í–‰ì´ ì •ìƒì ìœ¼ë¡œ ì´ë£¨ì–´ ì¡ŒëŠ”ê°€?</returns>
     public bool UseItem(Item item)
     {
         Debug.Log("UseItemEvent");
@@ -31,26 +32,32 @@ public class ItemActionManager : MonoBehaviour
         {
             case ItemType.SKILL:
                 {
-
-                }
-                break;
-            case ItemType.Consumable:
-                {
                     switch (item.ItemID)
                     {
-                        case (int)ItemCode.SMALL_HEALTH_POTION:
-                            {
-                                //GameManager.Instance.Player.ModifyHP(50);
-                                //SoundManager.Instance.PlaySound2D("Food Drink " + SoundManager.Range(1, 4, true));
+                        case (int)ItemCode.Communicator:
+                        {
+                                if(SceneManagerEx.Instance.GetCurrentScene() == Define.Scene.RoomScene)
+                                {
+                                    SceneManagerEx.Instance.LoadScene(SceneManagerEx.Instance.GetPrevScene());
+                                }
+                                else
+                                {
+                                    //SceneManager.LoadScene("RoomScene", LoadSceneMode.Additive);
+                                    SceneManagerEx.Instance.LoadScene(Define.Scene.RoomScene);
+                                }
                                 break;
-                            }
-                        case (int)ItemCode.SMALL_MANA_POTION:
-                            {
-                                //GameManager.Instance.Player.ModifyMana(50);
-                                //SoundManager.Instance.PlaySound2D("Food Drink " + SoundManager.Range(1, 4, true));
-                                break;
-                            }
+                        }
                     }
+                }
+                break;
+            case ItemType.Placeable://Placeable(ì„¤ì¹˜ê°€ëŠ¥í•œ)ìœ¼ë¡œ ë§Œë“¤ì–´ë‘ê³  
+                {
+                    Debug.Log("ë‘ë‘¥");
+                    // ì•„ë§ˆ ì´ë¶€ë¶„ì€ getcomponentë§ê³  ë‹¤ë¥¸ê±° ì¨ì•¼í•˜ê² ì£ ?
+                    Uiclickset _clickset = GetComponent<Uiclickset>();
+                    GameObject itemPrefab = item.itemPrefab;
+                    itemPrefab.GetComponent<ObjectDelect>().SetReturnItem(item);
+                    _clickset.HandleInventoryClick(itemPrefab);
 
                     break;
                 }
@@ -60,9 +67,9 @@ public class ItemActionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾À ³»¿¡¼­ ¾ÆÀÌÅÛÀ» Áİ°Å³ª, NONEÅ¸ÀÔ(ÁİÁö ¾Ê°í, »óÈ£ÀÛ¿ë Àü¿ë) ¾ÆÀÌÅÛ°ú »óÈ£ÀÛ¿ëÇÑ°æ¿ì ½ÇÇàµÇ´Â ÇÔ¼ö
+    /// ì”¬ ë‚´ì—ì„œ ì•„ì´í…œì„ ì¤ê±°ë‚˜, NONEíƒ€ì…(ì¤ì§€ ì•Šê³ , ìƒí˜¸ì‘ìš© ì „ìš©) ì•„ì´í…œê³¼ ìƒí˜¸ì‘ìš©í•œê²½ìš° ì‹¤í–‰ë˜ëŠ” í•¨ìˆ˜
     /// </summary>
-    /// <param name="itemID">ÇØ´ç ¾ÆÀÌÅÛÀÇ ÄÚµå</param>
+    /// <param name="itemID">í•´ë‹¹ ì•„ì´í…œì˜ ì½”ë“œ</param>
     /// <param name="interactTarget"></param>
     public void InteractionItem(Item item, GameObject interactTarget)
     {
@@ -70,22 +77,22 @@ public class ItemActionManager : MonoBehaviour
 
         if (interactTarget.tag == "NPC")
         {
-            //NPC FSM °¡Á®¿À±â
+            //NPC FSM ê°€ì ¸ì˜¤ê¸°
             //NPCBase targetNPC = interactTarget.GetComponent<NPCBase>();
 
-            //ÇöÀç »óÈ£ÀÛ¿ëÀÌ ºÒ°¡´ÉÇÑ ´ë»óÀÌ¶ó¸é ¸®ÅÏ
+            //í˜„ì¬ ìƒí˜¸ì‘ìš©ì´ ë¶ˆê°€ëŠ¥í•œ ëŒ€ìƒì´ë¼ë©´ ë¦¬í„´
             //if (!targetNPC.CanInteraction || targetNPC.IsQuotePlaying) { return; }
 
-            //»óÈ£ÀÛ¿ë ¸Ş½ÃÁö º¸³¿
+            //ìƒí˜¸ì‘ìš© ë©”ì‹œì§€ ë³´ëƒ„
             //MessageDispatcher.Instance.DispatchMessage(0, "", targetNPC.EntityName, "Interaction");
             return;
         }
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» ½½·Ô¿¡ µå·ÓÇÏ´Â°æ¿ì ¹ß»ıÇÏ´Â ÀÌº¥Æ®ÀÌ´Ù.
+    /// ì•„ì´í…œì„ ìŠ¬ë¡¯ì— ë“œë¡­í•˜ëŠ”ê²½ìš° ë°œìƒí•˜ëŠ” ì´ë²¤íŠ¸ì´ë‹¤.
     /// </summary>
-    /// <param name="slot">µå·ÓµÈ ½½·Ô</param>
+    /// <param name="slot">ë“œë¡­ëœ ìŠ¬ë¡¯</param>
     public void SlotOnDropEvent(InventorySlot slot)
     {
         Debug.Log("SlotOnDropEvent");
@@ -94,6 +101,8 @@ public class ItemActionManager : MonoBehaviour
 
 public enum ItemCode
 {
-    SMALL_HEALTH_POTION,
-    SMALL_MANA_POTION,
+    NULL,
+    Communicator,
+    PC,
+    TurnTable,
 }

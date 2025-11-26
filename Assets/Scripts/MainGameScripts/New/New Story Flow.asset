@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffb303ed3024f674cbb490aa56632e89, type: 3}
+  m_Name: New Story Flow
+  m_EditorClassIdentifier: 
+  flowName: 
+  nodes:
+  - id: 5587757892fd4a9f836a4a9658aebbff
+    displayName: Node 0
+    isStart: 1
+    isEnd: 0
+    incomingMode: 0
+    editorRect:
+      serializedVersion: 2
+      x: 26
+      y: 178
+      width: 240
+      height: 140
+    onEnterActions: []
+    onExitActions: []
+    npcDialogues: []
+  - id: a753d86eda4646b590433baaab30ded1
+    displayName: Node 1
+    isStart: 0
+    isEnd: 0
+    incomingMode: 0
+    editorRect:
+      serializedVersion: 2
+      x: 360
+      y: 114
+      width: 240
+      height: 140
+    onEnterActions: []
+    onExitActions: []
+    npcDialogues: []
+  - id: 692a4bac47aa47dca2970998483360be
+    displayName: Node 2
+    isStart: 0
+    isEnd: 1
+    incomingMode: 0
+    editorRect:
+      serializedVersion: 2
+      x: 702
+      y: 172
+      width: 240
+      height: 140
+    onEnterActions: []
+    onExitActions: []
+    npcDialogues: []
+  transitions:
+  - id: 1024743d8b654d429b98cd2a166d350f
+    fromNodeId: 5587757892fd4a9f836a4a9658aebbff
+    toNodeId: a753d86eda4646b590433baaab30ded1
+    requireAllConditions: 1
+    conditions: []
+  - id: 52423a8ca6ed4d37b1e084e3d3b4d133
+    fromNodeId: a753d86eda4646b590433baaab30ded1
+    toNodeId: 692a4bac47aa47dca2970998483360be
+    requireAllConditions: 1
+    conditions: []
+  startNodeId: 5587757892fd4a9f836a4a9658aebbff
+  endNodeId: 692a4bac47aa47dca2970998483360be

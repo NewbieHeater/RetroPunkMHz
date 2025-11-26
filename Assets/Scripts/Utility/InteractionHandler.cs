@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Game.Controls;
+using UnityEngine;
 
 public class InteractionHandler : MonoBehaviour
 {
@@ -42,7 +43,7 @@ public class InteractionHandler : MonoBehaviour
 
                 var frame = GlobalInputRouter.Instance?.CurrentFrame ?? default;
 
-                if (frame.buttons.IsDown(InputAction.Interact))
+                if (frame.buttons.IsDown(GameInputAction.Interact))
                 {
                     _focused.TryInteract();
                 }

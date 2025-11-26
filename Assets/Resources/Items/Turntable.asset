@@ -17,6 +17,7 @@ MonoBehaviour:
   mIsInteractivity: 1
   mIsConsumable: 1
   mItemCooltime: -1
-  mItemType: 128
+  mItemType: 256
   mItemImage: {fileID: 21300000, guid: b3a5012ac2b76114d84a625cbb6deb10, type: 3}
   mItemDescription: A
+  mItemPrefab: {fileID: 2981962912144855308, guid: 6122aceccf7c6584faee616b252c8790, type: 3}

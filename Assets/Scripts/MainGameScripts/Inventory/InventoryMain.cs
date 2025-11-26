@@ -1,131 +1,344 @@
+ï»¿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// ¿©·¯ ¾ÆÀÌÅÛÀ» ´ãÀ» °¡Àå ±âº»ÀûÀÎ ÀÎº¥Åä¸®
-/// </summary>
-public class InventoryMain : InventoryBase
+public class InventoryMain : Singleton<InventoryMain>
 {
-    public static bool IsInventoryActive = false;  // ÀÎº¥Åä¸® È°¼ºÈ­ µÇ¾ú´Â°¡?
-    
-    new void Awake()
+    // ì™¸ë¶€ í˜¸í™˜ì„± ìœ ì§€
+    public static bool IsInventoryActive = false;
+
+    [Header("References")]
+    [SerializeField] private GameObject _inventoryBase;         // ì¸ë²¤í† ë¦¬ ë£¨íŠ¸(í™œ/ë¹„í™œ)
+    [SerializeField] private GameObject _inventorySlotsParent;  // ìŠ¬ë¡¯ ë¶€ëª¨
+    [SerializeField] private InventorySlot[] _slots;            // ìºì‹œ
+
+    [Header("Behavior")]
+    [Tooltip("Updateì—ì„œ Ií‚¤(or Router)ë¡œ í† ê¸€ì„ ì²˜ë¦¬í• ì§€")]
+    [SerializeField] private bool handleToggleInput = true;
+
+    [Tooltip("GlobalInputRouterë¥¼ ì‚¬ìš©í•´ í† ê¸€(ê¶Œì¥). í•´ì œ ì‹œ KeyCode ê¸°ë°˜")]
+    [SerializeField] private bool useInputRouter = true;
+
+    [Tooltip("useInputRouter=falseì¼ ë•Œ ì‚¬ìš©í•  í† ê¸€ í‚¤")]
+    [SerializeField] private KeyCode fallbackToggleKey = KeyCode.I;
+
+    [Tooltip("ì¸ë²¤í† ë¦¬ ì—´ë¦´ ë•Œ ê²Œì„ ì…ë ¥ ì ê¸ˆ ì—¬ë¶€")]
+    [SerializeField] private bool lockGameInputWhileOpen = true;
+
+    [Tooltip("ì”¬ ì „í™˜ ì‹œ ìë™ ì €ì¥/ë³µì› ë™ì‘")]
+    [SerializeField] private bool autoPersistOnSceneChange = true;
+
+    [Tooltip("ì´ ì˜¤ë¸Œì íŠ¸ë¥¼ ì”¬ ì „í™˜ì—ì„œ ë³´ì¡´í• ì§€")]
+    [SerializeField] private bool dontDestroyOnLoad = false;
+
+    // ì´ë²¤íŠ¸: ì™¸ë¶€ ì—°ë™ìš©
+    public event System.Action Opened;
+    public event System.Action Closed;
+    public event System.Action<InventorySlot[]> SlotsChanged;
+
+    // ë‚´ë¶€ ìƒíƒœ
+    private bool _routerWasLockedByMe;
+
+    public List<ItemData> savedItems = new List<ItemData>();
+
+    protected override void Awake()
     {
         base.Awake();
-    }
 
-    void Update()
-    {
-        TryOpenInventory();
-    }
+        if (dontDestroyOnLoad)
+            DontDestroyOnLoad(gameObject);
 
-    /// <summary>
-    /// ÀÎº¥Åä¸®¸¦ IÅ°¸¦ ´­·¯ ¿­°Å³ª ´İ´Â´Ù.
-    /// </summary>
-    private void TryOpenInventory()
-    {
-        //¿É¼ÇÀÌ ÄÑÁ®ÀÖ´Â°æ¿ì ºñÈ°¼ºÈ­
-        if (GameMenuManager.IsOptionActive) { return; }
+        // _inventoryBaseë¥¼ ë¨¼ì € ë„ë˜, ìŠ¬ë¡¯ íƒìƒ‰ì€ includeInactive=trueë¡œ ì²˜ë¦¬
+        if (_inventoryBase != null && _inventoryBase.activeSelf)
+            _inventoryBase.SetActive(false);
 
-        if (Input.GetKeyDown(KeyCode.I))
+        AutoResolveReferences();
+        RebuildSlotsCache(); // ë¹„í™œì„±ì´ì–´ë„ ìŠ¬ë¡¯ í™•ë³´
+
+        if (autoPersistOnSceneChange)
         {
-            if (!IsInventoryActive)
-                OpenInventory();
-            else
-                CloseInventory();
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
     }
 
-    /// <summary>
-    /// ÀÎº¥Åä¸®¸¦ ¿¬´Ù.
-    /// </summary>
-    private void OpenInventory()
+    private void OnDestroy()
     {
-        _inventoryBase.SetActive(true);
-        IsInventoryActive = true;
-
-        //Ä¿¼­ È°¼ºÈ­
-        UnlockCursor();
-    }
-
-    /// <summary>
-    /// ÀÎº¥Åä¸®¸¦ ´İ´Â´Ù.
-    /// </summary>
-    public void CloseInventory()
-    {
-        _inventoryBase.SetActive(false);
-        IsInventoryActive = false;
-
-        //Ä¿¼­ ºñÈ°¼ºÈ­
-        TryLockCursor();
-    }
-    public void TryLockCursor()
-    {
-
-    }
-    public void UnlockCursor()
-    {
-
-    }
-    public InventorySlot[] GetAllItems()
-    {
-        return _slots;
-    }
-
-    /// <summary>
-    /// Æ¯Á¤ ¾ÆÀÌÅÛ ½½·Ô¿¡ ¾ÆÀÌÅÛÀ» µî·Ï½ÃÅ²´Ù
-    /// </summary>
-    /// <param name="item">¾î¶² ¾ÆÀÌÅÛ?</param>
-    /// <param name="targetSlot">¾î´À ½½·Ô¿¡?</param>
-    /// <param name="count">°³¼ö´Â?></param>
-    public void AcquireItem(Item item, InventorySlot targetSlot, int count = 1)
-    {
-        //ÁßÃ¸ÀÌ °¡´ÉÇÏ´Ù¸é?
-        if (item.CanOverlap)
+        if (autoPersistOnSceneChange)
         {
-            //¸¶½ºÅ©¸¦ »ç¿ëÇÏ¿© ÇØ´ç ½½·ÔÀÌ ¸¶½ºÅ©¿¡ Çã¿ëµÇ´Â À§Ä¡ÀÎ°æ¿ì¿¡¸¸ ¾ÆÀÌÅÛÀ» Áı¾î³Öµµ·Ï ÇÑ´Ù.
-            if (targetSlot.Item != null && targetSlot.IsMask(item))
-            {
-                if (targetSlot.Item.ItemID == item.ItemID)
-                {
-                    //ÇöÀç ½½·ÔÀÇ ¾ÆÀÌÅÛ °³¼ö(Count)¸¦ °»½ÅÇÑ´Ù.
-                    targetSlot.UpdateSlotCount(count);
-                }
-            }
+            SceneManager.sceneUnloaded -= OnSceneUnloaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+    }
+
+    private void AutoResolveReferences()
+    {
+        // ìŠ¬ë¡¯ ë¶€ëª¨ê°€ ë¹„ì–´ ìˆìœ¼ë©´ ë² ì´ìŠ¤ë¥¼ ë¶€ëª¨ë¡œ ê°€ì •
+        if (_inventorySlotsParent == null)
+            _inventorySlotsParent = _inventoryBase;
+    }
+
+    private void RebuildSlotsCache()
+    {
+        if (_inventorySlotsParent != null)
+            _slots = _inventorySlotsParent.GetComponentsInChildren<InventorySlot>(true); // â˜… ë¹„í™œì„± í¬í•¨
+        else
+            _slots = new InventorySlot[0];
+    }
+
+    private void OnValidate()
+    {
+        // ì—ë””í„°ì—ì„œ ë ˆì´ì•„ì›ƒ ë³€ê²½ì‹œ ìë™ ë™ê¸°í™”
+        AutoResolveReferences();
+        if (_inventorySlotsParent != null)
+            _slots = _inventorySlotsParent.GetComponentsInChildren<InventorySlot>(true);
+    }
+
+    private void Update()
+    {
+        if (!handleToggleInput) return;
+        if (GameMenuManager.IsOptionActive) return;
+
+        bool pressed = false;
+
+        if (useInputRouter && Game.Controls.GlobalInputRouter.Instance != null)
+        {
+            var f = Game.Controls.GlobalInputRouter.Instance.CurrentFrame;
+            pressed = f.buttons.IsDown(Game.Controls.GameInputAction.InventoryToggle);
         }
         else
         {
-            targetSlot.AddItem(item, count);
+            pressed = Input.GetKeyDown(fallbackToggleKey);
+        }
+        if (pressed)
+            ToggleInventory();
+    }
+
+    public void ToggleInventory()
+    {
+        if (!IsInventoryActive) OpenInventory();
+        else CloseInventory();
+    }
+
+    /// <summary>ì¸ë²¤í† ë¦¬ë¥¼ ì—°ë‹¤.</summary>
+    private void OpenInventory()
+    {
+        if (_inventoryBase != null) _inventoryBase.SetActive(true);
+        IsInventoryActive = true;
+
+        // ì»¤ì„œ/ì…ë ¥ ì²˜ë¦¬
+        UnlockCursor();
+
+        if (lockGameInputWhileOpen && Game.Controls.GlobalInputRouter.Instance != null)
+        {
+            // ì ê¸ˆ ì¤‘ ë²„íŠ¼ í—ˆìš© X, ì¶• í—ˆìš© X
+            Game.Controls.GlobalInputRouter.Instance.LockInput(true, null, false);
+            _routerWasLockedByMe = true;
+        }
+
+        Opened?.Invoke();
+    }
+
+    /// <summary>ì¸ë²¤í† ë¦¬ë¥¼ ë‹«ëŠ”ë‹¤.</summary>
+    public void CloseInventory()
+    {
+        if (_inventoryBase != null) _inventoryBase.SetActive(false);
+        IsInventoryActive = false;
+
+        TryLockCursor();
+
+        if (_routerWasLockedByMe && Game.Controls.GlobalInputRouter.Instance != null)
+        {
+            Game.Controls.GlobalInputRouter.Instance.Unlock();
+            _routerWasLockedByMe = false;
+        }
+
+        Closed?.Invoke();
+    }
+
+    public void TryLockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    public void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public InventorySlot[] GetAllItems() => _slots;
+
+    // -------------------------------
+    // ì €ì¥/ë³µì›
+    // -------------------------------
+    public void SaveFromSlots()
+    {
+        savedItems.Clear();
+
+        if (_slots == null || _slots.Length == 0)
+            RebuildSlotsCache();
+
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            var s = _slots[i];
+            if (s == null) continue;
+
+            if (s.Item != null)
+                savedItems.Add(new ItemData(i, s.Item, s.ItemCount));
         }
     }
 
+    public void LoadToSlots()
+    {
+        if (_slots == null || _slots.Length == 0)
+            RebuildSlotsCache();
 
+        foreach (var data in savedItems)
+        {
+            if (data.slotIndex < 0 || data.slotIndex >= _slots.Length) continue;
+            _slots[data.slotIndex].AddItem(data.item, data.count);
+        }
+
+        SlotsChanged?.Invoke(_slots);
+    }
+
+    private void OnSceneUnloaded(Scene s)
+    {
+        if (!autoPersistOnSceneChange) return;
+        SaveFromSlots();
+        // ì”¬ ë‚˜ê°ˆ ë•Œ UI ì—´ë ¤ ìˆìœ¼ë©´ ë‹«ì•„ ë‘ê¸°(ì•ˆì „)
+        if (IsInventoryActive) CloseInventory();
+    }
+
+    private void OnSceneLoaded(Scene s, LoadSceneMode mode)
+    {
+        if (!autoPersistOnSceneChange) return;
+        // UI íŠ¸ë¦¬ ì¬êµ¬ì„±ëì„ ìˆ˜ ìˆìœ¼ë¯€ë¡œ ìŠ¬ë¡¯ ìºì‹œ ê°±ì‹  í›„ ë³µì›
+        RebuildSlotsCache();
+        LoadToSlots();
+    }
+
+    // -------------------------------
+    // ì•„ì´í…œ íšë“
+    // -------------------------------
+    /// <summary>
+    /// íŠ¹ì • ìŠ¬ë¡¯ìœ¼ë¡œ ì•„ì´í…œ ë„£ê¸°(ê°€ëŠ¥ ì‹œ ìŠ¤íƒ, ë¶ˆê°€ ì‹œ ë®ì–´ì“°ê¸°)
+    /// </summary>
+    public void AcquireItem(Item item, InventorySlot targetSlot, int count = 1)
+    {
+        if (item == null || targetSlot == null || count <= 0) return;
+
+        // ìŠ¬ë¡¯ ë§ˆìŠ¤í¬ ë¶ˆí—ˆë©´ ë¬´ì‹œ
+        if (!targetSlot.IsMask(item)) return;
+
+        if (item.CanOverlap && targetSlot.Item != null && targetSlot.Item.ItemID == item.ItemID)
+        {
+            targetSlot.UpdateSlotCount(count);
+            SlotsChanged?.Invoke(_slots);
+            return;
+        }
+
+        targetSlot.AddItem(item, count);
+        SlotsChanged?.Invoke(_slots);
+    }
+
+    /// <summary>
+    /// ë¹ˆ ìŠ¬ë¡¯ ë˜ëŠ” ê¸°ì¡´ ìŠ¤íƒì— ìë™ ë°°ì¹˜
+    /// </summary>
     public void AcquireItem(Item item, int count = 1)
     {
-        //ÁßÃ¸ÀÌ °¡´ÉÇÏ´Ù¸é?
+        if (item == null || count <= 0) return;
+
+        if (_slots == null || _slots.Length == 0)
+            RebuildSlotsCache();
+
+        // 1) ìŠ¤íƒ ê°€ëŠ¥: ë™ì¼ ID ìŠ¤íƒì— ìš°ì„  ì¶”ê°€
         if (item.CanOverlap)
         {
             for (int i = 0; i < _slots.Length; i++)
             {
-                //¸¶½ºÅ©¸¦ »ç¿ëÇÏ¿© ÇØ´ç ½½·ÔÀÌ ¸¶½ºÅ©¿¡ Çã¿ëµÇ´Â À§Ä¡ÀÎ°æ¿ì¿¡¸¸ ¾ÆÀÌÅÛÀ» Áı¾î³Öµµ·Ï ÇÑ´Ù.
-                if (_slots[i].Item != null && _slots[i].IsMask(item))
+                var s = _slots[i];
+                if (s == null || s.Item == null) continue;
+                if (!s.IsMask(item)) continue;
+                if (s.Item.ItemID == item.ItemID)
                 {
-                    if (_slots[i].Item.ItemID == item.ItemID)
-                    {
-                        //ÇöÀç ½½·ÔÀÇ ¾ÆÀÌÅÛ °³¼ö(Count)¸¦ °»½ÅÇÑ´Ù.
-                        _slots[i].UpdateSlotCount(count);
-                        return;
-                    }
+                    s.UpdateSlotCount(count);
+                    SlotsChanged?.Invoke(_slots);
+                    return;
                 }
             }
         }
 
-        //Àåºñ ¾ÆÀÌÅÛÀÌ ¾Æ´Ñ°æ¿ì »õ·Î¿î ½½·Ô¿¡ ³õ´Â´Ù.
+        // 2) ë¹„ì–´ ìˆëŠ” ì í•© ìŠ¬ë¡¯ì— ë°°ì¹˜
         for (int i = 0; i < _slots.Length; i++)
         {
-            if (_slots[i].Item == null && _slots[i].IsMask(item))
+            var s = _slots[i];
+            if (s == null) continue;
+
+            if (s.Item == null && s.IsMask(item))
             {
-                _slots[i].AddItem(item, count);
+                s.AddItem(item, count);
+                SlotsChanged?.Invoke(_slots);
                 return;
             }
         }
+
+        Debug.LogWarning($"[InventoryMain] No available slot for item {item.name} x{count}.");
     }
+
+    private static Dictionary<int, Item> _itemCache;
+
+    /// <summary>
+    /// ItemIDë¡œ Item ScriptableObjectë¥¼ ê°€ì ¸ì˜¨ë‹¤.
+    /// Resources/Items í´ë” ë‚´ì˜ ì•„ì´í…œë“¤ì„ ëŒ€ìƒìœ¼ë¡œ í•œë‹¤.
+    /// </summary>
+    private Item GetItemById(int id)
+    {
+        // ìºì‹œê°€ ì—†ìœ¼ë©´ í•œ ë²ˆ ë¹Œë“œ
+        if (_itemCache == null)
+        {
+            _itemCache = new Dictionary<int, Item>();
+
+            // Resources/Items í´ë”ì— ìˆëŠ” ëª¨ë“  Item ë¶ˆëŸ¬ì˜¤ê¸°
+            var allItems = Resources.LoadAll<Item>("Items"); // í´ë”ëª…ì´ "Resources/Items"ë¼ë©´ ê²½ë¡œëŠ” "Items"
+
+            foreach (var it in allItems)
+            {
+                if (it == null) continue;
+
+                // Item ScriptableObjectì— ItemID ë¼ëŠ” í•„ë“œê°€ ìˆë‹¤ê³  ê°€ì •
+                if (!_itemCache.ContainsKey(it.ItemID))
+                {
+                    _itemCache.Add(it.ItemID, it);
+                }
+                else
+                {
+                    Debug.LogWarning($"[InventoryMain] Duplicate ItemID {it.ItemID} on item asset {it.name}.");
+                }
+            }
+        }
+
+        if (_itemCache.TryGetValue(id, out var found))
+            return found;
+
+        Debug.LogWarning($"[InventoryMain] No Item found for id={id}. Check ItemID or Resources/Items setup.");
+        return null;
+    }
+
+    /// <summary>
+    /// ì•„ì´ë””ë¡œ ì•„ì´í…œ ê°€ì ¸ì˜¤ê¸°(ì„±ëŠ¥ìƒ ë‚¨ë°œì€ ì§€ì–‘ ê¶Œì¥)
+    /// </summary>
+    public void AcquireItem(int id, int count = 1)
+    {
+        if (count <= 0) return;
+
+        var item = GetItemById(id);
+        if (item == null) return;
+
+        // ì´ë¯¸ ê²€ì¦ëœ ë¡œì§ ì¬ì‚¬ìš©
+        AcquireItem(item, count);
+    }
+
 }
