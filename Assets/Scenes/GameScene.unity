@@ -2957,9 +2957,9 @@ MonoBehaviour:
   totalChannelPoints: 12
   minPts: -5
   maxPts: 5
-  amplitudePts: 0
-  periodPts: 0
-  waveformPts: 0
+  amplitudePts: 3
+  periodPts: 4
+  waveformPts: 3
 --- !u!4 &282889887
 Transform:
   m_ObjectHideFlags: 0

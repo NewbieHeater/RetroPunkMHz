@@ -1,19 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ObjectDelect : MonoBehaviour
 {
     [SerializeField] private Item returnItem;
-
+    bool isMouseOver = false;
+    void OnMouseEnter() => isMouseOver = true;
+    void OnMouseExit() => isMouseOver = false;
     public void SetReturnItem(Item item)
     {
         returnItem = item;
     }
-
-    void OnMouseDown()
+    private void Update()
     {
-        Destroy(gameObject);
-        InventoryMain.Instance.AcquireItem(returnItem);
+        if (isMouseOver)
+        {
+            if(Input.GetMouseButtonDown(0))
+            {
+                itmedelect();
+            }
+
+            
+        }
+
     }
+    void itmedelect()
+    {
+        
+        InventoryMain.Instance.AcquireItem(returnItem);
+        Destroy(gameObject);
+    }
+
+    
 }

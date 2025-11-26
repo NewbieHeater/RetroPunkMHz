@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 6666534350562342125}
   - component: {fileID: 3784821892457508609}
   - component: {fileID: 2898908013979576012}
-  - component: {fileID: 6921283704914215471}
   - component: {fileID: -4842895886734578687}
+  - component: {fileID: 4182751252099663730}
   m_Layer: 11
   m_Name: box 2
   m_TagString: Untagged
@@ -149,18 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabPath: Prefabs/Cube
---- !u!114 &6921283704914215471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2981962912144855308}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c25568e10497584a971db7135219fde, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-4842895886734578687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,3 +161,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 041120ae8373cb648af3aee46533eb44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4182751252099663730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981962912144855308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d7c20074c8bafe469966ba58796c444, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  returnItem: {fileID: 11400000, guid: 50a35b3b6b5c0924da538828f7608c1d, type: 2}
+  _pcui: {fileID: 0}
+  _ampbutton: {fileID: 0}
+  _perbutton: {fileID: 0}
+  _wavbutton: {fileID: 0}
