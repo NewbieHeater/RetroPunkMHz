@@ -1,19 +1,18 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
-public class CharacterProfileManager : Singleton<CharacterProfileManager>
+public class CharacterProfileManager
 {
-    public List<CharacterProfile> profiles; // 에디터에서 할당하거나 Resources.LoadAll<CharacterProfile>("Profiles") 등을 이용
-
     private Dictionary<string, CharacterProfile> profileDictionary = new Dictionary<string, CharacterProfile>();
 
-    protected override void Initialize()
+    public void Init()
     {
         InitializeProfiles();
     }
 
     private void InitializeProfiles()
     {
+        CharacterProfile[] profiles = Managers.Resource.LoadAll<CharacterProfile>($"Profiles");
         foreach (var profile in profiles)
         {
             if (profile != null && !profileDictionary.ContainsKey(profile.id))

@@ -48,7 +48,7 @@ public class DialogueUI : MonoBehaviour
     // 대화 시작 시 호출: 좌/우 캐릭터 초상화 영역을 초기화
     public void InitCharacters()
     {
-        var eto = CharacterProfileManager.Instance.GetProfile("Eto");
+        var eto = Managers.Profile.GetProfile("Eto");
         leftPortrait.sprite = eto?.GetSprite("neutral");
         leftPortrait.color = Color.gray; // 초기엔 비활성 (화자가 나올 때 업데이트)
         leftPortrait.gameObject.SetActive(true);

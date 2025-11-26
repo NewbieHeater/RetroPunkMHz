@@ -215,7 +215,7 @@ public class DialogueManager : MonoBehaviour
         {
             // 화자 프로필 매핑은 별도 관리 (예: profileMap)라고 가정합니다.
             CharacterProfile speakerProfile = null;
-            speakerProfile = CharacterProfileManager.Instance.GetProfile(line.speaker);
+            speakerProfile = Managers.Profile.GetProfile(line.speaker);
             dialogueUI.ShowDialogueLine(speakerProfile, line.text, line.sprite);
         }
 

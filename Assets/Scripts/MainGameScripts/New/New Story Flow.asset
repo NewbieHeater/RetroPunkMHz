@@ -35,8 +35,8 @@ MonoBehaviour:
     incomingMode: 0
     editorRect:
       serializedVersion: 2
-      x: 360
-      y: 114
+      x: 333
+      y: 143
       width: 240
       height: 140
     onEnterActions: []

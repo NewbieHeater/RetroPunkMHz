@@ -29,7 +29,7 @@ public class ObjectDelect : MonoBehaviour
     void itmedelect()
     {
         
-        InventoryMain.Instance.AcquireItem(returnItem);
+        InventoryManager.Instance.AddItem( returnItem );
         Destroy(gameObject);
     }
 

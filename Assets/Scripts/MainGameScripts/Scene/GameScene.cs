@@ -15,7 +15,6 @@ public class GameScene : BaseScene
 
     public override void Clear()
     {
-        InventoryMain.Instance.SaveFromSlots();
-        InventoryMain.Instance.CloseInventory();
+
     }
 }

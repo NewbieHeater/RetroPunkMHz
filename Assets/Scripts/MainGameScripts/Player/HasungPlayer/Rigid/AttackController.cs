@@ -118,7 +118,6 @@ public class AttackController : MonoBehaviour
         
         int scaled = Mathf.RoundToInt(_stats != null ? _stats.AttackDamage : 10f);
         var (final, crit) = ApplyCritical(scaled);
-        Debug.Log(final);
         var info = new DamageInfo
         {
             Amount = final,
