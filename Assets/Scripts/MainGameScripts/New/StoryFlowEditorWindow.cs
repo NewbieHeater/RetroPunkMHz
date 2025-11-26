@@ -103,7 +103,8 @@ public class StoryFlowEditorWindow : EditorWindow
     /// </summary>
     private Vector2 ToGraphPos(Vector2 windowPos)
     {
-        return windowPos + _graphScroll;
+        // 그래프 뷰(Rect) 기준 로컬 좌표로 변환 후, 스크롤 보정
+        return windowPos - _graphViewRect.position + _graphScroll;
     }
 
     // ---------------- Graph Area ----------------
@@ -337,17 +338,17 @@ public class StoryFlowEditorWindow : EditorWindow
 
     private void HandleGraphEvents(Event e)
     {
-        // 그래프 영역 밖이면 무시
+        // 그래프 영역 밖이면 무시 (원하면 이 줄은 빼도 됨)
         if (!_graphViewRect.Contains(e.mousePosition))
             return;
 
-        // ---------------- 중클릭 패닝 처리 ----------------
+        // ------------ 중클릭 패닝 ------------
         if (e.button == 2)
         {
             if (e.type == EventType.MouseDown)
             {
                 _isPanning = true;
-                _lastPanMousePos = e.mousePosition;  // 윈도우(에디터 창) 좌표
+                _lastPanMousePos = e.mousePosition;
                 e.Use();
                 return;
             }
@@ -355,12 +356,9 @@ public class StoryFlowEditorWindow : EditorWindow
             if (_isPanning && e.type == EventType.MouseDrag)
             {
                 Vector2 delta = e.mousePosition - _lastPanMousePos;
-
-                // 화면을 이동시키려면 스크롤은 반대 방향
+                // 스크롤은 반대 방향으로
                 _graphScroll -= delta;
-
                 _lastPanMousePos = e.mousePosition;
-
                 Repaint();
                 e.Use();
                 return;
@@ -374,22 +372,92 @@ public class StoryFlowEditorWindow : EditorWindow
             }
         }
 
-        // 이 아래에 원래 쓰던
-        // - 노드 선택
-        // - 트랜지션 선택
-        // - Delete키 삭제
-        // - 우클릭 컨텍스트 메뉴
-        // 등을 이어서 두면 됩니다.
-
+        // 여기서부터는 나머지 입력 처리
         Vector2 graphPos = ToGraphPos(e.mousePosition);
 
-        // 예시)
-        // if (e.type == EventType.ContextClick)
-        // {
-        //     ShowContextMenu(graphPos);
-        //     e.Use();
-        // }
+        // ------------ 트랜지션 드래그 중일 때 ------------
+        if (_isDraggingTransition)
+        {
+            if (e.type == EventType.MouseDrag || e.type == EventType.MouseMove)
+            {
+                _dragMousePos = graphPos;
+                Repaint();
+            }
+            else if (e.type == EventType.MouseUp && e.button == 0)
+            {
+                StoryNode target = GetNodeAtPosition(graphPos);
+                if (target != null && target != _dragFromNode)
+                {
+                    CreateTransition(_dragFromNode, target);
+                }
+
+                _isDraggingTransition = false;
+                _dragFromNode = null;
+                e.Use();
+            }
+
+            return;
+        }
+
+        // ------------ Delete / Backspace : 선택 삭제 ------------
+        if (e.type == EventType.KeyDown &&
+            (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
+        {
+            if (_selectedTransition != null)
+            {
+                RemoveTransition(_selectedTransition);
+                Repaint();
+                e.Use();
+                return;
+            }
+
+            if (_selectedNode != null)
+            {
+                DeleteNode(_selectedNode);
+                Repaint();
+                e.Use();
+                return;
+            }
+        }
+
+        // ------------ 좌클릭 : 트랜지션 / 노드 선택 ------------
+        if (e.type == EventType.MouseDown && e.button == 0)
+        {
+            // 1) 먼저 선(트랜지션) 히트테스트
+            StoryTransition hitTransition = GetTransitionAtPosition(graphPos);
+            if (hitTransition != null)
+            {
+                _selectedTransition = hitTransition;
+                _selectedNode = null;
+                Repaint();
+                // e.Use() 안 해서 노드 드래그는 그대로 두되, 여기서는 선택만
+                return;
+            }
+
+            // 2) 노드 히트테스트
+            StoryNode clickedNode = GetNodeAtPosition(graphPos);
+            if (clickedNode != null)
+            {
+                _selectedNode = clickedNode;
+                _selectedTransition = null;
+                Repaint();
+                // 여기서도 e.Use() 안 해서, 내부의 GUI.DragWindow 헤더가 드래그 처리 가능
+                return;
+            }
+
+            // 3) 아무것도 아니면 선택 해제
+            _selectedNode = null;
+            _selectedTransition = null;
+        }
+
+        // ------------ 우클릭 : 컨텍스트 메뉴 ------------
+        if (e.type == EventType.ContextClick)
+        {
+            ShowContextMenu(graphPos);
+            e.Use();
+        }
     }
+
 
 
     private StoryNode GetNodeAtPosition(Vector2 graphPos)
