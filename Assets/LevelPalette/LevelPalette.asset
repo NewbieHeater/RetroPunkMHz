@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32909d311a0020c499c6228241a35822, type: 3}
+  m_Name: LevelPalette
+  m_EditorClassIdentifier: 
+  items:
+  - label: 
+    tag: 
+    prefab: {fileID: 7535432576740926611, guid: ad34927c5672bf5478f1a8c769aec22d, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 2065990152566874683, guid: 3b8c020bf5142624e8905b0f07d80941, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 2065990152566874683, guid: f4b5c241e1238c946a30892bfad33757, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 2981962912144855308, guid: 7cf46345d6d5c5a499f7453f8abfd873, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 1976430230425425262, guid: 015be78b7abd5ba49a2ab35e0a021773, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 2915502481940485998, guid: 44f8dd8e7adace74c8d264c0a67e89d4, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 2068018823587438008, guid: d17f9221324b7e249b4bdbe0a205e0a2, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 7096334172729584622, guid: 093fb56b01582dc489e7830c4f472b18, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 6588910919009176662, guid: 2a0e3649e8feb6a419639cd72fa382d0, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
+  - label: 
+    tag: 
+    prefab: {fileID: 7083956582557039334, guid: a3a193bed35d7ac419165c92c056889a, type: 3}
+    customIcon: {fileID: 0}
+    favorite: 0
