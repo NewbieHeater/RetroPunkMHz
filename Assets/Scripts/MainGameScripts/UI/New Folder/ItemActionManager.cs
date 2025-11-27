@@ -17,7 +17,7 @@ public class ItemActionManager : MonoBehaviour
 
     [Header("Preloaded objects into the scene")]
     [SerializeField] private GameObject[] _objects;
-
+    
     /// <summary>
     /// 아이템 사용 이벤트 호출
     /// 각 아이템마다 실행되는 기능을 수행
@@ -35,8 +35,8 @@ public class ItemActionManager : MonoBehaviour
                     switch (item.ItemID)
                     {
                         case (int)ItemCode.Communicator:
-                            {
-                                if (Managers.Scene.GetCurrentScene() == Define.Scene.RoomScene)
+                        {
+                                if(Managers.Scene.GetCurrentScene() == Define.Scene.RoomScene)
                                 {
                                     Managers.Scene.LoadScene(Managers.Scene.GetPrevScene());
                                 }
@@ -46,7 +46,7 @@ public class ItemActionManager : MonoBehaviour
                                     Managers.Scene.LoadScene(Define.Scene.RoomScene);
                                 }
                                 break;
-                            }
+                        }
                     }
                 }
                 break;
@@ -55,25 +55,25 @@ public class ItemActionManager : MonoBehaviour
                     switch (item.ItemID)
                     {
                         case (int)ItemCode.TurnTable:
-                            {
-                                Debug.Log("두둥");
-                                // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
-                                Uiclickset _clickset = GetComponent<Uiclickset>();
-                                GameObject itemPrefab = item.itemPrefab;
-                                itemPrefab.GetComponent<ObjectDelect>().SetReturnItem(item);
-                                _clickset.HandleInventoryClick(itemPrefab);
-                                break;
-                            }
+                        {
+                            Debug.Log("두둥");
+                            // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
+                            Uiclickset _clickset = GetComponent<Uiclickset>();
+                            GameObject itemPrefab = item.itemPrefab;
+                            itemPrefab.GetComponent<ObjectDelect>().SetReturnItem(item);
+                            _clickset.HandleInventoryClick(itemPrefab);
+                            break;
+                        }
                         case (int)ItemCode.PC:
-                            {
-                                Debug.Log("두둥");
-                                // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
-                                Uiclickset _clickset = GetComponent<Uiclickset>();
-                                GameObject itemPrefab = item.itemPrefab;
-                                itemPrefab.GetComponent<PCdelect>().SetReturnItem(item);
-                                _clickset.HandleInventoryClick(itemPrefab);
-                                break;
-                            }
+                        {
+                            Debug.Log("두둥");
+                            // 아마 이부분은 getcomponent말고 다른거 써야하겠죠?
+                            Uiclickset _clickset = GetComponent<Uiclickset>();
+                            GameObject itemPrefab = item.itemPrefab;
+                            itemPrefab.GetComponent<PCdelect>().SetReturnItem(item);
+                            _clickset.HandleInventoryClick(itemPrefab);
+                            break;
+                        }
                     }
 
 

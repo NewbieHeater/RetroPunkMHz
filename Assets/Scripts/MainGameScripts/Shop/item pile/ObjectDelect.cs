@@ -17,21 +17,21 @@ public class ObjectDelect : MonoBehaviour
     {
         if (isMouseOver)
         {
-            if (Input.GetMouseButtonDown(0))
+            if(Input.GetMouseButtonDown(0))
             {
                 itmedelect();
             }
 
-
+            
         }
 
     }
     void itmedelect()
     {
-
-        InventoryManager.Instance.AddItem(returnItem);
+        
+        InventoryManager.Instance.AddItem( returnItem );
         Destroy(gameObject);
     }
 
-
+    
 }

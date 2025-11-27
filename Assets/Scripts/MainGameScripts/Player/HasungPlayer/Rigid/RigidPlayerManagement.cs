@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Game.Controls;
+using UnityEngine;
 
 public struct DamageInfo
 {

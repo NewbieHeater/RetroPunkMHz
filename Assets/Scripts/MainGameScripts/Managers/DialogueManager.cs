@@ -31,7 +31,7 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-
+    
     public void ToggleAuto() => isAuto = !isAuto;
 
 

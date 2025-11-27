@@ -9,10 +9,10 @@ public class Turntable : MonoBehaviour
 
     private void Update()
     {
-        if ( _playerhp.hp < 100)
+        /*if ( _playerhp.hp < 100)
         {
             _playerhp.hp = _healtime * Time.deltaTime;
-        }
+        }*/
     }
         
     

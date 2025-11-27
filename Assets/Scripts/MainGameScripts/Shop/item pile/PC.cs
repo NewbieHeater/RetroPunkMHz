@@ -1,10 +1,10 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PC : MonoBehaviour
 {
-
+    
 
 
     // Update is called once per frame
@@ -16,7 +16,7 @@ public class PC : MonoBehaviour
         int per = ChannelManager.PerPts;
         int wav = ChannelManager.WavPts;
         int pc_channel = 2 * amp;
-        Debug.Log("¿À¿À");
+        Debug.Log("ì˜¤ì˜¤");
         ChannelManager.Instance.Allocate(pc_channel, per, wav);
     }
 
@@ -26,7 +26,7 @@ public class PC : MonoBehaviour
         int per = ChannelManager.PerPts;
         int wav = ChannelManager.WavPts;
         int pc_channel = 2 * per;
-        Debug.Log("¿À¿À");
+        Debug.Log("ì˜¤ì˜¤");
         ChannelManager.Instance.Allocate(amp, pc_channel, wav);
     }
 
@@ -36,7 +36,7 @@ public class PC : MonoBehaviour
         int per = ChannelManager.PerPts;
         int wav = ChannelManager.WavPts;
         int pc_channel = 2 * wav;
-        Debug.Log("¿À¿À");
+        Debug.Log("ì˜¤ì˜¤");
         ChannelManager.Instance.Allocate(amp, per, pc_channel);
     }
 }
