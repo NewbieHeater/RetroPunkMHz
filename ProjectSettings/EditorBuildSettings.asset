@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/GameScene.unity
+    path: Assets/Scenes/GameScene_leveled.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
     path: Assets/Scenes/pong.unity
@@ -23,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/sangyeon_workspace.unity
     guid: d28adcd325da89e41bf3df19c763a03c
+  - enabled: 1
+    path: Assets/Scenes/FirstScene.unity
+    guid: 98a5a91ca15c4ab4ea5eba2e5abd105b
   m_configObjects: {}
