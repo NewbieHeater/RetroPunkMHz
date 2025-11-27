@@ -1,17 +1,32 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
-public sealed class CinemachineEventContext
+public class CinemachineEventContext
 {
     public CinemachineFocusing Focusing;
-    public System.Func<bool> IsCancelled;   // 취소 체크
-    public System.Action<bool> LockInput;   // 입력 잠금
-    public System.Action EndFlag;           // 외부 트리거
     public int SavedCameraSlot;
+    public System.Func<bool> IsCancelled;
+    public System.Action<bool> LockInput;
+    public System.Action EndFlag;
+
+    public string DialogueFileName;
+    public string DialogueGroupName;
+
+    public DialogueManager DialogueManager;
 }
+
 
 public abstract class EventStep : ScriptableObject
 {
     public abstract IEnumerator Execute(CinemachineEventContext ctx);
 }
 
+public enum EventStepType
+{
+    LockInput,
+    UnlockInput,
+    Dialogue,
+    CameraSlot,
+    Wait
+}
