@@ -230,7 +230,11 @@ public abstract class EnemyBase : MonoBehaviour, IAttackable, IExplosionInteract
             _shakeSource.ShakeOnChargeKill();
 
             if (info.IsCharge)
+            {
+                CinemachineEventReader.Instance.PlayBuiltInEvent(BuiltInEvents.ChargeKill);
                 StartChargedDeathFlight(info.SourceDir, info.KnockbackForce);
+            }
+                
             OnDie();
             return;
         }

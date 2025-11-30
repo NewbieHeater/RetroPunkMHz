@@ -1,18 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class UI_Shop : UI_Popup
 {
-    enum GameObjects
+    private enum GameObjects
     {
         GridPanel,
     }
 
-    public GameObject gridPanel;
-    private List<UI_ShopSlot> _slots = new List<UI_ShopSlot>();
-    private BuyableItems[] _buyableItems;
+    private GameObject gridPanel;
+    private readonly List<UI_ShopSlot> _slots = new List<UI_ShopSlot>();
 
     private void Awake()
     {
@@ -25,16 +23,22 @@ public class UI_Shop : UI_Popup
         Bind<GameObject>(typeof(GameObjects));
 
         gridPanel = Get<GameObject>((int)GameObjects.GridPanel);
+
+        // 프리팹에 미리 붙어 있던 자식들 정리
         foreach (Transform child in gridPanel.transform)
             Managers.Resource.Destroy(child.gameObject);
     }
 
-    public void RefreshUI(BuyableItems[] buyableItems, ShopBase shop)
+    /// <summary>
+    /// 특정 ShopBase의 현재 판매 목록을 기반으로 UI 갱신.
+    /// </summary>
+    public void RefreshUI(ShopBase shop)
     {
-        if (buyableItems == null)
+        if (shop == null || shop.Items == null)
             return;
 
-        int needed = buyableItems.Length;
+        var items = shop.Items;
+        int needed = items.Count;
 
         // 1) 슬롯 개수 부족하면 추가 생성
         while (_slots.Count < needed)
@@ -43,20 +47,17 @@ public class UI_Shop : UI_Popup
             _slots.Add(slot);
         }
 
-        // 2) 필요한 개수만큼 슬롯 채우고 활성화
+        // 2) 필요한 개수만큼 슬롯 세팅 + 활성화
         for (int i = 0; i < needed; i++)
         {
-            var data = buyableItems[i];
+            var entry = items[i];
             var slot = _slots[i];
-
-            slot.Setup(shop, data.item, data.itemCount);
 
             if (!slot.gameObject.activeSelf)
                 slot.gameObject.SetActive(true);
 
-            slot.SetItem(data.item);
-            slot.SetItemCount(data.itemCount);
-            slot.RefreshUI();
+            // 슬롯에 Shop + Index만 넘김 (데이터는 항상 Shop에서 가져오게)
+            slot.Setup(shop, i);
         }
 
         // 3) 남는 슬롯들은 비활성화
@@ -67,5 +68,4 @@ public class UI_Shop : UI_Popup
                 slot.gameObject.SetActive(false);
         }
     }
-
 }

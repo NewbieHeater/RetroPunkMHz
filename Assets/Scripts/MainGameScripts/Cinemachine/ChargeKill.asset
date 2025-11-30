@@ -54,8 +54,8 @@ MonoBehaviour:
   lockPlayerInputWhileRunning: 1
   postDelay: 0
   steps:
-  - {fileID: -121982901556335789}
   - {fileID: 3217258316541832082}
+  - {fileID: -121982901556335789}
   - {fileID: 7166624384756812083}
   - {fileID: 3154328940947840735}
   - {fileID: -8789127043666011436}
@@ -72,8 +72,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7adbdf2b1a07aaf4fbd3ad17a9ffa9ac, type: 3}
   m_Name: SlowMotionStep
   m_EditorClassIdentifier: 
-  targetTimeScale: 0.398
-  blendInDuration: 0.5
+  targetTimeScale: 0.01
+  blendInDuration: 0.28
   holdDuration: 0.5
   blendOutDuration: 0.2
   restoreTimeScale: 1
@@ -103,8 +103,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5120ac46ea4fb864bb619ae3e27457cd, type: 3}
   m_Name: ShakeCameraStep
   m_EditorClassIdentifier: 
-  duration: 0.1
-  amplitude: 2
-  frequency: 2
+  duration: 0.5
+  amplitude: 3
+  frequency: 3
   fadeOut: 0.25
-  waitForCompletion: 1
+  waitForCompletion: 0

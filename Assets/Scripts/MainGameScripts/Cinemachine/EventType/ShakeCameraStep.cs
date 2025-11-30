@@ -1,16 +1,15 @@
-using System.Collections;
 using UnityEngine;
-
+using System.Collections;
 public class ShakeCameraStep : EventStep
 {
     [Header("Shake Settings")]
-    [Min(0f)] public float duration = 0.15f;     // 강하게 흔드는 시간
+    [Min(0f)] public float duration = 0.15f;
     public float amplitude = 2.0f;
     public float frequency = 2.0f;
-    [Min(0f)] public float fadeOut = 0.25f;      // 서서히 원래 값으로 복귀
+    [Min(0f)] public float fadeOut = 0.25f;
 
     [Header("Flow")]
-    public bool waitForCompletion = true;        // true면 흔들림이 끝날 때까지 다음 스텝 대기
+    public bool waitForCompletion = true;
 
     public override IEnumerator Execute(CinemachineEventContext ctx)
     {
@@ -20,14 +19,13 @@ public class ShakeCameraStep : EventStep
             yield break;
         }
 
-        // 흔들기 시작
+        // 카메라 흔들기 시작
         ctx.CameraShake.ShakeOnce(duration, amplitude, frequency, fadeOut);
 
         // 그냥 쏘고 바로 다음 스텝으로 넘어가고 싶으면
         if (!waitForCompletion)
             yield break;
 
-        // duration + fadeOut 동안 대기 (취소 대응)
         float total = duration + fadeOut;
         float t = 0f;
 
@@ -36,7 +34,7 @@ public class ShakeCameraStep : EventStep
             if (ctx.IsCancelled != null && ctx.IsCancelled())
                 yield break;
 
-            t += Time.deltaTime;   // 연출 시간은 게임 시간 기준으로 진행
+            t += Time.unscaledDeltaTime;   // ← 여기만 바꿔도 연출 길이는 고정됨
             yield return null;
         }
     }

@@ -156,7 +156,7 @@ public class AttackController : MonoBehaviour
     {
         if (_stats == null) { ResetCharge(); return; }
 
-        CinemachineEventReader.Instance.PlayBuiltInEvent(BuiltInEvents.ChargeKill);
+        
 
         if (animator) animator.Play(animClipCharged);
 
@@ -234,6 +234,7 @@ public class AttackController : MonoBehaviour
             _hitOnce.Add(atk);
 
             atk.TakeDamage(info);
+            
         }
     }
 
