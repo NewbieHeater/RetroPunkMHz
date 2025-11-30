@@ -156,6 +156,8 @@ public class AttackController : MonoBehaviour
     {
         if (_stats == null) { ResetCharge(); return; }
 
+        CinemachineEventReader.Instance.PlayBuiltInEvent(BuiltInEvents.ChargeKill);
+
         if (animator) animator.Play(animClipCharged);
 
         float t = Mathf.Clamp(chargeTimer, 0f, _stats.MaxChargeTime);

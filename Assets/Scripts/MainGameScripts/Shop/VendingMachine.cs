@@ -1,10 +1,22 @@
 using Game.Controls;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class VendingMachine : InteractableBase
+[Serializable]
+public class BuyableItems
 {
+    public Item item;
+    public int itemCount;
+}
+public class VendingMachine : ShopBase
+{
+    UI_Shop shop;
+
+
+    
+    
+
 
     private bool _isOpen = false;
     protected override bool OnInteract()
@@ -31,14 +43,15 @@ public class VendingMachine : InteractableBase
     private void OpenShop()
     {
         // Interact만 허용 (나머지 공격/이동/점프 전부 차단)
-        GlobalInputRouter.Instance.LockAllowOnly(GameInputAction.Interact);
-        UIManagers.Instance.ShowUI();
+        GlobalInputRouter.Instance.LockAllowOnly(GameInputAction.Interact, GameInputAction.InventoryToggle);
+        shop = Managers.UI.ShowPopupUI<UI_Shop>();
+        shop.RefreshUI(buyableItems, this);
     }
 
     private void CloseShop()
     {
         // 입력 잠금 해제
         GlobalInputRouter.Instance.Unlock();
-        UIManagers.Instance.HideUI();
+        Managers.UI.ClosePopupUI(shop);
     }
 }

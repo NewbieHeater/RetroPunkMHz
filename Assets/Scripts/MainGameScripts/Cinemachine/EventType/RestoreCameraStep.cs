@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WaitStep : EventStep
+public class RestoreCameraStep : EventStep
 {
-    public float seconds;
+    public int cameraSlot = 0;
     public override IEnumerator Execute(CinemachineEventContext ctx)
     {
-        yield return new WaitForSeconds(seconds);
+        ctx.Focusing.ToDefault();
+        yield return null;
     }
 }

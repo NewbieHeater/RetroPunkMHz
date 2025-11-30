@@ -14,6 +14,8 @@ public class CinemachineEventContext
     public string DialogueGroupName;
 
     public DialogueManager DialogueManager;
+
+    public CameraShakeNoise CameraShake;
 }
 
 

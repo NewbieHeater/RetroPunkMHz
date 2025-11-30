@@ -170,10 +170,10 @@ public class ObjectPooler : MonoBehaviour
             }
             
             // OnDisable에 ReturnToPool 구현여부와 중복구현 검사
-            if (poolDictionary[pool.tag].Count <= 0)
-                Debug.LogError($"{pool.tag}{INFO}");
-            else if (poolDictionary[pool.tag].Count != pool.size)
-                Debug.LogError($"{pool.tag}에 ReturnToPool이 중복됩니다");
+            //if (poolDictionary[pool.tag].Count <= 0)
+            //    Debug.LogError($"{pool.tag}{INFO}");
+            //else if (poolDictionary[pool.tag].Count != pool.size)
+            //    Debug.LogError($"{pool.tag}에 ReturnToPool이 중복됩니다");
         }
         readyToPool.Invoke();
     }
@@ -182,8 +182,8 @@ public class ObjectPooler : MonoBehaviour
     {
         var obj = Instantiate(prefab, transform);
         obj.name = tag;
-        //Managers.Resource.Disable(obj);
-        obj.SetActive(false); // 비활성화시 ReturnToPool을 하므로 Enqueue가 됨
+        Managers.Resource.Disable(obj);
+        //obj.SetActive(false); // 비활성화시 ReturnToPool을 하므로 Enqueue가 됨
         return obj;
     }
 

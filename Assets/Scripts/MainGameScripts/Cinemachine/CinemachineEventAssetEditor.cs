@@ -110,7 +110,9 @@ public class CinemachineEventAssetEditor : Editor
         menu.AddItem(new GUIContent("Camera Focus"), false, () => CreateAndAddStep<CameraFocusStep>());
         menu.AddItem(new GUIContent("Dialogue"), false, () => CreateAndAddStep<DialogueStep>());
         menu.AddItem(new GUIContent("Wait"), false, () => CreateAndAddStep<WaitStep>());
-        //menu.AddItem(new GUIContent("Restore Camera"), false, () => CreateAndAddStep<RestoreCameraStep>());
+        menu.AddItem(new GUIContent("Restore Camera"), false, () => CreateAndAddStep<RestoreCameraStep>());
+        menu.AddItem(new GUIContent("Slow Motion"), false, () => CreateAndAddStep<SlowMotionStep>());
+        menu.AddItem(new GUIContent("Shake Camera"), false, () => CreateAndAddStep<ShakeCameraStep>());
 
         menu.ShowAsContext();
     }
@@ -202,10 +204,21 @@ public class CinemachineEventAssetEditor : Editor
         AddStepReference(waitStep);
 
         // 5) Restore
-        //var restoreStep = ScriptableObject.CreateInstance<RestoreCameraStep>();
-        //restoreStep.name = "RestoreCameraStep";
-        //AssetDatabase.AddObjectToAsset(restoreStep, asset);
-        //AddStepReference(restoreStep);
+        var restoreStep = ScriptableObject.CreateInstance<RestoreCameraStep>();
+        restoreStep.name = "RestoreCameraStep";
+        AssetDatabase.AddObjectToAsset(restoreStep, asset);
+        AddStepReference(restoreStep);
+
+        // 2.5) SlowMotion
+        var slowStep = ScriptableObject.CreateInstance<SlowMotionStep>();
+        slowStep.name = "SlowMotionStep";
+        slowStep.targetTimeScale = 0.2f;
+        slowStep.blendInDuration = 0.1f;
+        slowStep.holdDuration = 0.5f;
+        slowStep.blendOutDuration = 0.2f;
+        AssetDatabase.AddObjectToAsset(slowStep, asset);
+        AddStepReference(slowStep);
+
 
         serializedObject.ApplyModifiedProperties();
 
