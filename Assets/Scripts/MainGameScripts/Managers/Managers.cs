@@ -38,7 +38,7 @@ public class Managers : MonoBehaviour
     void Start()
     {
         Init();
-        UI.Init();
+        //UI.Init();
         Profile.Init();
     }
 
