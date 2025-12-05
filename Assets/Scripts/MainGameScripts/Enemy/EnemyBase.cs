@@ -14,7 +14,7 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IAttackable
     protected Animator _animator;
     protected RigidNavigation _nav;
     protected CapsuleCollider _capsule;
-    public Rigidbody _rigid;
+    protected Rigidbody _rigid;
     protected CameraShakeNoise _shakeSource;
 
     // ¸ðµâ
@@ -61,7 +61,7 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IAttackable
 
     protected virtual void Awake()
     {
-        _animator = GetComponentInChildren<Animator>();
+        _animator = GetComponent<Animator>();
         _nav = GetComponent<RigidNavigation>();
         _capsule = GetComponent<CapsuleCollider>();
         _rigid = GetComponent<Rigidbody>();

@@ -29,6 +29,12 @@ public class EnemyRobot : EnemyBase
 
     public BoxCollider MeleeCollider => _meleeAttackCollider;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        _meleeAttackCollider = GetComponent<BoxCollider>();
+    }
+
     /// <summary>애니메이터 Moving bool과 Nav.isStopped를 동시에 관리</summary>
     public void SetMoving(bool on)
     {
@@ -76,5 +82,15 @@ public class EnemyRobot : EnemyBase
         base.OnDie(info);
         // 예: 일정 시간 후 풀로 반환 등
         Destroy(gameObject, 2f);
+    }
+
+    public void AttackOn()
+    {
+        _meleeAttackCollider.enabled = true;
+    }
+
+    public void AttackEnd()
+    {
+        _meleeAttackCollider.enabled = false;
     }
 }

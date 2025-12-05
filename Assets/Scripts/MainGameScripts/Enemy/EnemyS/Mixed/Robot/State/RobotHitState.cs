@@ -32,7 +32,6 @@ public sealed class RobotHitState : EnemyState<EnemyRobot>
         }
         else
         {
-            // X성분이 거의 없으면, 보는 방향의 반대편으로 밀기
             float facing =
                 Mathf.Sign(owner.transform.localScale.x == 0 ? 1f : owner.transform.localScale.x);
             dirX = -facing;
