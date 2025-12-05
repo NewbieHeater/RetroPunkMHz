@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5120ac46ea4fb864bb619ae3e27457cd, type: 3}
   m_Name: ShakeCameraStep
   m_EditorClassIdentifier: 
-  duration: 0.5
+  duration: 0.8
   amplitude: 3
   frequency: 3
   fadeOut: 0.25

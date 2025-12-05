@@ -1243,7 +1243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b4576a6ec76f78499e52fa4c5968bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  source: {fileID: 3957257914342025184}
+  source: {fileID: 0}
   hpText: {fileID: 3129958531061675061}
   smooth: 1
 --- !u!1 &3714204440217862717
@@ -1259,7 +1259,7 @@ GameObject:
   - component: {fileID: 6914274972493574943}
   - component: {fileID: 4642118409864430219}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Alert
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2080,50 +2080,6 @@ Transform:
   - {fileID: 6084802876920412780}
   m_Father: {fileID: 6836765865215778323}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &5674087320286245743
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2257335525171691069}
-  - component: {fileID: 8753645586526656707}
-  m_Layer: 0
-  m_Name: StompDetector
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2257335525171691069
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5674087320286245743}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1379709997423617245}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8753645586526656707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5674087320286245743}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5af29a7b8a2fd1248b5dbd925438aa68, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5824380748223115474
 GameObject:
   m_ObjectHideFlags: 0
@@ -3663,11 +3619,15 @@ GameObject:
   m_Component:
   - component: {fileID: 1379709997423617245}
   - component: {fileID: 3957257914342025184}
+  - component: {fileID: 8790265358438491266}
+  - component: {fileID: 7952699527522320122}
   - component: {fileID: 2477559434165000451}
   - component: {fileID: 6348818977408059833}
   - component: {fileID: 7656398348040131433}
   - component: {fileID: 5337067924840425218}
   - component: {fileID: 1608733982256331978}
+  - component: {fileID: 3434405555540578930}
+  - component: {fileID: 3914869877382391993}
   m_Layer: 8
   m_Name: MixedRobot
   m_TagString: Untagged
@@ -3689,7 +3649,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1142198782957247253}
-  - {fileID: 2257335525171691069}
   - {fileID: 7042058637773636835}
   - {fileID: 434929562312366034}
   m_Father: {fileID: 0}
@@ -3706,35 +3665,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba91803c4c75b83448de86385094ee28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _rigid: {fileID: 0}
   _findRange: 1.5
   _aggroRange: 5
   _attackRange: 2.5
-  _viewAngle: 45
+  _meleeAttackCollider: {fileID: 0}
+  knockbackStrength: 3
+  hitStun: 0.3
+  idleState: Idle
+  moveState: Move
+  attackTrig: Attack
+  attackTag: Attack
+  hitState: Hit
+  deathState: Death
+  movingBool: Moving
+--- !u!114 &8790265358438491266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874187368424205674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a084f7a2158d2d74fb804a4612ffa613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _horizontalRange: 6
+  _viewAngle: 180
+  _respectFacing: 1
   _obstacleMask:
     serializedVersion: 2
-    m_Bits: 1088
-  _maxHp: 100
-  _explosionRadius: 0
-  _explodeOnHitMask:
-    serializedVersion: 2
-    m_Bits: 0
-  _chargedDeathTimeout: 4
-  pathProvider: {fileID: 0}
+    m_Bits: 64
+  _playerTag: Player
+  _playerHitboxLayerName: PlayerHitBox
+  _eye: {fileID: 0}
+--- !u!114 &7952699527522320122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874187368424205674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5cb8b4362a438a49b0b36d9d2b2dee2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pathProvider: {fileID: 0}
   moveSpeed: 0.8
   rotateDegPerSec: 180
   pingPong: 1
   arriveEps: 0.05
   minStartDist: 0.08
   minProgressAfterAdvance: 0.08
-  _meleeAttackCollider: {fileID: 0}
-  knockbackStrength: 3
-  hitStun: 0.3
-  idleState: Idle
-  moveState: Move
-  attackTrigger: Attack
-  attackTag: Attack
-  hitState: Hit
-  deathState: Death
 --- !u!114 &2477559434165000451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3839,6 +3823,36 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &3434405555540578930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874187368424205674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2abaafa024163a6439cf96df94331548, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _explodeOnHitMask:
+    serializedVersion: 2
+    m_Bits: 320
+  _chargedDeathTimeout: 4
+  _explosionRadius: 0
+--- !u!114 &3914869877382391993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8874187368424205674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0d8c5d41df9a4f4584dbfd4396f1e4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxHp: 100
 --- !u!1 &8989256760244782039
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
-using UnityEngine;
+/*
+ * using UnityEngine;
 
 public class Climber : EnemyBase
 {
@@ -171,3 +172,5 @@ public class Climber : EnemyBase
             SetState(StateInfo.Hit);
     }
 }
+
+ * */
