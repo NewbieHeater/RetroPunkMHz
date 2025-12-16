@@ -61,8 +61,9 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     public StoryFlow Flow => flow;
     public IReadOnlyList<StoryNode> ActiveNodes => activeNodes;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         if (autoStartOnAwake && flow != null)
         {
             StartFlow(flow);

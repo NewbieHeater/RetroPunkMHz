@@ -21,8 +21,8 @@ MonoBehaviour:
     incomingMode: 0
     editorRect:
       serializedVersion: 2
-      x: 52
-      y: 149
+      x: 183
+      y: 128
       width: 240
       height: 140
     onEnterActions: []
@@ -32,25 +32,26 @@ MonoBehaviour:
     displayName: Node 1
     isStart: 0
     isEnd: 0
-    incomingMode: 0
+    incomingMode: 1
     editorRect:
       serializedVersion: 2
-      x: 414
-      y: 131
+      x: 539
+      y: 115
       width: 240
       height: 140
-    onEnterActions: []
+    onEnterActions:
+    - {fileID: 11400000, guid: 2fdc4ef6c69dffd46bfbcae7c0e34f47, type: 2}
     onExitActions: []
     npcDialogues: []
   - id: 692a4bac47aa47dca2970998483360be
     displayName: Node 2
     isStart: 0
     isEnd: 1
-    incomingMode: 0
+    incomingMode: 1
     editorRect:
       serializedVersion: 2
-      x: 1335
-      y: 243
+      x: 937
+      y: 112
       width: 240
       height: 140
     onEnterActions: []
@@ -63,36 +64,8 @@ MonoBehaviour:
     incomingMode: 0
     editorRect:
       serializedVersion: 2
-      x: 774
-      y: 296
-      width: 240
-      height: 140
-    onEnterActions: []
-    onExitActions: []
-    npcDialogues: []
-  - id: 3e828d9a7e684d00be225fdb70341f4e
-    displayName: Node 4
-    isStart: 0
-    isEnd: 0
-    incomingMode: 0
-    editorRect:
-      serializedVersion: 2
-      x: 387
-      y: 292
-      width: 240
-      height: 140
-    onEnterActions: []
-    onExitActions: []
-    npcDialogues: []
-  - id: cebd30cf47d9488ea4c0aedef5f1e4f8
-    displayName: Node 5
-    isStart: 0
-    isEnd: 0
-    incomingMode: 0
-    editorRect:
-      serializedVersion: 2
-      x: 796
-      y: 477
+      x: 542
+      y: 303
       width: 240
       height: 140
     onEnterActions: []
@@ -103,34 +76,13 @@ MonoBehaviour:
     fromNodeId: 5587757892fd4a9f836a4a9658aebbff
     toNodeId: a753d86eda4646b590433baaab30ded1
     requireAllConditions: 1
-    conditions: []
+    conditions:
+    - type: 2
+      stringArg: NPC
+      intArg: 0
+      floatArg: 0
   - id: 135b596352b14519b1248851f77ededa
     fromNodeId: a753d86eda4646b590433baaab30ded1
-    toNodeId: 692a4bac47aa47dca2970998483360be
-    requireAllConditions: 1
-    conditions: []
-  - id: f1953bd808f3460db0ef50fab96a5387
-    fromNodeId: 5587757892fd4a9f836a4a9658aebbff
-    toNodeId: 3e828d9a7e684d00be225fdb70341f4e
-    requireAllConditions: 1
-    conditions: []
-  - id: 0687a1210e9c4356bf1f634dc33f5618
-    fromNodeId: 3e828d9a7e684d00be225fdb70341f4e
-    toNodeId: 760a0a63f3b04c99ab24b01458c1da39
-    requireAllConditions: 1
-    conditions: []
-  - id: e8ca66a9dfd44b79b62aa0e88b7ab942
-    fromNodeId: 3e828d9a7e684d00be225fdb70341f4e
-    toNodeId: cebd30cf47d9488ea4c0aedef5f1e4f8
-    requireAllConditions: 1
-    conditions: []
-  - id: dc2a6e615c094ddf94c23d25c9a4e8f1
-    fromNodeId: 760a0a63f3b04c99ab24b01458c1da39
-    toNodeId: 692a4bac47aa47dca2970998483360be
-    requireAllConditions: 1
-    conditions: []
-  - id: 5cf3fd033e274a50802fc6610da1639e
-    fromNodeId: cebd30cf47d9488ea4c0aedef5f1e4f8
     toNodeId: 692a4bac47aa47dca2970998483360be
     requireAllConditions: 1
     conditions: []

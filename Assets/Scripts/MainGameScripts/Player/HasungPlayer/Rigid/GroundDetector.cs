@@ -9,7 +9,7 @@ public class GroundDetector : MonoBehaviour
     [SerializeField] private float maxFallDistance = 0.3f;
     [SerializeField] private LayerMask groundLayer;
 
-    public bool IsGrounded { get; private set; }
+    public bool IsGrounded;
     public RaycastHit LastHit { get; private set; }
 
     private Animator animator;

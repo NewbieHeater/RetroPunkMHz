@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Cinemachine Event/Slow Motion Step")]
 public class SlowMotionStep : EventStep
 {
     [Header("Target TimeScale")]

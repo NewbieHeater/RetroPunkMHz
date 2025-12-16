@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9ef8dbca515d04ebbf3c4d3e361d45, type: 3}
   m_Name: New Debug Log Action
   m_EditorClassIdentifier: 
-  message: a
+  message: dialogues
+  message2: Quest1

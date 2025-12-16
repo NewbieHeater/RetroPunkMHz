@@ -28,7 +28,7 @@ public class ObjectPoolerEditor : Editor
 public class ObjectPooler : MonoBehaviour
 {
     static ObjectPooler inst;
-    void Start()
+    void Awake()
     {
         inst = this;
         Init();
@@ -51,7 +51,33 @@ public class ObjectPooler : MonoBehaviour
         "    ObjectPooler.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
         "    CancelInvoke();    // Monobehaviour에 Invoke가 있다면 \n}";
 
+    public static bool IsReady => inst != null;
 
+    // (추가) 태그 풀 존재 확인
+    public static bool HasPool(string tag)
+        => inst != null && inst.poolDictionary != null && inst.poolDictionary.ContainsKey(tag);
+
+    // (추가) 없으면 자동 생성
+    public static void EnsurePool(string tag, GameObject prefab, int warmCount = 1)
+    {
+        if (inst == null)
+            throw new Exception("ObjectPooler is not initialized.");
+
+        if (inst.poolDictionary == null)
+            inst.Init(); // 혹은 Awake에서 Init으로 바꾸는 것을 권장
+
+        if (inst.poolDictionary.ContainsKey(tag))
+            return;
+
+        inst.poolDictionary.Add(tag, new Queue<GameObject>());
+
+        // warmCount만큼 미리 생성해 큐에 넣기
+        for (int i = 0; i < warmCount; i++)
+        {
+            var obj = inst.CreateNewObject(tag, prefab);
+            inst.ArrangePool(obj);
+        }
+    }
 
     public static GameObject SpawnFromPool(string tag, Vector3 position) =>
         inst._SpawnFromPool(tag, position, inst.transform, Quaternion.identity);

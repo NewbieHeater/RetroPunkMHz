@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class UIManager
@@ -57,9 +58,19 @@ public class UIManager
 	{
 		if (string.IsNullOrEmpty(name))
 			name = typeof(T).Name;
+        GameObject go;
+        if (ObjectPooler.HasPool(name))
+        {
+            go = ObjectPooler.SpawnFromPool(name, Vector3.zero, null);
+        }
+        else
+        {
+            go = Managers.Resource.Instantiate($"UI/SubItem/{name}");
+        }
+            
 
-		GameObject go = Managers.Resource.Instantiate($"UI/SubItem/{name}");
-		if (parent != null)
+
+        if (parent != null)
 			go.transform.SetParent(parent);
 
 		return Util.GetOrAddComponent<T>(go);
@@ -84,7 +95,17 @@ public class UIManager
         if (string.IsNullOrEmpty(name))
             name = typeof(T).Name;
 
-        GameObject go = Managers.Resource.Instantiate($"UI/Popup/{name}");
+        GameObject go;
+        if (ObjectPooler.HasPool(name))
+        {
+            go = ObjectPooler.SpawnFromPool(name, Vector3.zero, null);
+        }
+        else
+        {
+            go = Managers.Resource.Instantiate($"UI/Popup/{name}");
+            Debug.Log($"There is No Pool Named : {name} Making a Pool would be a better way");
+        }
+
         T popup = Util.GetOrAddComponent<T>(go);
         _popupStack.Push(popup);
 

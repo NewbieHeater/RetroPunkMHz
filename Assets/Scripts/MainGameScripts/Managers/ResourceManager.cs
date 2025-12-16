@@ -40,6 +40,31 @@ public class ResourceManager
         return go;
     }
 
+    public GameObject Spawn(string path, Transform parent = null, int warmCount = 1)
+    {
+        // 풀에서 꺼내기
+        GameObject go = ObjectPooler.SpawnFromPool(path, Vector3.zero, parent ?? null);
+        if (go == null)
+        {
+            Debug.Log($"Failed to load prefab : {path}");
+            return null;
+        }
+        // UI는 보통 로컬 트랜스폼 초기화가 필요
+        var rt = go.transform as RectTransform;
+        if (rt != null)
+        {
+            rt.localScale = Vector3.one;
+            rt.anchoredPosition3D = Vector3.zero;
+        }
+        else
+        {
+            go.transform.localPosition = Vector3.zero;
+            go.transform.localScale = Vector3.one;
+        }
+
+        return go;
+    }
+
     public void Disable(GameObject go)
     {
         if (go == null)

@@ -1,64 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-7363024705808259700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283a5556e978f9b489894c71ea65a4a4, type: 3}
-  m_Name: LockInputStep
-  m_EditorClassIdentifier: 
-  lockOn: 1
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac6c4a5143cfc894abf22ab8a10ddba6, type: 3}
-  m_Name: New Cinemachine Event Asset
-  m_EditorClassIdentifier: 
-  lockPlayerInputWhileRunning: 1
-  postDelay: 0
-  steps:
-  - {fileID: -7363024705808259700}
-  - {fileID: 2741338817646961246}
-  - {fileID: 2496216773151886961}
-  - {fileID: 8282385607832671122}
---- !u!114 &2496216773151886961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a03cf88b8652b1142b4f23c697fa5623, type: 3}
-  m_Name: WaitStep
-  m_EditorClassIdentifier: 
-  seconds: 0.5
---- !u!114 &2741338817646961246
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1c4c86081356d941beb334f6436a039, type: 3}
-  m_Name: CameraFocusStep
-  m_EditorClassIdentifier: 
-  cameraSlot: 0
---- !u!114 &8282385607832671122
+--- !u!114 &-4983526473637961006
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71,3 +13,63 @@ MonoBehaviour:
   m_Name: RestoreCameraStep
   m_EditorClassIdentifier: 
   cameraSlot: 0
+--- !u!114 &-3424342850764286820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52ecf39fc37b08e4d894b7df55bf10d5, type: 3}
+  m_Name: DialogueStep
+  m_EditorClassIdentifier: 
+  fileName: 
+  groupName: 
+  useContextOverride: 1
+--- !u!114 &-574036897739804661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283a5556e978f9b489894c71ea65a4a4, type: 3}
+  m_Name: LockInputStep
+  m_EditorClassIdentifier: 
+  lockOn: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac6c4a5143cfc894abf22ab8a10ddba6, type: 3}
+  m_Name: Dialogue
+  m_EditorClassIdentifier: 
+  lockPlayerInputWhileRunning: 1
+  postDelay: 0
+  steps:
+  - {fileID: -574036897739804661}
+  - {fileID: 644760747160988185}
+  - {fileID: -3424342850764286820}
+  - {fileID: -4983526473637961006}
+--- !u!114 &644760747160988185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c4c86081356d941beb334f6436a039, type: 3}
+  m_Name: CameraFocusStep
+  m_EditorClassIdentifier: 
+  cameraSlot: 1

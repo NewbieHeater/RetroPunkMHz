@@ -6,7 +6,7 @@ public class DialogueManager : MonoBehaviour
 {
 
     public DialogueLoader dialogueLoader;  // DialogueLoader는 JSON 파일을 파싱해 여러 그룹을 관리함
-    public DialogueUI dialogueUI;          // 대화 텍스트, 선택지, 초상화 등 UI를 제어하는 스크립트
+    public UI_Dialogue dialogueUI;          // 대화 텍스트, 선택지, 초상화 등 UI를 제어하는 스크립트
 
     private bool isAuto = false;
     private bool isWaitingForChoice = false;
@@ -22,6 +22,12 @@ public class DialogueManager : MonoBehaviour
     private DialogueLine currentLine;
 
     private Coroutine autoAdvanceCoroutine;
+
+    private void Start()
+    {
+        dialogueUI = Managers.UI.ShowPopupUI<UI_Dialogue>();
+        dialogueUI.SetManager(this);
+    }
 
     public void Update()
     {
@@ -222,7 +228,7 @@ public class DialogueManager : MonoBehaviour
         // 선택지가 있는 경우 - UI에 선택지 버튼들을 생성하여 표시
         if (line.choices != null && line.choices.Length > 0 && !string.IsNullOrEmpty(line.choices[0].choiceText))
         {
-            dialogueUI.ShowChoices(line.choices);
+            dialogueUI.RefreshChoices(line.choices);
             isWaitingForChoice = true;
         }
         else
