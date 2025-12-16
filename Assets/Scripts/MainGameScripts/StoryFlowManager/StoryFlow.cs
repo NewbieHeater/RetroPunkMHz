@@ -30,6 +30,12 @@ public class StoryFlow : ScriptableObject
     }
 }
 
+public enum SourceDeactivationPolicy
+{
+    None,                 // 이 노드는 자동으로 비활성화하지 않음
+    OnAnyOutgoingFired,   // 이 노드에서 나가는 트랜지션이 하나라도 발동되면 비활성화
+    OnAllOutgoingFired    // 이 노드에서 나가는 "사용 가능한" 트랜지션이 전부 발동되면 비활성화
+}
 
 public enum IncomingTransitionMode
 {
@@ -50,7 +56,7 @@ public class StoryNode
 {
     public string id;
     public string displayName;
-
+    public SourceDeactivationPolicy deactivationPolicy = SourceDeactivationPolicy.OnAnyOutgoingFired;
     public bool isStart;
     public bool isEnd;
     public IncomingTransitionMode incomingMode;

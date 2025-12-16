@@ -21,7 +21,6 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
     [SerializeField] private CinemachineEventAsset[] builtIns;
 
     CinemachineEventContext _currentCtx;
-    public CinemachineEventAsset defaultDialogueSequence;
 
     private readonly Queue<QueuedEvent> _queue = new();
 
@@ -122,10 +121,6 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
             _runner = StartCoroutine(RunQueue());
     }
 
-    public void PlayDialogueSequence(string fileName, string groupName)
-    {
-        PlayEvent(defaultDialogueSequence, fileName, groupName);
-    }
 
     private IEnumerator RunQueue()
     {

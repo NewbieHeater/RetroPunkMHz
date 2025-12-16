@@ -25,8 +25,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ecf39fc37b08e4d894b7df55bf10d5, type: 3}
   m_Name: DialogueStep
   m_EditorClassIdentifier: 
-  fileName: 
-  groupName: 
+  fileName: a
+  groupName: a
   useContextOverride: 1
 --- !u!114 &-574036897739804661
 MonoBehaviour:

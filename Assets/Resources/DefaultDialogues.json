@@ -1,0 +1,19 @@
+{
+  "groups": [
+    {
+      "groupName": "ShopOwner",
+      "lines": [
+        {
+          "id": "1",
+          "speaker": "Guard",
+          "sprite": "neutral",
+          "text": "여기는 상점입니다.",
+          "next": "end",
+          "eventKey": "",
+          "choices": null
+        }
+      ]
+    }
+    
+  ]
+}

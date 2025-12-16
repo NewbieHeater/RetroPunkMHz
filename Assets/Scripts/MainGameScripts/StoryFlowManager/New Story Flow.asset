@@ -16,13 +16,14 @@ MonoBehaviour:
   nodes:
   - id: 5587757892fd4a9f836a4a9658aebbff
     displayName: Node 0
+    deactivationPolicy: 1
     isStart: 1
     isEnd: 0
     incomingMode: 0
     editorRect:
       serializedVersion: 2
-      x: 183
-      y: 128
+      x: 95
+      y: 172
       width: 240
       height: 140
     onEnterActions: []
@@ -30,28 +31,35 @@ MonoBehaviour:
     npcDialogues: []
   - id: a753d86eda4646b590433baaab30ded1
     displayName: Node 1
+    deactivationPolicy: 2
     isStart: 0
     isEnd: 0
     incomingMode: 1
     editorRect:
       serializedVersion: 2
-      x: 539
-      y: 115
+      x: 466
+      y: 163
       width: 240
       height: 140
-    onEnterActions:
-    - {fileID: 11400000, guid: 2fdc4ef6c69dffd46bfbcae7c0e34f47, type: 2}
+    onEnterActions: []
     onExitActions: []
-    npcDialogues: []
+    npcDialogues:
+    - npcId: NPC
+      fileName: dialogues
+      groupName: Quest1
+    - npcId: ShopOwner
+      fileName: dialogues
+      groupName: Quest1
   - id: 692a4bac47aa47dca2970998483360be
     displayName: Node 2
+    deactivationPolicy: 1
     isStart: 0
     isEnd: 1
     incomingMode: 1
     editorRect:
       serializedVersion: 2
-      x: 937
-      y: 112
+      x: 990
+      y: 169
       width: 240
       height: 140
     onEnterActions: []
@@ -59,13 +67,14 @@ MonoBehaviour:
     npcDialogues: []
   - id: 760a0a63f3b04c99ab24b01458c1da39
     displayName: Node 3
+    deactivationPolicy: 1
     isStart: 0
     isEnd: 0
     incomingMode: 0
     editorRect:
       serializedVersion: 2
-      x: 542
-      y: 303
+      x: 729
+      y: 345
       width: 240
       height: 140
     onEnterActions: []
@@ -77,12 +86,30 @@ MonoBehaviour:
     toNodeId: a753d86eda4646b590433baaab30ded1
     requireAllConditions: 1
     conditions:
-    - type: 2
-      stringArg: NPC
+    - type: 0
+      stringArg: ShopOwner
       intArg: 0
       floatArg: 0
   - id: 135b596352b14519b1248851f77ededa
     fromNodeId: a753d86eda4646b590433baaab30ded1
+    toNodeId: 692a4bac47aa47dca2970998483360be
+    requireAllConditions: 1
+    conditions:
+    - type: 2
+      stringArg: NPC
+      intArg: 0
+      floatArg: 0
+  - id: 701222fe7c104174955de1df9c7f5af8
+    fromNodeId: a753d86eda4646b590433baaab30ded1
+    toNodeId: 760a0a63f3b04c99ab24b01458c1da39
+    requireAllConditions: 1
+    conditions:
+    - type: 2
+      stringArg: ShopOwner
+      intArg: 0
+      floatArg: 0
+  - id: ccb7c4b5f9364f7f8118f97e8a72b77b
+    fromNodeId: 760a0a63f3b04c99ab24b01458c1da39
     toNodeId: 692a4bac47aa47dca2970998483360be
     requireAllConditions: 1
     conditions: []

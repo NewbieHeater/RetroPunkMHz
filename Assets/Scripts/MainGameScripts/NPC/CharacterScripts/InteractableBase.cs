@@ -21,7 +21,7 @@ public abstract class InteractableBase : MonoBehaviour
     [Min(0f)] public float interactRadius = 2.0f;
     public InteractionMode mode = InteractionMode.PressToInteract;
     [Tooltip("한 번만 동작하도록 할지 여부")] public bool singleUse = false;
-
+    public string npcId;
     [Header("Prompt (Head-up hint)")]
     [SerializeField] private string pressPrompt = "F: 상호작용";
     [SerializeField] private string autoPrompt = "F를 눌러 상호작용";
@@ -130,6 +130,7 @@ public abstract class InteractableBase : MonoBehaviour
             if (singleUse) _consumed = true;
             // 성공 시 프롬프트는 숨김(상태에 따라 유지하고 싶으면 주석 처리)
             TogglePrompt(GetPromptText());
+            StoryFlowRunner.Instance.NotifyNpcTalked(npcId);
         }
     }
 

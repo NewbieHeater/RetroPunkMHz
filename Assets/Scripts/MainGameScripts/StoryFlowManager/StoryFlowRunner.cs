@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,49 +15,40 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     [Header("Flow")]
     [SerializeField] private StoryFlow flow;
 
-    /// <summary>현재 활성 상태인 노드들(여러 개 가능).</summary>
     [SerializeField] private List<StoryNode> activeNodes = new List<StoryNode>();
 
     [Header("Options")]
-    [Tooltip("Awake 시 자동으로 flow를 시작할지 여부")]
     [SerializeField] private bool autoStartOnAwake = true;
-
-    [Tooltip("트랜지션에 조건이 전혀 없을 때 항상 통과로 볼지 여부")]
     [SerializeField] private bool treatEmptyTransitionAsAlwaysTrue = true;
 
-    // 노드 ID → 노드 참조 캐시
+    // node lookup
     private Dictionary<string, StoryNode> _nodeLookup = new Dictionary<string, StoryNode>();
-    // 활성 노드 ID 집합
     private HashSet<string> _activeNodeIds = new HashSet<string>();
 
     // ---------------------------
-    // 조건 평가에 사용할 런타임 상태
+    // 조건 평가 런타임 상태
     // ---------------------------
-
-    private readonly HashSet<string> _flags = new HashSet<string>();                        // RaiseFlag 용
-    private readonly HashSet<string> _talkedNpcs = new HashSet<string>();                   // NotifyNpcTalked 용
-    private readonly Dictionary<string, int> _enemyKillCount = new Dictionary<string, int>(); // NotifyEnemyKilled 용
+    private readonly HashSet<string> _flags = new HashSet<string>();
+    private readonly HashSet<string> _talkedNpcs = new HashSet<string>();
+    private readonly Dictionary<string, int> _enemyKillCount = new Dictionary<string, int>();
 
     // ---------------------------
-    // 외부용 이벤트
+    // "소스 outgoing이 발동되었는지" 누적 기록
+    // srcNodeId -> firedTransitionIds
     // ---------------------------
+    private readonly Dictionary<string, HashSet<string>> _firedOutgoingBySource = new Dictionary<string, HashSet<string>>();
 
-    /// <summary>노드가 활성화될 때(비활성 → 활성) 호출.</summary>
-    public event System.Action<StoryNode> NodeActivated;
+    // ---------------------------
+    // 외부 이벤트
+    // ---------------------------
+    public event Action<StoryNode> NodeActivated;
+    public event Action<StoryNode> NodeDeactivated;
+    public event Action<StoryTransition> TransitionFired;
+    public event Action<StoryFlowRunner> FlowCompleted;
 
-    /// <summary>노드가 비활성화될 때 호출.</summary>
-    public event System.Action<StoryNode> NodeDeactivated;
-
-    /// <summary>트랜지션이 발동될 때 호출.</summary>
-    public event System.Action<StoryTransition> TransitionFired;
-
-    /// <summary>플로우가 하나 이상의 End 노드에 도달했을 때 호출.</summary>
-    public event System.Action<StoryFlowRunner> FlowCompleted;
-
-    // 외부에서 상태 변화를 알고 싶을 때 사용할 수 있는 이벤트들
-    public event System.Action<string> OnFlagRaised;
-    public event System.Action<string> OnNpcTalked;
-    public event System.Action<string> OnEnemyKilled;
+    public event Action<string> OnFlagRaised;
+    public event Action<string> OnNpcTalked;
+    public event Action<string> OnEnemyKilled;
 
     public StoryFlow Flow => flow;
     public IReadOnlyList<StoryNode> ActiveNodes => activeNodes;
@@ -65,9 +57,7 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     {
         base.Awake();
         if (autoStartOnAwake && flow != null)
-        {
             StartFlow(flow);
-        }
     }
 
     private void Update()
@@ -79,14 +69,8 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     }
 
     // ==================================================
-    // 플로우 시작 / 정지
+    // Flow start/stop
     // ==================================================
-
-    /// <summary>
-    /// 지정한 StoryFlow를 시작한다.
-    /// 여러 Start 노드가 있다면 전부 활성화한다.
-    /// Start 표시가 없다면 첫 노드를 Start로 사용.
-    /// </summary>
     public void StartFlow(StoryFlow newFlow)
     {
         if (newFlow == null)
@@ -96,14 +80,13 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         }
 
         flow = newFlow;
-
         BuildNodeLookup();
         ResetRuntimeState();
 
         activeNodes.Clear();
         _activeNodeIds.Clear();
 
-        // Start 노드들 찾기
+        // find start nodes
         List<StoryNode> startNodes = new List<StoryNode>();
         if (flow.nodes != null)
         {
@@ -114,25 +97,22 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             }
         }
 
-        // Start 표시된 게 없다면 첫 노드를 Start로 사용
+        // fallback: first node becomes start
         if (startNodes.Count == 0 && flow.nodes != null && flow.nodes.Count > 0)
         {
             var first = flow.nodes[0];
-            first.isStart = true;
-            flow.startNodeId = first.id;
-            startNodes.Add(first);
+            if (first != null)
+            {
+                first.isStart = true;
+                flow.startNodeId = first.id;
+                startNodes.Add(first);
+            }
         }
 
-        // Start 노드들 활성화
         foreach (var n in startNodes)
-        {
             ActivateNode(n);
-        }
     }
 
-    /// <summary>
-    /// 플로우 정지/리셋.
-    /// </summary>
     public void StopFlow()
     {
         activeNodes.Clear();
@@ -145,17 +125,14 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         _flags.Clear();
         _talkedNpcs.Clear();
         _enemyKillCount.Clear();
+        _firedOutgoingBySource.Clear();
     }
-
-    // ==================================================
-    // 초기 세팅
-    // ==================================================
 
     private void BuildNodeLookup()
     {
         _nodeLookup.Clear();
 
-        if (flow.nodes == null)
+        if (flow == null || flow.nodes == null)
             return;
 
         foreach (var node in flow.nodes)
@@ -163,7 +140,7 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             if (node == null) continue;
 
             if (string.IsNullOrEmpty(node.id))
-                node.id = System.Guid.NewGuid().ToString("N");
+                node.id = Guid.NewGuid().ToString("N");
 
             if (!_nodeLookup.ContainsKey(node.id))
                 _nodeLookup.Add(node.id, node);
@@ -173,9 +150,8 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     }
 
     // ==================================================
-    // 노드 활성/비활성
+    // Node activate/deactivate
     // ==================================================
-
     public void ActivateNode(StoryNode node)
     {
         if (node == null) return;
@@ -184,20 +160,20 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         activeNodes.Add(node);
         _activeNodeIds.Add(node.id);
 
-        // Enter 액션
+        // enter actions
         if (node.onEnterActions != null)
         {
             foreach (var action in node.onEnterActions)
             {
                 if (action == null) continue;
                 try { action.Execute(this); }
-                catch (System.Exception ex) { Debug.LogException(ex); }
+                catch (Exception ex) { Debug.LogException(ex); }
             }
         }
 
         NodeActivated?.Invoke(node);
 
-        // End 노드면 알림
+        // flow completed?
         if (node.isEnd || (!string.IsNullOrEmpty(flow.endNodeId) && flow.endNodeId == node.id))
         {
             FlowCompleted?.Invoke(this);
@@ -209,14 +185,14 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         if (node == null) return;
         if (!_activeNodeIds.Contains(node.id)) return;
 
-        // Exit 액션
+        // exit actions
         if (node.onExitActions != null)
         {
             foreach (var action in node.onExitActions)
             {
                 if (action == null) continue;
                 try { action.Execute(this); }
-                catch (System.Exception ex) { Debug.LogException(ex); }
+                catch (Exception ex) { Debug.LogException(ex); }
             }
         }
 
@@ -227,9 +203,8 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     }
 
     // ==================================================
-    // 트랜지션 평가 (여러 노드 기반)
+    // Transition evaluation (multi-active)
     // ==================================================
-
     private void EvaluateTransitionsMulti()
     {
         if (flow.transitions == null || flow.transitions.Count == 0)
@@ -239,6 +214,8 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         var activeIdsSnapshot = new HashSet<string>(_activeNodeIds);
 
         // 2) 타겟 노드별 트랜지션 목록
+        //    - allMap: "toId로 들어오는 전체 incoming 트랜지션"(from 활성 여부 무관)
+        //    - metMap: "이번 프레임에 조건을 만족한 incoming 트랜지션"(from이 활성인 것만 평가)
         Dictionary<string, List<StoryTransition>> allMap = new();
         Dictionary<string, List<StoryTransition>> metMap = new();
 
@@ -248,14 +225,11 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             if (string.IsNullOrEmpty(t.fromNodeId) || string.IsNullOrEmpty(t.toNodeId))
                 continue;
 
-            // 출발 노드가 현재 활성
-            if (!activeIdsSnapshot.Contains(t.fromNodeId))
-                continue;
-
+            // to 노드가 실제로 존재해야 incoming으로 인정
             if (!_nodeLookup.ContainsKey(t.toNodeId))
                 continue;
 
-            // 모든 트랜지션
+            // [핵심] allMap에는 from이 활성인지와 상관없이 "전체 incoming"을 넣는다
             if (!allMap.TryGetValue(t.toNodeId, out var listAll))
             {
                 listAll = new List<StoryTransition>();
@@ -263,7 +237,10 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             }
             listAll.Add(t);
 
-            // 조건 만족 트랜지션
+            // metMap은 "현재 활성 from"에서만 조건을 평가하여 추가
+            if (!activeIdsSnapshot.Contains(t.fromNodeId))
+                continue;
+
             if (AreConditionsMet(t))
             {
                 if (!metMap.TryGetValue(t.toNodeId, out var listMet))
@@ -275,80 +252,157 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             }
         }
 
-        // 3) 타겟 노드별로 IncomingMode를 적용해서
-        //    실제로 활성화할 노드와, 비활성화할 소스 노드 목록을 결정
+        // 3) 타겟 노드별 IncomingMode 적용
         List<StoryNode> nodesToActivate = new();
         HashSet<string> sourcesToDeactivate = new();
 
         foreach (var kv in allMap)
         {
             string toId = kv.Key;
-            var allList = kv.Value;          // 이 타겟으로 가는 모든 트랜지션
+            var allList = kv.Value;
             if (allList == null || allList.Count == 0) continue;
 
-            metMap.TryGetValue(toId, out var metList); // 조건 만족한 트랜지션들
+            metMap.TryGetValue(toId, out var metList);
             if (metList == null || metList.Count == 0) continue;
 
             var targetNode = _nodeLookup[toId];
-            bool ok = false;
 
+            bool ok = false;
             switch (targetNode.incomingMode)
             {
                 case IncomingTransitionMode.Any:
-                    // B→D, C→D 중 하나라도 만족하면 D 활성화
-                    ok = true;
+                    ok = true; // metList가 1개 이상이면 됨
                     break;
 
                 case IncomingTransitionMode.All:
-                    // B→D, C→D 모두 만족해야 D 활성화
+                    // [핵심] "toId로 들어오는 전체 incoming(allList)"가 전부 만족(metList)해야 함
                     ok = (metList.Count == allList.Count);
                     break;
             }
 
-            if (ok)
+            if (!ok) continue;
+
+            // 타겟 활성화 예약
+            if (!_activeNodeIds.Contains(toId) && !nodesToActivate.Contains(targetNode))
             {
-                // 타겟 노드 활성화 예약
-                if (!_activeNodeIds.Contains(toId) && !nodesToActivate.Contains(targetNode))
-                {
-                    nodesToActivate.Add(targetNode);
+                nodesToActivate.Add(targetNode);
 
-                    // 발동된 트랜지션들 이벤트 (원하면)
-                    foreach (var t in metList)
-                        TransitionFired?.Invoke(t);
-                }
+                foreach (var t in metList)
+                    TransitionFired?.Invoke(t);
+            }
 
-                // ★ 이 타겟으로 가는 모든 출발 노드는 완료로 보고 비활성화 예약
-                //    (Any/All 상관없이, D가 열렸으면 B, C 같은 소스는 끝났다고 처리)
-                foreach (var t in allList)
-                {
-                    if (!string.IsNullOrEmpty(t.fromNodeId))
-                        sourcesToDeactivate.Add(t.fromNodeId);
-                }
+            // 소스 비활성화는 기존 정책/옵션에 따라 처리 중이라면,
+            // 여기서는 기존 로직을 유지하거나(당신이 이미 D 정책은 잘 된다고 했으므로)
+            // 필요 시 metList 기반으로만 추가하십시오.
+            foreach (var t in metList)
+            {
+                if (!string.IsNullOrEmpty(t.fromNodeId))
+                    sourcesToDeactivate.Add(t.fromNodeId);
             }
         }
 
-        // 4) 실제 노드 활성/비활성 적용
-
-        // 새로 활성화
+        // 4) 적용
         foreach (var node in nodesToActivate)
-        {
             ActivateNode(node);
-        }
 
-        // 출발 노드 비활성화
         foreach (var srcId in sourcesToDeactivate)
         {
             if (_nodeLookup.TryGetValue(srcId, out var srcNode))
             {
-                // 아직 활성 상태인 경우에만
                 if (_activeNodeIds.Contains(srcId))
-                {
                     DeactivateNode(srcNode);
-                }
             }
         }
     }
 
+
+    private void RecordFiredOutgoing(StoryTransition t)
+    {
+        if (t == null) return;
+        if (string.IsNullOrEmpty(t.id)) t.id = Guid.NewGuid().ToString("N");
+        if (string.IsNullOrEmpty(t.fromNodeId)) return;
+
+        if (!_firedOutgoingBySource.TryGetValue(t.fromNodeId, out var set))
+        {
+            set = new HashSet<string>();
+            _firedOutgoingBySource[t.fromNodeId] = set;
+        }
+        set.Add(t.id);
+    }
+
+    /// <summary>
+    /// 현재 활성 소스 노드들의 deactivationPolicy에 따라 비활성화할 소스들을 결정.
+    /// </summary>
+    private HashSet<string> EvaluateSourcesToDeactivate(HashSet<string> activeIdsSnapshot)
+    {
+        HashSet<string> sourcesToDeactivate = new HashSet<string>();
+
+        foreach (var srcId in activeIdsSnapshot)
+        {
+            if (!_nodeLookup.TryGetValue(srcId, out var srcNode) || srcNode == null)
+                continue;
+
+            switch (srcNode.deactivationPolicy)
+            {
+                case SourceDeactivationPolicy.None:
+                    break;
+
+                case SourceDeactivationPolicy.OnAnyOutgoingFired:
+                    {
+                        if (_firedOutgoingBySource.TryGetValue(srcId, out var fired) && fired.Count > 0)
+                            sourcesToDeactivate.Add(srcId);
+                        break;
+                    }
+
+                case SourceDeactivationPolicy.OnAllOutgoingFired:
+                    {
+                        int totalOutgoing = CountValidOutgoingTransitions(srcId);
+
+                        // "더 이상 남아있는 링커가 없을 때 끝" 요구 반영:
+                        // outgoing이 0개면 즉시 종료 처리
+                        if (totalOutgoing == 0)
+                        {
+                            sourcesToDeactivate.Add(srcId);
+                            break;
+                        }
+
+                        int firedCount = 0;
+                        if (_firedOutgoingBySource.TryGetValue(srcId, out var firedSet))
+                            firedCount = firedSet.Count;
+
+                        if (firedCount >= totalOutgoing)
+                            sourcesToDeactivate.Add(srcId);
+
+                        break;
+                    }
+            }
+        }
+
+        return sourcesToDeactivate;
+    }
+
+    /// <summary>
+    /// srcId에서 나가는 트랜지션 중 "유효한 outgoing" 개수:
+    /// - fromNodeId == srcId
+    /// - toNodeId가 존재하고, lookup에 존재하는 노드여야 함
+    /// </summary>
+    private int CountValidOutgoingTransitions(string srcId)
+    {
+        if (flow == null || flow.transitions == null) return 0;
+
+        int count = 0;
+        foreach (var tr in flow.transitions)
+        {
+            if (tr == null) continue;
+            if (tr.fromNodeId != srcId) continue;
+
+            if (string.IsNullOrEmpty(tr.toNodeId)) continue;
+            if (!_nodeLookup.ContainsKey(tr.toNodeId)) continue;
+
+            count++;
+        }
+        return count;
+    }
 
     private bool AreConditionsMet(StoryTransition t)
     {
@@ -379,8 +433,7 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
 
     private bool CheckCondition(StoryCondition cond)
     {
-        if (cond == null)
-            return true;
+        if (cond == null) return true;
 
         switch (cond.type)
         {
@@ -388,15 +441,12 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
                 return true;
 
             case StoryConditionType.FlagTrue:
-                // stringArg = 플래그 이름
                 return _flags.Contains(cond.stringArg);
 
             case StoryConditionType.NpcTalked:
-                // stringArg = NPC ID
                 return _talkedNpcs.Contains(cond.stringArg);
 
             case StoryConditionType.EnemyKilled:
-                // stringArg = Enemy ID, intArg = 필요 킬 수
                 if (_enemyKillCount.TryGetValue(cond.stringArg, out int count))
                     return count >= cond.intArg;
                 return false;
@@ -407,18 +457,15 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     }
 
     // ==================================================
-    // 외부에서 조건 상태를 갱신하는 API
+    // External state update APIs
     // ==================================================
-
     public void RaiseFlag(string flagId)
     {
         if (string.IsNullOrEmpty(flagId))
             return;
 
         if (_flags.Add(flagId))
-        {
             OnFlagRaised?.Invoke(flagId);
-        }
     }
 
     public void NotifyNpcTalked(string npcId)
@@ -427,9 +474,7 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             return;
 
         if (_talkedNpcs.Add(npcId))
-        {
             OnNpcTalked?.Invoke(npcId);
-        }
     }
 
     public void NotifyEnemyKilled(string enemyId)
@@ -446,19 +491,19 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     }
 
     // ==================================================
-    // NPC가 말할 대사를 가져오는곳
+    // Dialogue query
     // ==================================================
     public bool TryGetDialogueForNpc(string npcId, out string fileName, out string groupName)
     {
-        // 활성 노드들 중에서 우선순위를 정해서 탐색
-        // 간단히는 순서대로 첫 번째 매칭
-        foreach (var node in activeNodes)
+        // 기본: 활성 노드들 중 "최근 활성화된 노드 우선"으로 매칭
+        for (int i = activeNodes.Count - 1; i >= 0; i--)
         {
-            if (node.npcDialogues == null) continue;
+            var node = activeNodes[i];
+            if (node == null || node.npcDialogues == null) continue;
 
             foreach (var entry in node.npcDialogues)
             {
-                if (entry.npcId == npcId)
+                if (entry != null && entry.npcId == npcId)
                 {
                     fileName = entry.fileName;
                     groupName = entry.groupName;
@@ -471,5 +516,4 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         groupName = null;
         return false;
     }
-
 }
