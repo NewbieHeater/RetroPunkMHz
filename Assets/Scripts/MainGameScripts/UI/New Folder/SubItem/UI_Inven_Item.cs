@@ -8,9 +8,12 @@ using UnityEngine.UI;
 
 public class UI_Inven_Item : UI_Base
 {
-    enum GameObjects
+    enum Images
     {
         ItemIcon,
+    }
+    enum Texts
+    {
         ItemNum,
     }
 
@@ -28,9 +31,13 @@ public class UI_Inven_Item : UI_Base
 
     public override void Init()
     {
-        Bind<GameObject>(typeof(GameObjects));
-        _iconImage = Get<GameObject>((int)GameObjects.ItemIcon).GetComponent<Image>();
-        _nameText = Get<GameObject>((int)GameObjects.ItemNum).GetComponent<TextMeshProUGUI>();
+        //Bind<GameObject>(typeof(GameObjects));
+
+        Bind<Image>(typeof(Images));
+        Bind<TextMeshProUGUI>(typeof(Texts));
+        _iconImage = GetImage((int)Images.ItemIcon);
+        _nameText = GetTextMeshPro((int)Texts.ItemNum);
+
         Refresh();
     }
 

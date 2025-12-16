@@ -8,6 +8,7 @@ public enum BuiltInEvents
 {
     ChargeKill,
     Dialogue,
+    DialogueRandom,
     ShakeCameraWithSlowMotion,
     ShakeCamera,
 }

@@ -59,6 +59,7 @@ public class UI_Inven : UI_Popup
 
         TryGetComponent(out _gr);
         if (_gr == null) _gr = gameObject.AddComponent<GraphicRaycaster>();
+
         _ped = new PointerEventData(EventSystem.current);
         _rrList = new List<RaycastResult>();
 
