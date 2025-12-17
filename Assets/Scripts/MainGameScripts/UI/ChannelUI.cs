@@ -27,7 +27,7 @@ public class ChannelUI : MonoBehaviour
     private int maxChannelPoint;
     private int curChannelPoint;
 
-    void Awake()
+    void Start()
     {
         maxChannelPoint = ChannelManager.Instance.totalChannelPoints;
         curChannelPoint = maxChannelPoint;

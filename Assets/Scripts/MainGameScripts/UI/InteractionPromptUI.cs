@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public class InteractionPromptUI : MonoBehaviour
+public class UI_InteractionPrompt : MonoBehaviour
 {
     void LateUpdate()
     {

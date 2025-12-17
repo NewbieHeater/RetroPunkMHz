@@ -224,7 +224,7 @@ GameObject:
   - component: {fileID: 5076882318612461856}
   - component: {fileID: 166076868186613847}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: UI_InteractionPrompt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -295,7 +295,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &5076882318612461856
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,10 +12,6 @@ public class NPC : InteractableBase
 
     protected override bool OnInteract()
     {
-        
-
-
-
         // ① 지금 활성화된 스토리 상태에서
         //    이 NPC가 어떤 대사를 써야 하는지 물어본다.
         if (StoryFlowRunner.Instance.TryGetDialogueForNpc(npcId,

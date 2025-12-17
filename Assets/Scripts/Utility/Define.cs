@@ -9,6 +9,8 @@ public class Define
         Unknown,
         RoomScene,
         GameScene,
+        MiniGame_Pong,
+        MiniGame_Dino,
     }
 
     public enum Sound

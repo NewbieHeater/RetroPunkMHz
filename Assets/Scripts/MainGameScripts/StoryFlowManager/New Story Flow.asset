@@ -58,14 +58,14 @@ MonoBehaviour:
     incomingMode: 1
     editorRect:
       serializedVersion: 2
-      x: 990
-      y: 169
+      x: 965
+      y: 161
       width: 240
       height: 140
     onEnterActions: []
     onExitActions: []
     npcDialogues: []
-  - id: 760a0a63f3b04c99ab24b01458c1da39
+  - id: be8792e9f28943038f9ca973ca452817
     displayName: Node 3
     deactivationPolicy: 1
     isStart: 0
@@ -73,8 +73,8 @@ MonoBehaviour:
     incomingMode: 0
     editorRect:
       serializedVersion: 2
-      x: 729
-      y: 345
+      x: 719
+      y: 333
       width: 240
       height: 140
     onEnterActions: []
@@ -99,17 +99,17 @@ MonoBehaviour:
       stringArg: NPC
       intArg: 0
       floatArg: 0
-  - id: 701222fe7c104174955de1df9c7f5af8
+  - id: 2b1d0bdeee8c4ffc995a6e77875c8482
     fromNodeId: a753d86eda4646b590433baaab30ded1
-    toNodeId: 760a0a63f3b04c99ab24b01458c1da39
+    toNodeId: be8792e9f28943038f9ca973ca452817
     requireAllConditions: 1
     conditions:
     - type: 2
       stringArg: ShopOwner
       intArg: 0
       floatArg: 0
-  - id: ccb7c4b5f9364f7f8118f97e8a72b77b
-    fromNodeId: 760a0a63f3b04c99ab24b01458c1da39
+  - id: 95a042077c994f8a8c6da76996325013
+    fromNodeId: be8792e9f28943038f9ca973ca452817
     toNodeId: 692a4bac47aa47dca2970998483360be
     requireAllConditions: 1
     conditions: []
