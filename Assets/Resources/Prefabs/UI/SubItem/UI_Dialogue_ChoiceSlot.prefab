@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 5424849922315437924}
   - component: {fileID: 3818170992955329435}
   - component: {fileID: 6780806314790892348}
+  - component: {fileID: -7934082266282199529}
   m_Layer: 5
   m_Name: UI_Dialogue_ChoiceSlot
   m_TagString: Untagged
@@ -268,3 +269,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 492cb17349b525240adc3b9feb9e3610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-7934082266282199529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6840101077742231773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f38146a3f60ad049ab054f35955de7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsUsing: 0

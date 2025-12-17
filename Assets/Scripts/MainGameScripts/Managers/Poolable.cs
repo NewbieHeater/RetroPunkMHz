@@ -4,8 +4,5 @@ using UnityEngine;
 
 public class Poolable : MonoBehaviour
 {
-    private void OnDisable()
-    {
-        ObjectPooler.ReturnToPool(this.gameObject);
-    }
+    public bool IsUsing;
 }

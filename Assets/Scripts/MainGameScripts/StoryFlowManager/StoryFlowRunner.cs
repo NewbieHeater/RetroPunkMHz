@@ -37,6 +37,9 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     // srcNodeId -> firedTransitionIds
     // ---------------------------
     private readonly Dictionary<string, HashSet<string>> _firedOutgoingBySource = new Dictionary<string, HashSet<string>>();
+    // toNodeId -> firedTransitionIds
+    private readonly Dictionary<string, HashSet<string>> _firedIncomingByTarget
+        = new Dictionary<string, HashSet<string>>();
 
     // ---------------------------
     // 외부 이벤트
@@ -126,7 +129,10 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         _talkedNpcs.Clear();
         _enemyKillCount.Clear();
         _firedOutgoingBySource.Clear();
+
+        _firedIncomingByTarget.Clear();
     }
+
 
     private void BuildNodeLookup()
     {
@@ -207,104 +213,90 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
     // ==================================================
     private void EvaluateTransitionsMulti()
     {
-        if (flow.transitions == null || flow.transitions.Count == 0)
+        if (flow == null || flow.transitions == null || flow.transitions.Count == 0)
             return;
 
-        // 1) 이번 프레임 시작 시점의 활성 노드 스냅샷
+        // 1) 이번 프레임 시작 시점 활성 노드 스냅샷
         var activeIdsSnapshot = new HashSet<string>(_activeNodeIds);
 
-        // 2) 타겟 노드별 트랜지션 목록
-        //    - allMap: "toId로 들어오는 전체 incoming 트랜지션"(from 활성 여부 무관)
-        //    - metMap: "이번 프레임에 조건을 만족한 incoming 트랜지션"(from이 활성인 것만 평가)
-        Dictionary<string, List<StoryTransition>> allMap = new();
-        Dictionary<string, List<StoryTransition>> metMap = new();
+        // 이번 프레임에 새로 Fire된 트랜지션의 target 후보
+        var candidateTargets = new HashSet<string>();
 
+        // 2) 활성 소스에서 조건을 만족하는 트랜지션을 "한 번만" Fire + 기록
         foreach (var t in flow.transitions)
         {
             if (t == null) continue;
             if (string.IsNullOrEmpty(t.fromNodeId) || string.IsNullOrEmpty(t.toNodeId))
                 continue;
 
-            // to 노드가 실제로 존재해야 incoming으로 인정
-            if (!_nodeLookup.ContainsKey(t.toNodeId))
+            // 양 끝 노드가 실제 존재해야 처리
+            if (!_nodeLookup.ContainsKey(t.fromNodeId) || !_nodeLookup.ContainsKey(t.toNodeId))
                 continue;
 
-            // [핵심] allMap에는 from이 활성인지와 상관없이 "전체 incoming"을 넣는다
-            if (!allMap.TryGetValue(t.toNodeId, out var listAll))
-            {
-                listAll = new List<StoryTransition>();
-                allMap[t.toNodeId] = listAll;
-            }
-            listAll.Add(t);
-
-            // metMap은 "현재 활성 from"에서만 조건을 평가하여 추가
+            // source가 이번 프레임 시작 시점에 활성인 경우만 평가
             if (!activeIdsSnapshot.Contains(t.fromNodeId))
                 continue;
 
-            if (AreConditionsMet(t))
-            {
-                if (!metMap.TryGetValue(t.toNodeId, out var listMet))
-                {
-                    listMet = new List<StoryTransition>();
-                    metMap[t.toNodeId] = listMet;
-                }
-                listMet.Add(t);
-            }
+            // id 보장
+            if (string.IsNullOrEmpty(t.id))
+                t.id = Guid.NewGuid().ToString("N");
+
+            // 이미 Fire된 트랜지션이면 스킵 (중복 Fire 방지)
+            if (IsTransitionAlreadyFired(t))
+                continue;
+
+            // 조건 평가
+            if (!AreConditionsMet(t))
+                continue;
+
+            // 트랜지션 Fire(누적 기록)
+            RecordFiredOutgoing(t);
+            RecordFiredIncoming(t);
+            candidateTargets.Add(t.toNodeId);
+
+            TransitionFired?.Invoke(t);
         }
 
-        // 3) 타겟 노드별 IncomingMode 적용
-        List<StoryNode> nodesToActivate = new();
-        HashSet<string> sourcesToDeactivate = new();
+        // 3) IncomingMode에 따라 타겟 활성화 판정
+        var nodesToActivate = new List<StoryNode>();
 
-        foreach (var kv in allMap)
+        foreach (var toId in candidateTargets)
         {
-            string toId = kv.Key;
-            var allList = kv.Value;
-            if (allList == null || allList.Count == 0) continue;
+            // 이미 활성인 노드는 스킵
+            if (_activeNodeIds.Contains(toId))
+                continue;
 
-            metMap.TryGetValue(toId, out var metList);
-            if (metList == null || metList.Count == 0) continue;
+            if (!_nodeLookup.TryGetValue(toId, out var targetNode) || targetNode == null)
+                continue;
 
-            var targetNode = _nodeLookup[toId];
+            int totalIncoming = CountValidIncomingTransitions(toId);
+            if (totalIncoming <= 0)
+                continue;
+
+            int firedIncoming = CountFiredValidIncomingTransitions(toId);
 
             bool ok = false;
             switch (targetNode.incomingMode)
             {
                 case IncomingTransitionMode.Any:
-                    ok = true; // metList가 1개 이상이면 됨
+                    ok = firedIncoming >= 1;
                     break;
 
                 case IncomingTransitionMode.All:
-                    // [핵심] "toId로 들어오는 전체 incoming(allList)"가 전부 만족(metList)해야 함
-                    ok = (metList.Count == allList.Count);
+                    ok = firedIncoming >= totalIncoming;
                     break;
             }
 
-            if (!ok) continue;
-
-            // 타겟 활성화 예약
-            if (!_activeNodeIds.Contains(toId) && !nodesToActivate.Contains(targetNode))
-            {
+            if (ok && !nodesToActivate.Contains(targetNode))
                 nodesToActivate.Add(targetNode);
-
-                foreach (var t in metList)
-                    TransitionFired?.Invoke(t);
-            }
-
-            // 소스 비활성화는 기존 정책/옵션에 따라 처리 중이라면,
-            // 여기서는 기존 로직을 유지하거나(당신이 이미 D 정책은 잘 된다고 했으므로)
-            // 필요 시 metList 기반으로만 추가하십시오.
-            foreach (var t in metList)
-            {
-                if (!string.IsNullOrEmpty(t.fromNodeId))
-                    sourcesToDeactivate.Add(t.fromNodeId);
-            }
         }
 
-        // 4) 적용
-        foreach (var node in nodesToActivate)
-            ActivateNode(node);
+        // 4) 활성화 적용
+        for (int i = 0; i < nodesToActivate.Count; i++)
+            ActivateNode(nodesToActivate[i]);
 
+        // 5) deactivationPolicy에 따라 소스 비활성화 적용
+        var sourcesToDeactivate = EvaluateSourcesToDeactivate(activeIdsSnapshot);
         foreach (var srcId in sourcesToDeactivate)
         {
             if (_nodeLookup.TryGetValue(srcId, out var srcNode))
@@ -314,6 +306,7 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
             }
         }
     }
+
 
 
     private void RecordFiredOutgoing(StoryTransition t)
@@ -349,27 +342,23 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
 
                 case SourceDeactivationPolicy.OnAnyOutgoingFired:
                     {
-                        if (_firedOutgoingBySource.TryGetValue(srcId, out var fired) && fired.Count > 0)
+                        if (CountFiredOutgoingForDeactivationPolicy(srcId) > 0)
                             sourcesToDeactivate.Add(srcId);
                         break;
                     }
 
                 case SourceDeactivationPolicy.OnAllOutgoingFired:
                     {
-                        int totalOutgoing = CountValidOutgoingTransitions(srcId);
+                        int totalOutgoing = CountOutgoingForDeactivationPolicy(srcId);
 
-                        // "더 이상 남아있는 링커가 없을 때 끝" 요구 반영:
-                        // outgoing이 0개면 즉시 종료 처리
+                        // outgoing 0개면 즉시 종료
                         if (totalOutgoing == 0)
                         {
                             sourcesToDeactivate.Add(srcId);
                             break;
                         }
 
-                        int firedCount = 0;
-                        if (_firedOutgoingBySource.TryGetValue(srcId, out var firedSet))
-                            firedCount = firedSet.Count;
-
+                        int firedCount = CountFiredOutgoingForDeactivationPolicy(srcId);
                         if (firedCount >= totalOutgoing)
                             sourcesToDeactivate.Add(srcId);
 
@@ -380,6 +369,7 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
 
         return sourcesToDeactivate;
     }
+
 
     /// <summary>
     /// srcId에서 나가는 트랜지션 중 "유효한 outgoing" 개수:
@@ -516,4 +506,147 @@ public class StoryFlowRunner : Singleton<StoryFlowRunner>
         groupName = null;
         return false;
     }
+
+    private void RecordFiredIncoming(StoryTransition t)
+    {
+        if (t == null) return;
+        if (string.IsNullOrEmpty(t.id)) t.id = Guid.NewGuid().ToString("N");
+        if (string.IsNullOrEmpty(t.toNodeId)) return;
+
+        if (!_firedIncomingByTarget.TryGetValue(t.toNodeId, out var set))
+        {
+            set = new HashSet<string>();
+            _firedIncomingByTarget[t.toNodeId] = set;
+        }
+        set.Add(t.id);
+    }
+
+    private bool IsTransitionAlreadyFired(StoryTransition t)
+    {
+        if (t == null) return false;
+        if (string.IsNullOrEmpty(t.fromNodeId)) return false;
+        if (string.IsNullOrEmpty(t.id)) return false;
+
+        return _firedOutgoingBySource.TryGetValue(t.fromNodeId, out var set) && set.Contains(t.id);
+    }
+
+    /// <summary>
+    /// toId로 들어오는 "유효한 incoming 트랜지션" 개수
+    /// - toNodeId == toId
+    /// - fromNodeId 존재 + lookup에 존재
+    /// </summary>
+    private int CountValidIncomingTransitions(string toId)
+    {
+        if (flow == null || flow.transitions == null) return 0;
+        if (string.IsNullOrEmpty(toId)) return 0;
+        if (!_nodeLookup.ContainsKey(toId)) return 0;
+
+        int count = 0;
+        foreach (var tr in flow.transitions)
+        {
+            if (tr == null) continue;
+            if (tr.toNodeId != toId) continue;
+
+            if (string.IsNullOrEmpty(tr.fromNodeId)) continue;
+            if (!_nodeLookup.ContainsKey(tr.fromNodeId)) continue;
+
+            count++;
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// toId로 들어오는 incoming 중, 실제로 Fire된(기록된) "유효한" 개수
+    /// </summary>
+    private int CountFiredValidIncomingTransitions(string toId)
+    {
+        if (flow == null || flow.transitions == null) return 0;
+        if (string.IsNullOrEmpty(toId)) return 0;
+
+        if (!_firedIncomingByTarget.TryGetValue(toId, out var firedSet) || firedSet == null)
+            return 0;
+
+        int count = 0;
+        foreach (var tr in flow.transitions)
+        {
+            if (tr == null) continue;
+            if (tr.toNodeId != toId) continue;
+
+            if (string.IsNullOrEmpty(tr.id)) continue;
+            if (firedSet.Contains(tr.id))
+                count++;
+        }
+        return count;
+    }
+
+    private int CountFiredValidOutgoingTransitions(string srcId)
+    {
+        if (flow == null || flow.transitions == null) return 0;
+        if (string.IsNullOrEmpty(srcId)) return 0;
+
+        if (!_firedOutgoingBySource.TryGetValue(srcId, out var firedSet) || firedSet == null)
+            return 0;
+
+        int count = 0;
+        foreach (var tr in flow.transitions)
+        {
+            if (tr == null) continue;
+            if (tr.fromNodeId != srcId) continue;
+
+            if (string.IsNullOrEmpty(tr.toNodeId)) continue;
+            if (!_nodeLookup.ContainsKey(tr.toNodeId)) continue;
+
+            if (string.IsNullOrEmpty(tr.id)) continue;
+            if (firedSet.Contains(tr.id))
+                count++;
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// DeactivationPolicy 판단용 outgoing 개수 (보수적으로 셈)
+    /// - fromNodeId == srcId
+    /// - toNodeId가 비어있지만 않으면 카운트 (lookup 존재 여부는 무시)
+    /// </summary>
+    private int CountOutgoingForDeactivationPolicy(string srcId)
+    {
+        if (flow == null || flow.transitions == null) return 0;
+
+        int count = 0;
+        foreach (var tr in flow.transitions)
+        {
+            if (tr == null) continue;
+            if (tr.fromNodeId != srcId) continue;
+            if (string.IsNullOrEmpty(tr.toNodeId)) continue;
+
+            count++;
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// DeactivationPolicy 판단용 fired outgoing 개수 (보수적으로 셈)
+    /// - CountOutgoingForDeactivationPolicy에 해당하는 트랜지션 중 fired인 것만 카운트
+    /// </summary>
+    private int CountFiredOutgoingForDeactivationPolicy(string srcId)
+    {
+        if (flow == null || flow.transitions == null) return 0;
+
+        if (!_firedOutgoingBySource.TryGetValue(srcId, out var firedSet) || firedSet == null)
+            return 0;
+
+        int count = 0;
+        foreach (var tr in flow.transitions)
+        {
+            if (tr == null) continue;
+            if (tr.fromNodeId != srcId) continue;
+            if (string.IsNullOrEmpty(tr.toNodeId)) continue;
+            if (string.IsNullOrEmpty(tr.id)) continue;
+
+            if (firedSet.Contains(tr.id))
+                count++;
+        }
+        return count;
+    }
+
 }

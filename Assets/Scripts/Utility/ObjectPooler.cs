@@ -78,6 +78,17 @@ public class ObjectPooler : MonoBehaviour
             inst.ArrangePool(obj);
         }
     }
+    public static bool TrySpawnFromPool(string tag, Vector3 position, Transform parent, Quaternion rotation, out GameObject go)
+    {
+        go = null;
+        if (inst == null) return false;
+        if (inst.poolDictionary == null) return false;
+        if (!inst.poolDictionary.ContainsKey(tag)) return false;
+
+        go = inst._SpawnFromPool(tag, position, parent ?? inst.transform, rotation);
+        return go != null;
+    }
+
 
     public static GameObject SpawnFromPool(string tag, Vector3 position) =>
         inst._SpawnFromPool(tag, position, inst.transform, Quaternion.identity);
@@ -142,7 +153,7 @@ public class ObjectPooler : MonoBehaviour
     {
         if (!inst.poolDictionary.ContainsKey(obj.name))
             throw new Exception($"Pool with tag {obj.name} doesn't exist.");
-
+        obj.SetActive(false);
         inst.poolDictionary[obj.name].Enqueue(obj);
     }
 

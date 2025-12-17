@@ -2,9 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 전체 스토리 그래프 ScriptableObject.
-/// </summary>
 [CreateAssetMenu(menuName = "Story/Story Flow")]
 public class StoryFlow : ScriptableObject
 {
@@ -18,13 +15,11 @@ public class StoryFlow : ScriptableObject
 
     public StoryNode GetNodeById(string id)
     {
-        if (string.IsNullOrEmpty(id) || nodes == null)
-            return null;
+        if (string.IsNullOrEmpty(id) || nodes == null) return null;
 
         foreach (var n in nodes)
         {
-            if (n != null && n.id == id)
-                return n;
+            if (n != null && n.id == id) return n;
         }
         return null;
     }
@@ -32,15 +27,15 @@ public class StoryFlow : ScriptableObject
 
 public enum SourceDeactivationPolicy
 {
-    None,                 // 이 노드는 자동으로 비활성화하지 않음
-    OnAnyOutgoingFired,   // 이 노드에서 나가는 트랜지션이 하나라도 발동되면 비활성화
-    OnAllOutgoingFired    // 이 노드에서 나가는 "사용 가능한" 트랜지션이 전부 발동되면 비활성화
+    None,
+    OnAnyOutgoingFired,
+    OnAllOutgoingFired
 }
 
 public enum IncomingTransitionMode
 {
-    Any,    // B→D, C→D 중 하나라도 만족하면 D 활성화
-    All     // B→D, C→D 둘 다의 조건이 만족돼야 D 활성화
+    Any,
+    All
 }
 
 [Serializable]
@@ -56,18 +51,17 @@ public class StoryNode
 {
     public string id;
     public string displayName;
-    public SourceDeactivationPolicy deactivationPolicy = SourceDeactivationPolicy.OnAnyOutgoingFired;
+
     public bool isStart;
     public bool isEnd;
-    public IncomingTransitionMode incomingMode;
 
-    public Rect editorRect = new Rect(100, 100, 220, 80);
+    public IncomingTransitionMode incomingMode = IncomingTransitionMode.Any;
+    public SourceDeactivationPolicy deactivationPolicy = SourceDeactivationPolicy.OnAnyOutgoingFired;
+
+    public Rect editorRect = new Rect(100, 100, 240, 140);
 
     public List<StoryAction> onEnterActions = new();
     public List<StoryAction> onExitActions = new();
 
-    // ★ 여기: 반드시 public 이거나 [SerializeField] + [Serializable] 이어야 함
     public List<StoryNpcDialogue> npcDialogues = new();
 }
-
-

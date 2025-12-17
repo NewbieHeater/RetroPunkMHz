@@ -16,10 +16,10 @@ MonoBehaviour:
   nodes:
   - id: 5587757892fd4a9f836a4a9658aebbff
     displayName: Node 0
-    deactivationPolicy: 1
     isStart: 1
     isEnd: 0
     incomingMode: 0
+    deactivationPolicy: 1
     editorRect:
       serializedVersion: 2
       x: 95
@@ -31,10 +31,10 @@ MonoBehaviour:
     npcDialogues: []
   - id: a753d86eda4646b590433baaab30ded1
     displayName: Node 1
-    deactivationPolicy: 2
     isStart: 0
     isEnd: 0
     incomingMode: 1
+    deactivationPolicy: 2
     editorRect:
       serializedVersion: 2
       x: 466
@@ -52,14 +52,14 @@ MonoBehaviour:
       groupName: Quest1
   - id: 692a4bac47aa47dca2970998483360be
     displayName: Node 2
-    deactivationPolicy: 1
     isStart: 0
     isEnd: 1
     incomingMode: 1
+    deactivationPolicy: 1
     editorRect:
       serializedVersion: 2
-      x: 965
-      y: 161
+      x: 969
+      y: 156
       width: 240
       height: 140
     onEnterActions: []
@@ -67,14 +67,29 @@ MonoBehaviour:
     npcDialogues: []
   - id: be8792e9f28943038f9ca973ca452817
     displayName: Node 3
-    deactivationPolicy: 1
     isStart: 0
     isEnd: 0
     incomingMode: 0
+    deactivationPolicy: 1
     editorRect:
       serializedVersion: 2
       x: 719
       y: 333
+      width: 240
+      height: 140
+    onEnterActions: []
+    onExitActions: []
+    npcDialogues: []
+  - id: 9a1b039690fd4856a19977171c0cd8f5
+    displayName: Node 4
+    isStart: 0
+    isEnd: 0
+    incomingMode: 0
+    deactivationPolicy: 1
+    editorRect:
+      serializedVersion: 2
+      x: 716
+      y: 44
       width: 240
       height: 140
     onEnterActions: []
@@ -90,15 +105,6 @@ MonoBehaviour:
       stringArg: ShopOwner
       intArg: 0
       floatArg: 0
-  - id: 135b596352b14519b1248851f77ededa
-    fromNodeId: a753d86eda4646b590433baaab30ded1
-    toNodeId: 692a4bac47aa47dca2970998483360be
-    requireAllConditions: 1
-    conditions:
-    - type: 2
-      stringArg: NPC
-      intArg: 0
-      floatArg: 0
   - id: 2b1d0bdeee8c4ffc995a6e77875c8482
     fromNodeId: a753d86eda4646b590433baaab30ded1
     toNodeId: be8792e9f28943038f9ca973ca452817
@@ -110,6 +116,24 @@ MonoBehaviour:
       floatArg: 0
   - id: 95a042077c994f8a8c6da76996325013
     fromNodeId: be8792e9f28943038f9ca973ca452817
+    toNodeId: 692a4bac47aa47dca2970998483360be
+    requireAllConditions: 1
+    conditions:
+    - type: 1
+      stringArg: a
+      intArg: 0
+      floatArg: 0
+  - id: 030faf8bbf474a9ebfa3456c3364a39a
+    fromNodeId: a753d86eda4646b590433baaab30ded1
+    toNodeId: 9a1b039690fd4856a19977171c0cd8f5
+    requireAllConditions: 1
+    conditions:
+    - type: 2
+      stringArg: NPC
+      intArg: 0
+      floatArg: 0
+  - id: 584856e99a214aaaa95f43aa5780f485
+    fromNodeId: 9a1b039690fd4856a19977171c0cd8f5
     toNodeId: 692a4bac47aa47dca2970998483360be
     requireAllConditions: 1
     conditions: []
