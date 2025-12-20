@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
+using System.Linq;
+using System.Reflection;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using System.Collections.Generic;
@@ -18,6 +20,8 @@ public class StoryFlowEditorWindow : EditorWindow
     private bool _isDraggingTransition;
     private StoryNode _dragFromNode;
     private Vector2 _dragMousePos;
+    private SerializedObject _so;
+    private SerializedProperty _nodesProp;
 
     private bool _isPanning;
     private Vector2 _lastPanMousePos;
@@ -31,6 +35,14 @@ public class StoryFlowEditorWindow : EditorWindow
     private void OnGUI()
     {
         DrawToolbar();
+        if (_flow != null)
+        {
+            if (_so == null || _so.targetObject != _flow)
+            {
+                _so = new SerializedObject(_flow);
+                _nodesProp = _so.FindProperty("nodes");
+            }
+        }
 
         if (_flow == null)
         {
@@ -45,6 +57,10 @@ public class StoryFlowEditorWindow : EditorWindow
 
         DrawGraphArea();
         DrawInspectorArea();
+        if (_so != null)
+        {
+            _so.ApplyModifiedProperties();
+        }
 
         EditorGUILayout.EndHorizontal();
 
@@ -631,6 +647,175 @@ public class StoryFlowEditorWindow : EditorWindow
 
         if (GUILayout.Button("Add NPC Dialogue"))
             node.npcDialogues.Add(new StoryNpcDialogue());
+
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+
+        DrawActionsInspectorForSelectedNode(node);
+
+    }
+    private bool _enterFoldout = true;
+    private bool _exitFoldout = true;
+
+    private void DrawActionsInspectorForSelectedNode(StoryNode node)
+    {
+        if (_flow == null || node == null || _so == null || _nodesProp == null)
+            return;
+
+        int nodeIndex = _flow.nodes.IndexOf(node);
+        if (nodeIndex < 0) return;
+
+        _so.Update();
+
+        SerializedProperty nodeProp = _nodesProp.GetArrayElementAtIndex(nodeIndex);
+        SerializedProperty enterProp = nodeProp.FindPropertyRelative("onEnterActions");
+        SerializedProperty exitProp = nodeProp.FindPropertyRelative("onExitActions");
+
+        // Enter
+        _enterFoldout = EditorGUILayout.Foldout(_enterFoldout, "On Enter Actions", true);
+        if (_enterFoldout)
+            DrawActionList(enterProp);
+
+        EditorGUILayout.Space(6);
+
+        // Exit
+        _exitFoldout = EditorGUILayout.Foldout(_exitFoldout, "On Exit Actions", true);
+        if (_exitFoldout)
+            DrawActionList(exitProp);
+
+        _so.ApplyModifiedProperties();
+        EditorUtility.SetDirty(_flow);
+    }
+
+    private static List<Type> _cachedActionTypes;
+
+    private static List<Type> GetConcreteStoryActionTypes()
+    {
+        if (_cachedActionTypes != null) return _cachedActionTypes;
+
+        var baseType = typeof(StoryAction);
+        _cachedActionTypes = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(a =>
+            {
+                try { return a.GetTypes(); }
+                catch (ReflectionTypeLoadException e) { return e.Types.Where(t => t != null); }
+            })
+            .Where(t => t != null
+                        && baseType.IsAssignableFrom(t)
+                        && !t.IsAbstract
+                        && !t.IsGenericType
+                        && t.GetConstructor(Type.EmptyTypes) != null)
+            .OrderBy(t => t.Name)
+            .ToList();
+
+        return _cachedActionTypes;
+    }
+
+    private void DrawActionList(SerializedProperty listProp)
+    {
+        if (listProp == null) return;
+
+        EditorGUILayout.BeginVertical("box");
+
+        // Add button + type dropdown
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Add Action", GUILayout.Width(110)))
+            {
+                ShowAddActionMenu(listProp);
+            }
+        }
+
+        if (listProp.arraySize == 0)
+        {
+            EditorGUILayout.HelpBox("No actions.", MessageType.Info);
+            EditorGUILayout.EndVertical();
+            return;
+        }
+
+        // Elements
+        for (int i = 0; i < listProp.arraySize; i++)
+        {
+            SerializedProperty elem = listProp.GetArrayElementAtIndex(i);
+
+            EditorGUILayout.BeginVertical("box");
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                string typeName = GetManagedRefTypeName(elem);
+                EditorGUILayout.LabelField($"[{i}] {typeName}", EditorStyles.boldLabel);
+
+                GUILayout.FlexibleSpace();
+
+                if (GUILayout.Button("Up", GUILayout.Width(40)) && i > 0)
+                    listProp.MoveArrayElement(i, i - 1);
+
+                if (GUILayout.Button("Down", GUILayout.Width(50)) && i < listProp.arraySize - 1)
+                    listProp.MoveArrayElement(i, i + 1);
+
+                if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                {
+                    // SerializeReference는 2번 호출로 완전 삭제되는 케이스가 있어 안전하게 처리
+                    listProp.DeleteArrayElementAtIndex(i);
+                    if (i < listProp.arraySize && listProp.GetArrayElementAtIndex(i).managedReferenceValue == null)
+                        listProp.DeleteArrayElementAtIndex(i);
+
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
+            }
+
+            // Draw fields of the action instance
+            EditorGUILayout.PropertyField(elem, GUIContent.none, true);
+
+            EditorGUILayout.EndVertical();
+        }
+
+        EditorGUILayout.EndVertical();
+    }
+
+    private void ShowAddActionMenu(SerializedProperty listProp)
+    {
+        var types = GetConcreteStoryActionTypes();
+        GenericMenu menu = new GenericMenu();
+
+        if (types.Count == 0)
+        {
+            menu.AddDisabledItem(new GUIContent("No StoryAction types found"));
+            menu.ShowAsContext();
+            return;
+        }
+
+        foreach (var t in types)
+        {
+            string menuName = t.Name;
+            menu.AddItem(new GUIContent(menuName), false, () =>
+            {
+                int newIndex = listProp.arraySize;
+                listProp.InsertArrayElementAtIndex(newIndex);
+                SerializedProperty elem = listProp.GetArrayElementAtIndex(newIndex);
+
+                object instance = Activator.CreateInstance(t);
+                elem.managedReferenceValue = instance;
+
+                listProp.serializedObject.ApplyModifiedProperties();
+                EditorUtility.SetDirty(listProp.serializedObject.targetObject);
+            });
+        }
+
+        menu.ShowAsContext();
+    }
+
+    private string GetManagedRefTypeName(SerializedProperty p)
+    {
+        if (p == null) return "(null)";
+        // managedReferenceFullTypename: "AssemblyName TypeName"
+        string full = p.managedReferenceFullTypename;
+        if (string.IsNullOrEmpty(full)) return "(None)";
+        int lastSpace = full.LastIndexOf(' ');
+        return (lastSpace >= 0 && lastSpace + 1 < full.Length) ? full.Substring(lastSpace + 1) : full;
     }
 
     private void DrawTransitionInspector(StoryTransition t)

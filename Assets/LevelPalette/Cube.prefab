@@ -11,10 +11,11 @@ GameObject:
   - component: {fileID: 1620332829906870155}
   - component: {fileID: 8796036491220622358}
   - component: {fileID: 2934859556527409516}
+  - component: {fileID: 6626523521855413713}
   - component: {fileID: 6988190319673466551}
   m_Layer: 6
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -85,6 +86,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6626523521855413713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2065990152566874683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e31a713e2202c9342b21c48317702e91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allowCombine: 1
+  allowErase: 1
 --- !u!65 &6988190319673466551
 BoxCollider:
   m_ObjectHideFlags: 0

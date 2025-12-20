@@ -60,8 +60,8 @@ public class StoryNode
 
     public Rect editorRect = new Rect(100, 100, 240, 140);
 
-    public List<StoryAction> onEnterActions = new();
-    public List<StoryAction> onExitActions = new();
+    [SerializeReference] public List<StoryAction> onEnterActions = new();
+    [SerializeReference] public List<StoryAction> onExitActions = new();
 
     public List<StoryNpcDialogue> npcDialogues = new();
 }

@@ -588,65 +588,63 @@ public class LevelBrushWindow : EditorWindow
 
         Rect r = GetUVRect(aUV, bUV);
 
-        // 부모 범위 안에서만 복사 (원하면 옵션화)
-        // BRUSH_TAG가 붙은 오브젝트만 검색
-        IEnumerable<Transform> pool = GameObject.FindObjectsOfType<Transform>(true).Where(t => t.CompareTag(BRUSH_TAG));
+        var pool = Object.FindObjectsByType<LevelBrushPlaced>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        foreach (var t in pool)
+        foreach (var m in pool)
         {
-            if (!t) continue;
-            // UV 좌표 계산
+            if (!m) continue;
+            var t = m.transform;
+
             _plane.ProjectToPlane(t.position, out var pOnPlane);
             var uv = _plane.WorldToUV(pOnPlane);
 
-            // 선택 사각형 범위 내에 있는지 확인 (정확도를 위해 작은 오차 허용)
-            if (uv.x >= r.xMin - 1e-4f && uv.x <= r.xMax + 1e-4f && uv.y >= r.yMin - 1e-4f && uv.y <= r.yMax + 1e-4f)
+            if (uv.x >= r.xMin - 1e-4f && uv.x <= r.xMax + 1e-4f &&
+                uv.y >= r.yMin - 1e-4f && uv.y <= r.yMax + 1e-4f)
             {
                 var src = PrefabUtility.GetCorrespondingObjectFromSource(t.gameObject);
-                GameObject prefab = (src as GameObject);
-                if (prefab) // 프리팹 원본이 있는 경우만 복사 대상에 추가
+                if (src is GameObject prefab)
                 {
                     _clipboard.Add((prefab, _plane.SnapUV(uv), t.rotation));
                 }
             }
         }
 
-        // 정렬(좌하→우상)해두면 붙여넣기 오프셋 계산이 일정해짐
         _clipboard = _clipboard.OrderBy(x => x.uv.y).ThenBy(x => x.uv.x).ToList();
-
         Debug.Log($"Cached {_clipboard.Count} objects to clipboard.");
     }
+
 
     void DeleteSelection(Vector2 aUV, Vector2 bUV)
     {
         if (_plane == null) return;
 
         Rect r = GetUVRect(aUV, bUV);
-        // BRUSH_TAG가 붙은 오브젝트만 검색
-        IEnumerable<Transform> pool = GameObject.FindObjectsOfType<Transform>(true).Where(t => t.CompareTag(BRUSH_TAG));
+
+        var pool = Object.FindObjectsByType<LevelBrushPlaced>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         int count = 0;
-        foreach (var t in pool)
+        foreach (var m in pool)
         {
-            if (!t) continue;
+            if (!m) continue;
+            if (!m.allowErase) continue;
 
-            // UV 좌표 계산
+            var t = m.transform;
             _plane.ProjectToPlane(t.position, out var pOnPlane);
             var uv = _plane.WorldToUV(pOnPlane);
 
-            // 선택 사각형 범위 내에 있는지 확인
-            if (uv.x >= r.xMin - 1e-4f && uv.x <= r.xMax + 1e-4f && uv.y >= r.yMin - 1e-4f && uv.y <= r.yMax + 1e-4f)
+            if (uv.x >= r.xMin - 1e-4f && uv.x <= r.xMax + 1e-4f &&
+                uv.y >= r.yMin - 1e-4f && uv.y <= r.yMax + 1e-4f)
             {
-                Undo.DestroyObjectImmediate(t.gameObject);
+                Undo.DestroyObjectImmediate(m.gameObject);
                 count++;
             }
         }
-        Debug.Log($"Deleted {count} objects in selection.");
 
-        // 삭제 후 선택 영역 초기화
+        Debug.Log($"Deleted {count} objects in selection.");
         _selStartUV = _selEndUV = Vector2.zero;
         SceneView.RepaintAll();
     }
+
 
     void PasteClipboardAt(Vector2 targetUV)
     {
@@ -679,9 +677,15 @@ public class LevelBrushWindow : EditorWindow
                 continue;
             }
 
+            // 이미 있다면 스킵 (브러쉬 배치물 기준)
+            if (HasBrushPlacedAt(world, _plane.gridSize * 0.2f))
+                continue;
+
             var go = (GameObject)PrefabUtility.InstantiatePrefab(it.prefab);
             Undo.RegisterCreatedObjectUndo(go, "Level Brush Paste");
-            go.tag = BRUSH_TAG;
+
+            EnsurePlacedMarker(go);
+
             go.transform.position = world;
             go.transform.rotation = it.rot;
             if (_parent) go.transform.SetParent(_parent, true);
@@ -867,39 +871,82 @@ public class LevelBrushWindow : EditorWindow
         var world = _plane.UVToWorld(uv);
         float eps = _plane.gridSize * 0.2f;
 
-        // 해당 위치에 이미 오브젝트가 있는지 검사 (겹침 방지)
-        if (Physics.CheckSphere(world, eps)) return;
+        // 기존: Physics.CheckSphere(world, eps)  -> 다른 콜라이더(플레이어/합쳐진 지형 등)에도 막힐 수 있음
+        // 개선: 브러쉬가 배치한 것만 점유로 봄
+        if (HasBrushPlacedAt(world, eps)) return;
 
-        // 프리팹 생성
         var go = (GameObject)PrefabUtility.InstantiatePrefab(_activePrefab);
         Undo.RegisterCreatedObjectUndo(go, "Level Brush Paint");
-        go.tag = BRUSH_TAG;
+
         go.transform.position = world;
+
+        var marker = EnsurePlacedMarker(go);
 
         // 회전 적용
         go.transform.rotation = Quaternion.AngleAxis(90f * _rotationSteps, _plane.Normal) * go.transform.rotation;
 
-        // 부모 설정
         if (_parent) go.transform.SetParent(_parent, true);
     }
+
 
     void EraseAt(Vector2 uv)
     {
         var world = _plane.UVToWorld(uv);
-        // 브러시 크기에 따른 삭제 반경 설정
         float r = _plane.gridSize * 0.4f * Mathf.Max(1, _brushSize);
 
-        // 해당 위치 주변의 콜라이더 검색
-        int count = Physics.OverlapSphereNonAlloc(world, r, _eraseBuf);
+        int count = Physics.OverlapSphereNonAlloc(
+            world, r, _eraseBuf,
+            ~0, QueryTriggerInteraction.Ignore
+        );
+
+        // 같은 오브젝트가 여러 콜라이더로 잡힐 수 있으니 중복 제거
+        var targets = new HashSet<GameObject>();
 
         for (int i = 0; i < count; i++)
         {
-            var h = _eraseBuf[i];
-            // BRUSH_TAG가 붙은 오브젝트만 삭제
-            if (h.CompareTag(BRUSH_TAG))
-            {
-                Undo.DestroyObjectImmediate(h.transform.gameObject);
-            }
+            var col = _eraseBuf[i];
+            if (!col) continue;
+
+            var marker = col.GetComponentInParent<LevelBrushPlaced>();
+            if (!marker) continue;
+            if (!marker.allowErase) continue;
+
+            targets.Add(marker.gameObject);
         }
+
+        foreach (var go in targets)
+            Undo.DestroyObjectImmediate(go);
     }
+
+
+    // ===== Marker helpers =====
+    static LevelBrushPlaced GetPlacedMarker(Component c)
+        => c ? c.GetComponentInParent<LevelBrushPlaced>() : null;
+
+    LevelBrushPlaced EnsurePlacedMarker(GameObject go)
+    {
+        if (!go) return null;
+        var m = go.GetComponent<LevelBrushPlaced>();
+        if (!m) m = Undo.AddComponent<LevelBrushPlaced>(go);
+        return m;
+    }
+
+    // "브러쉬가 배치한 것"만 점유로 취급하는 겹침 검사 (권장)
+    bool HasBrushPlacedAt(Vector3 world, float radius)
+    {
+        int count = Physics.OverlapSphereNonAlloc(
+            world, radius, _eraseBuf,
+            ~0, QueryTriggerInteraction.Ignore
+        );
+
+        for (int i = 0; i < count; i++)
+        {
+            var col = _eraseBuf[i];
+            if (!col) continue;
+            var m = col.GetComponentInParent<LevelBrushPlaced>();
+            if (m) return true;
+        }
+        return false;
+    }
+
 }

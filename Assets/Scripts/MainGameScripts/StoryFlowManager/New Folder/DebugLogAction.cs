@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
-
-[CreateAssetMenu(menuName = "Story/Action/Debug Log")]
+[Serializable]
 public class DebugLogAction : StoryAction
 {
     [TextArea]

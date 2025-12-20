@@ -41,12 +41,13 @@ namespace LevelEditing
         [Tooltip("Collider mode used")] public LevelBrushCombinerWindow.ColliderMode colliderMode;
         [Tooltip("Collider thickness along plane normal (for Box mode)")] public float colliderThickness;
 
-        public IEnumerable<Renderer> ResolveSourceRenderers()
+        public IEnumerable<GameObject> ResolveSourceObjects()
         {
             foreach (var id in sourceRendererIDs)
             {
-                var obj = EditorUtility.InstanceIDToObject(id) as Renderer;
-                if (obj) yield return obj;
+                var obj = EditorUtility.InstanceIDToObject(id);
+                if (obj is GameObject go) yield return go;
+                else if (obj is Component c) yield return c.gameObject;
             }
         }
     }
@@ -72,7 +73,8 @@ namespace LevelEditing
         [Header("Chunking & Filters")]
         [Min(0.01f)] public float gridSize = 1f;
         [Range(4, 64)] public int chunkSize = 16; // cells per side
-        public bool onlyTaggedBrush = true;       // only tag 'LevelBrush'
+        public bool onlyPlacedByBrushMarker = true; 
+        public List<string> allowedTags = new List<string> { "Ground", "Wall" };
         public bool includeInactive = false;      // include disabled
         public bool skipIfHasRigidbody = true;    // skip dynamics
         public bool ignoreSkinned = true;         // skip skinned
@@ -118,11 +120,25 @@ namespace LevelEditing
             EditorGUILayout.LabelField("Chunking & Filters", EditorStyles.boldLabel);
             gridSize = Mathf.Max(0.01f, EditorGUILayout.FloatField("Grid Size", gridSize));
             chunkSize = EditorGUILayout.IntSlider("Chunk Size (cells)", chunkSize, 4, 64);
-            onlyTaggedBrush = EditorGUILayout.Toggle("Only Tag 'LevelBrush'", onlyTaggedBrush);
+            onlyPlacedByBrushMarker = EditorGUILayout.Toggle("Only Placed By Brush (Marker)", onlyPlacedByBrushMarker);
             includeInactive = EditorGUILayout.Toggle("Include Inactive", includeInactive);
             skipIfHasRigidbody = EditorGUILayout.Toggle("Skip if has Rigidbody", skipIfHasRigidbody);
             ignoreSkinned = EditorGUILayout.Toggle("Ignore SkinnedMesh", ignoreSkinned);
-
+            EditorGUILayout.LabelField("Allowed Tags To Combine", EditorStyles.boldLabel);
+            for (int i = 0; i < allowedTags.Count; i++)
+            {
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    allowedTags[i] = EditorGUILayout.TagField($"Tag {i + 1}", allowedTags[i]);
+                    if (GUILayout.Button("-", GUILayout.Width(24)))
+                    {
+                        allowedTags.RemoveAt(i);
+                        GUIUtility.ExitGUI();
+                    }
+                }
+            }
+            if (GUILayout.Button("Add Tag"))
+                allowedTags.Add("Untagged");
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Combine Options", EditorStyles.boldLabel);
             combinePerMaterial = EditorGUILayout.Toggle("Combine Per Material", combinePerMaterial);
@@ -148,6 +164,7 @@ namespace LevelEditing
         {
             public Renderer renderer; public MeshFilter mf; public Mesh mesh; public Transform t;
             public Vector2Int chunkIdx; public Vector2Int cell; public Vector2Int localCell;
+            public GameObject sourceRoot;
         }
 
         void TryReportCounts()
@@ -171,7 +188,27 @@ namespace LevelEditing
                 if (!r) continue;
                 if (r is ParticleSystemRenderer) continue;
                 if (ignoreSkinned && r is SkinnedMeshRenderer) continue;
-                if (onlyTaggedBrush && r.gameObject.tag != BrushTagName) continue;
+                var placed = r.GetComponentInParent<LevelBrushPlaced>();
+                if (onlyPlacedByBrushMarker)
+                {
+                    if (!placed) continue;
+                    if (!placed.allowCombine) continue;
+                }
+
+                // 태그 판정은 "마커가 붙은 오브젝트의 태그" 기준이 안정적
+                GameObject tagGO = placed ? placed.gameObject : r.gameObject;
+
+                // allowedTags에 하나라도 포함되는지 체크
+                if (allowedTags != null && allowedTags.Count > 0)
+                {
+                    bool ok = false;
+                    foreach (var ttag in allowedTags)
+                    {
+                        if (!string.IsNullOrEmpty(ttag) && tagGO.CompareTag(ttag)) { ok = true; break; }
+                    }
+                    if (!ok) continue;
+                }
+
                 if (r.CompareTag(SkipTagName)) continue;
                 if (skipIfHasRigidbody && r.GetComponentInParent<Rigidbody>()) continue;
                 if (limitToParent && !r.transform.IsChildOf(limitToParent)) continue;
@@ -194,8 +231,10 @@ namespace LevelEditing
                     t = r.transform,
                     chunkIdx = cidx,
                     cell = cell,
-                    localCell = local
+                    localCell = local,
+                    sourceRoot = placed ? placed.gameObject : r.gameObject
                 });
+
             }
             return list;
         }
@@ -312,13 +351,20 @@ namespace LevelEditing
                     StaticEditorFlags.BatchingStatic | StaticEditorFlags.OccludeeStatic | StaticEditorFlags.OccluderStatic |
                     StaticEditorFlags.ContributeGI);
 
-                // Disable or delete originals
+                var uniqueRoots = new HashSet<GameObject>();
                 foreach (var c in g)
+                    if (c.sourceRoot) uniqueRoots.Add(c.sourceRoot);
+
+                foreach (var root in uniqueRoots)
                 {
-                    if (!c.renderer) continue;
-                    if (deleteOriginals) Undo.DestroyObjectImmediate(c.renderer.gameObject);
-                    else { Undo.RecordObject(c.renderer.gameObject, "Disable Original Block"); c.renderer.gameObject.SetActive(false); }
+                    if (deleteOriginals) Undo.DestroyObjectImmediate(root);
+                    else
+                    {
+                        Undo.RecordObject(root, "Disable Original Block");
+                        root.SetActive(false);
+                    }
                 }
+
 
                 chunkMade++; totalUsed += usedInChunk;
             }
@@ -395,15 +441,17 @@ namespace LevelEditing
             {
                 if (!ch.originalsDeleted)
                 {
-                    foreach (var r in ch.ResolveSourceRenderers())
+                    foreach (var go in ch.ResolveSourceObjects())
                     {
-                        if (!r) continue;
-                        if (!r.gameObject.activeSelf)
+                        if (!go) continue;
+                        if (!go.activeSelf)
                         {
-                            Undo.RecordObject(r.gameObject, "Enable Original");
-                            r.gameObject.SetActive(true); reEnabled++;
+                            Undo.RecordObject(go, "Enable Original");
+                            go.SetActive(true);
+                            reEnabled++;
                         }
                     }
+
                 }
                 Undo.DestroyObjectImmediate(ch.gameObject);
             }
