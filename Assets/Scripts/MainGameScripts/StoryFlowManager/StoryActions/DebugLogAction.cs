@@ -9,6 +9,6 @@ public class DebugLogAction : StoryAction
     public override void Execute(StoryFlowRunner runner)
     {
         Debug.Log($"[StoryFlow] {message}");
-        CinemachineEventReader.Instance.PlayBuiltInEvent(BuiltInEvents.Dialogue, message, message2);
+
     }
 }

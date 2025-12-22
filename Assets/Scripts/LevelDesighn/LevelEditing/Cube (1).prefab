@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2870903200729830863}
   - component: {fileID: 4437352900883612835}
   - component: {fileID: 1443077788268273208}
+  - component: {fileID: -456001419050017061}
   m_Layer: 6
   m_Name: Cube (1)
   m_TagString: LevelBrush
@@ -105,3 +106,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-456001419050017061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7779754269365225195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e31a713e2202c9342b21c48317702e91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allowCombine: 1
+  allowErase: 1

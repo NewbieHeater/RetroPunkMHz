@@ -11,50 +11,45 @@ public sealed class ClimberHitState : EnemyState<Climber>
 
     public override void Enter()
     {
-        owner.SetMoving(false);
-        owner.ToggleMelee(false);
+        owner.surfaceWalker.RequestStun(true, owner.HitStun);
 
-        // 원본: _animator.CrossFade("Hit", 0.05f, 0);
         if (owner.Anim && !string.IsNullOrEmpty(owner.HitStateName))
             owner.Anim.CrossFade(owner.HitStateName, owner.HitCrossFade, 0);
 
         _t = owner.HitStun;
+
+        // 넉백 (EnemyBase의 캐시 사용)
+        Vector2 hitDir = owner.LastHitDir2D;
+        if (hitDir.sqrMagnitude < 1e-6f) hitDir = Vector2.right;
+
+        float strength = (owner.LastKnockbackForce > 0f) ? owner.LastKnockbackForce : owner.KnockbackStrength;
+
+        float vx = hitDir.x * strength;
+
+        var rb = owner.RigidBody;
+        if (rb && owner.Nav != null)
+        {
+            float vy = rb.velocity.y;
+            owner.Nav.ApplyExternalVelocity(new Vector3(vx, vy, 0f), owner.HitStun);
+        }
     }
 
     public override void Tick(float dt)
     {
         _t -= dt;
 
-        // ===== 원본 기능 그대로: 플레이어 반대 방향 고정 넉백 =====
-        var player = owner.Player;
-        if (player)
-        {
-            float dir = Mathf.Sign(owner.transform.position.x - player.transform.position.x);
-            Vector3 kb = new Vector3(dir * owner.KnockbackStrength, 0f, 0f);
-
-            var rb = owner.RigidBody;
-            if (rb)
-            {
-                rb.velocity = new Vector3(kb.x, rb.velocity.y, 0f);
-            }
-            else
-            {
-                owner.transform.position += kb * dt;
-            }
-        }
-
-        // 원본: if (_t <= 0f) { if (IsPlayerInSight(_attackRange)) Attack else Move; }
         if (_t <= 0f)
         {
             if (owner.IsPlayerInSight(owner.AttackRange))
+            {
                 fsm.Change(StateInfo.Attack);
+            }
             else
+            {
+                // 스냅이 아니라 “가장 가까운 순찰 포인트로 이동” 시작
+                //owner.Patrol?.StartReturnToNearest();
                 fsm.Change(StateInfo.Move);
+            }
         }
-    }
-
-    public override void Exit()
-    {
-        // nothing
     }
 }

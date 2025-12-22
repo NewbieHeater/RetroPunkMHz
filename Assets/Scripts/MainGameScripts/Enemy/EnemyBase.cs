@@ -3,7 +3,7 @@ using UnityEngine;
 
 public enum StateInfo { Idle, Attack, Move, Hit, Death }
 
-[RequireComponent(typeof(RigidNavigation))]
+
 [RequireComponent(typeof(CapsuleCollider))]
 [RequireComponent(typeof(EnemyHealth))]
 [DisallowMultipleComponent]
@@ -131,8 +131,7 @@ public abstract class EnemyBase : MonoBehaviour, IExplosionInteract, IAttackable
     {
         if (_isDead) return;
 
-        // 1) DamageInfo.SourceDir, KnockbackForce를 캐싱
-        //    SourceDir은 "넉백 방향"이라고 하셨으니 그대로 신뢰합니다.
+
         Vector2 dir2D = new Vector2(info.SourceDir.x, info.SourceDir.y);
 
         if (dir2D.sqrMagnitude < 1e-4f)

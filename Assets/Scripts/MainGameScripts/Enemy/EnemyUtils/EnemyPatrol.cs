@@ -1,3 +1,4 @@
+// EnemyPatrol.cs
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,25 +8,38 @@ using UnityEngine;
 public sealed class EnemyPatrol : MonoBehaviour
 {
     [Header("Patrol")]
-    [SerializeField] private PathProvider _pathProvider;
     [SerializeField] private float moveSpeed = 0.8f;
-    [SerializeField] private float rotateDegPerSec = 180f;
     [SerializeField] private bool pingPong = true;
     [SerializeField] private float arriveEps = 0.05f;
     [SerializeField] private float minStartDist = 0.08f;
     [SerializeField] private float minProgressAfterAdvance = 0.08f;
 
+    [Header("Surface Reaction")]
+    [Tooltip("앞에 표면(벽/낭떠러지 코너)이 잡히면 그 표면에 붙음. False면 뒤돌아감")]
+    [SerializeField] private bool attachSurfaceWhenAhead = true;
+
+    [Tooltip("표면 반응 반복 방지(초)")]
+    [SerializeField] private float surfaceReactCooldown = 0.15f;
+
     private IReadOnlyList<Vector3> pts = Array.Empty<Vector3>();
     private PatrolPoint[] defs = Array.Empty<PatrolPoint>();
 
     private int idx;
-    private bool forward = true;
+    public bool forward = true;
+
     private bool _waiting;
     private float _tWait;
+
     private Vector3 _lastAdvancePos;
     private bool _progressGateArmed;
 
     private RigidNavigation _nav;
+    private PathProvider _pathProvider;
+
+    private bool _returning;
+    private int _returnIdx;
+
+    private float _tLastSurfaceReact = -999f;
 
     private void Awake()
     {
@@ -52,11 +66,14 @@ public sealed class EnemyPatrol : MonoBehaviour
         idx = 0;
         forward = true;
         _waiting = false;
+        _returning = false;
+        _progressGateArmed = false;
     }
 
-    public void BeginPatrol(RigidNavigation.MoveMode mode)
+    public void BeginPatrol()
     {
         if (pts == null || pts.Count == 0 || !_nav) return;
+        if (_returning) return;
 
         int startIdx = idx;
 
@@ -68,49 +85,87 @@ public sealed class EnemyPatrol : MonoBehaviour
         }
 
         idx = FindNextUsableIndex(startIdx);
+
         _nav.isStopped = false;
         _nav.SetSpeed(moveSpeed);
-        _nav.SetDestination(pts[idx], mode);
+        _nav.SetDestination(pts[idx]);
 
         _lastAdvancePos = transform.position;
         _progressGateArmed = true;
     }
 
-    public void Tick(RigidNavigation.MoveMode mode)
+    public void Tick()
     {
         if (pts == null || pts.Count == 0 || !_nav) return;
 
+        // Nav가 정렬 단계면 Patrol은 관여하지 않음
+        if (_nav.IsAligningToSurface) return;
+
+        // 1) "앞의 표면" 반응
+        if (!_returning && !_waiting && _nav.hasPath && !_nav.isStopped)
+        {
+            if (Time.time - _tLastSurfaceReact >= surfaceReactCooldown)
+            {
+                if (attachSurfaceWhenAhead)
+                {
+                    if (!_nav.AlignLatched && _nav.TryGetAheadSurfaceNormal(out Vector3 n))
+                    {
+                        _tLastSurfaceReact = Time.time;
+                        _nav.StartSurfaceAlign(n);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // 2) 복귀
+        if (_returning)
+        {
+            if (HasArrived())
+            {
+                _nav.ResetPath();
+                idx = _returnIdx;
+                _returning = false;
+
+                AdvanceOnce();
+
+                // ===== 핵심 수정: ResetPath 이후 반드시 재이동 허용 =====
+                _nav.isStopped = false;
+
+                _nav.SetSpeed(moveSpeed);
+                _nav.SetDestination(pts[idx]);
+
+                _lastAdvancePos = transform.position;
+                _progressGateArmed = true;
+            }
+            return;
+        }
+
+        // 3) 대기
         if (_waiting)
         {
             if (Time.time - _tWait >= defs[idx].dwellTime)
             {
                 _waiting = false;
+
                 AdvanceOnce();
+
+                // ===== 핵심 수정: 대기 종료 후 반드시 재이동 허용 =====
+                _nav.isStopped = false;
+
                 _nav.SetSpeed(moveSpeed);
-                _nav.SetDestination(pts[idx], mode);
+                _nav.SetDestination(pts[idx]);
+
                 _lastAdvancePos = transform.position;
                 _progressGateArmed = true;
-            }
-            else
-            {
-                FaceTowardsX(pts[idx].x);
             }
             return;
         }
 
+        // 4) 도착 처리
         if (HasArrived())
         {
             _nav.ResetPath();
-
-            if (defs[idx].needJump && forward)
-            {
-                AdvanceOnce();
-                _nav.SetSpeed(moveSpeed);
-                _nav.SetDestination(pts[idx], RigidNavigation.MoveMode.Jump);
-                _lastAdvancePos = transform.position;
-                _progressGateArmed = true;
-                return;
-            }
 
             if (defs[idx].dwellTime > 0f)
             {
@@ -120,22 +175,17 @@ public sealed class EnemyPatrol : MonoBehaviour
             }
 
             AdvanceOnce();
+
+            // ===== 핵심 수정: 도착 직후 다음 목적지로 갈 때 반드시 재이동 허용 =====
+            _nav.isStopped = false;
+
             _nav.SetSpeed(moveSpeed);
-            _nav.SetDestination(pts[idx], mode);
+            _nav.SetDestination(pts[idx]);
+
             _lastAdvancePos = transform.position;
             _progressGateArmed = true;
             return;
         }
-
-        FaceTowardsX(pts[idx].x);
-    }
-
-    private void FaceTowardsX(float tx)
-    {
-        float yaw = (tx - transform.position.x) >= 0f ? 90f : 270f;
-        var target = Quaternion.Euler(0, yaw, 0);
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation, target, rotateDegPerSec * Time.deltaTime);
     }
 
     private bool HasArrived()
@@ -148,9 +198,12 @@ public sealed class EnemyPatrol : MonoBehaviour
             _progressGateArmed = false;
         }
 
-        float rem = _nav.RemainingDistanceVector3();
+        float rem = _nav.RemainingDistanceX();
         if (float.IsNaN(rem) || float.IsInfinity(rem))
-            rem = Mathf.Abs(pts[idx].x - transform.position.x);
+        {
+            int checkIdx = _returning ? _returnIdx : idx;
+            rem = Vector3.Distance(transform.position, pts[checkIdx]);
+        }
 
         return rem <= arriveEps;
     }
@@ -185,6 +238,7 @@ public sealed class EnemyPatrol : MonoBehaviour
         if (fwd)
         {
             if (i + 1 < len) return (i + 1, true);
+            Debug.Log("e");
             return (Mathf.Max(len - 2, 0), false);
         }
         else

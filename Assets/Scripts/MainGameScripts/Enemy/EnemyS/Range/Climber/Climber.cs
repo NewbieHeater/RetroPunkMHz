@@ -30,7 +30,7 @@ public class Climber : EnemyBase
 
     // ====== Expose (States에서 접근) ======
     public BoxCollider MeleeCollider => _meleeAttackCollider;
-
+    public SurfaceWalker2_5D surfaceWalker;
     public float Windup => _windup;
     public float Strike => _strike;
     public float Cooldown => _cooldown;

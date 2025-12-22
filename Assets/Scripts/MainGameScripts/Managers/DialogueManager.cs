@@ -91,6 +91,7 @@ public class DialogueManager : MonoBehaviour
 
     public IEnumerator StartDialogueAndWait(string fileName, string groupName)
     {
+        Debug.Log(fileName+"1"+ groupName);
         StartDialogue(fileName, groupName);
         // 대사가 정상적으로 시작되지 않았다면 바로 종료
         if (!isDialogueActive) yield break;

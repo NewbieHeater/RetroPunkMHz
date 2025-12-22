@@ -16,13 +16,13 @@ public sealed class RobotMoveState : EnemyState<EnemyRobot>
             owner.Anim.Play(owner.MoveStateName);
 
         // ¼øÂû ½ÃÀÛ
-        owner.Patrol?.BeginPatrol(RigidNavigation.MoveMode.Walk);
+        owner.Patrol?.BeginPatrol();
     }
 
     public override void Tick(float dt)
     {
         // ¼øÂû ÁøÇà
-        owner.Patrol?.Tick(RigidNavigation.MoveMode.Walk);
+        owner.Patrol?.Tick();
         var player = owner.Player;
         if (player && owner.Sight &&
             owner.Sight.IsTargetInSight(player.transform, owner.AggroRange))
