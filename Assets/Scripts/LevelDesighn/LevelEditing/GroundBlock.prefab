@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7913811444993776762}
   - component: {fileID: 2683452858536551335}
   - component: {fileID: 3836246099133479633}
-  - component: {fileID: 3490732854850408571}
+  - component: {fileID: -4971078030857148407}
   m_Layer: 6
   m_Name: GroundBlock
   m_TagString: LevelBrush
@@ -106,7 +106,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3490732854850408571
+--- !u!114 &-4971078030857148407
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,10 +115,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 6098137134033688210}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6c59e9e20fc5024c8ef31a78cc46934, type: 3}
+  m_Script: {fileID: 11500000, guid: e31a713e2202c9342b21c48317702e91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  plane: {fileID: 0}
-  snapWhileSelected: 1
-  lockNormalAxis: 1
-  liveSnap: 1
+  allowCombine: 1
+  allowErase: 1

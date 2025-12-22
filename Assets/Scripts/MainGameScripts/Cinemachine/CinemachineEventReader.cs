@@ -1,15 +1,27 @@
 using Game.Controls;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum BuiltInEvents
+{
+    ChargeKill,
+    Dialogue,
+    DialogueRandom,
+    ShakeCameraWithSlowMotion,
+    ShakeCamera,
+}
 
 public class CinemachineEventReader : Singleton<CinemachineEventReader>
 {
     [Header("Refs")]
     [SerializeField] private CinemachineFocusing focusing;
     [SerializeField] private DialogueManager dialogueManager;
+    [SerializeField] private CameraShakeNoise cameraShaker;
+    [SerializeField] private CinemachineEventAsset[] builtIns;
+
     CinemachineEventContext _currentCtx;
-    public CinemachineEventAsset defaultDialogueSequence;
 
     private readonly Queue<QueuedEvent> _queue = new();
 
@@ -47,8 +59,53 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
         public string dialogueFile;
         public string dialogueGroup;
     }
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        // enum 개수만큼 배열 길이 자동 맞추기
+        int count = Enum.GetValues(typeof(BuiltInEvents)).Length;
+        if (builtIns == null || builtIns.Length != count)
+        {
+            Array.Resize(ref builtIns, count);
+        }
+    }
+#endif
+    private CinemachineEventAsset GetBuiltInAsset(BuiltInEvents id)
+    {
+        int idx = (int)id;
+        if (builtIns == null || idx < 0 || idx >= builtIns.Length)
+        {
+            Debug.LogWarning($"[CinemachineEventReader] Built-in array가 초기화되지 않았습니다. ({id})");
+            return null;
+        }
 
-    
+        var asset = builtIns[idx];
+        if (asset == null)
+        {
+            Debug.LogWarning($"[CinemachineEventReader] {id} 슬롯에 에셋이 할당되지 않았습니다.");
+        }
+
+        return asset;
+    }
+
+    public void PlayBuiltInEvent(BuiltInEvents builtIn)
+    {
+        var asset = GetBuiltInAsset(builtIn);
+        if (asset == null) return;
+
+        // 대화 파라미터 없는 일반 이벤트
+        PlayEvent(asset, null, null);
+    }
+
+    // 빌트인 + 대사 이름을 동시에 넘길 수 있는 버전 (Dialogue용)
+    public void PlayBuiltInEvent(BuiltInEvents builtIn, string dialogueFile, string dialogueGroup)
+    {
+        var asset = GetBuiltInAsset(builtIn);
+        if (asset == null) return;
+
+        PlayEvent(asset, dialogueFile, dialogueGroup);
+    }
+
 
     public void PlayEvent(CinemachineEventAsset asset, string dialogueFile, string dialogueGroup)
     {
@@ -65,10 +122,6 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
             _runner = StartCoroutine(RunQueue());
     }
 
-    public void PlayDialogueSequence(string fileName, string groupName)
-    {
-        PlayEvent(defaultDialogueSequence, fileName, groupName);
-    }
 
     private IEnumerator RunQueue()
     {
@@ -95,7 +148,9 @@ public class CinemachineEventReader : Singleton<CinemachineEventReader>
 
             DialogueManager = dialogueManager,
             DialogueFileName = qe.dialogueFile,
-            DialogueGroupName = qe.dialogueGroup
+            DialogueGroupName = qe.dialogueGroup,
+
+            CameraShake = cameraShaker
         };
 
         if (asset.lockPlayerInputWhileRunning)

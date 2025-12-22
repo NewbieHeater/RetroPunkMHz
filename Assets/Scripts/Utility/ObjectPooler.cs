@@ -28,7 +28,7 @@ public class ObjectPoolerEditor : Editor
 public class ObjectPooler : MonoBehaviour
 {
     static ObjectPooler inst;
-    void Start()
+    void Awake()
     {
         inst = this;
         Init();
@@ -51,6 +51,43 @@ public class ObjectPooler : MonoBehaviour
         "    ObjectPooler.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
         "    CancelInvoke();    // Monobehaviour에 Invoke가 있다면 \n}";
 
+    public static bool IsReady => inst != null;
+
+    // (추가) 태그 풀 존재 확인
+    public static bool HasPool(string tag)
+        => inst != null && inst.poolDictionary != null && inst.poolDictionary.ContainsKey(tag);
+
+    // (추가) 없으면 자동 생성
+    public static void EnsurePool(string tag, GameObject prefab, int warmCount = 1)
+    {
+        if (inst == null)
+            throw new Exception("ObjectPooler is not initialized.");
+
+        if (inst.poolDictionary == null)
+            inst.Init(); // 혹은 Awake에서 Init으로 바꾸는 것을 권장
+
+        if (inst.poolDictionary.ContainsKey(tag))
+            return;
+
+        inst.poolDictionary.Add(tag, new Queue<GameObject>());
+
+        // warmCount만큼 미리 생성해 큐에 넣기
+        for (int i = 0; i < warmCount; i++)
+        {
+            var obj = inst.CreateNewObject(tag, prefab);
+            inst.ArrangePool(obj);
+        }
+    }
+    public static bool TrySpawnFromPool(string tag, Vector3 position, Transform parent, Quaternion rotation, out GameObject go)
+    {
+        go = null;
+        if (inst == null) return false;
+        if (inst.poolDictionary == null) return false;
+        if (!inst.poolDictionary.ContainsKey(tag)) return false;
+
+        go = inst._SpawnFromPool(tag, position, parent ?? inst.transform, rotation);
+        return go != null;
+    }
 
 
     public static GameObject SpawnFromPool(string tag, Vector3 position) =>
@@ -116,7 +153,7 @@ public class ObjectPooler : MonoBehaviour
     {
         if (!inst.poolDictionary.ContainsKey(obj.name))
             throw new Exception($"Pool with tag {obj.name} doesn't exist.");
-
+        obj.SetActive(false);
         inst.poolDictionary[obj.name].Enqueue(obj);
     }
 
@@ -170,10 +207,10 @@ public class ObjectPooler : MonoBehaviour
             }
             
             // OnDisable에 ReturnToPool 구현여부와 중복구현 검사
-            if (poolDictionary[pool.tag].Count <= 0)
-                Debug.LogError($"{pool.tag}{INFO}");
-            else if (poolDictionary[pool.tag].Count != pool.size)
-                Debug.LogError($"{pool.tag}에 ReturnToPool이 중복됩니다");
+            //if (poolDictionary[pool.tag].Count <= 0)
+            //    Debug.LogError($"{pool.tag}{INFO}");
+            //else if (poolDictionary[pool.tag].Count != pool.size)
+            //    Debug.LogError($"{pool.tag}에 ReturnToPool이 중복됩니다");
         }
         readyToPool.Invoke();
     }
@@ -182,8 +219,8 @@ public class ObjectPooler : MonoBehaviour
     {
         var obj = Instantiate(prefab, transform);
         obj.name = tag;
-        //Managers.Resource.Disable(obj);
-        obj.SetActive(false); // 비활성화시 ReturnToPool을 하므로 Enqueue가 됨
+        Managers.Resource.Disable(obj);
+        //obj.SetActive(false); // 비활성화시 ReturnToPool을 하므로 Enqueue가 됨
         return obj;
     }
 

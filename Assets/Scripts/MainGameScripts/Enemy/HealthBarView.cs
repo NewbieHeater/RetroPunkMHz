@@ -6,7 +6,7 @@ using UnityEngine;
 public class HealthBarView : MonoBehaviour
 {
 
-    [SerializeField] private EnemyBase source;
+    [SerializeField] private EnemyHealth source;
     [SerializeField] TextMeshProUGUI hpText;
 
     [Header("Smoothing")]
@@ -19,7 +19,7 @@ public class HealthBarView : MonoBehaviour
 
     void Awake()
     {
-        if (!source) source = GetComponentInParent<EnemyBase>();
+        if (!source) source = GetComponentInParent<EnemyHealth>();
         if (!hpText) hpText = GetComponentInChildren<TextMeshProUGUI>();
         cam = Camera.main.transform;
         parentTf = transform.parent;      // 헬스바가 캐릭터 자식이라면

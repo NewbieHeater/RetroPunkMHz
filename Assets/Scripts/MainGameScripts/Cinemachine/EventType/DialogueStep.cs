@@ -26,6 +26,7 @@ public class DialogueStep : EventStep
             if (!string.IsNullOrEmpty(ctx.DialogueGroupName))
                 finalGroup = ctx.DialogueGroupName;
         }
+        Debug.Log(ctx.DialogueFileName);
 
         if (string.IsNullOrEmpty(finalFile) || string.IsNullOrEmpty(finalGroup))
         {

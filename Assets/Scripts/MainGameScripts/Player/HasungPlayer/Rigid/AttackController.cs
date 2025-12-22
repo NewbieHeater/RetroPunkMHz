@@ -69,7 +69,7 @@ public class AttackController : MonoBehaviour
         float mult = 1f;
         bool activated = false;
 
-        if (UnityEngine.Random.value < absChance)
+        if (Random.value < absChance)
         {
             activated = true;
             mult = (chance > 0f) ? _stats.CritMultiplier : 0.75f;
@@ -96,16 +96,16 @@ public class AttackController : MonoBehaviour
             PerformPrimaryAttack();
 
         // 차지 시작
-        if (btns.IsDown(GameInputAction.Charge) || Input.GetMouseButtonDown(1))
+        if (btns.IsDown(GameInputAction.Charge))
             StartCharging();
 
         // 차지 유지
-        bool holdCharge = btns.IsHeld(GameInputAction.Charge) || Input.GetMouseButton(1);
+        bool holdCharge = btns.IsHeld(GameInputAction.Charge);
         if (isCharging && holdCharge)
             ContinueCharging();
 
         // 차지 해제/발동
-        bool releaseCharge = btns.IsUp(GameInputAction.Charge) || Input.GetMouseButtonUp(1);
+        bool releaseCharge = btns.IsUp(GameInputAction.Charge);
         if (isCharging && releaseCharge)
             PerformChargedAttack();
     }
@@ -232,6 +232,7 @@ public class AttackController : MonoBehaviour
             _hitOnce.Add(atk);
 
             atk.TakeDamage(info);
+            
         }
     }
 

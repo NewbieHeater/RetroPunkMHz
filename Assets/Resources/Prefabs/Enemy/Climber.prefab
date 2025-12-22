@@ -130,7 +130,7 @@ Transform:
   m_GameObject: {fileID: 4576627753292006936}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -217,11 +217,15 @@ GameObject:
   m_Component:
   - component: {fileID: 5595097500586292529}
   - component: {fileID: 2618376351790307894}
+  - component: {fileID: 7429009216076922656}
+  - component: {fileID: -1985980189038148044}
+  - component: {fileID: 8424922253088662717}
+  - component: {fileID: 8766791423120740571}
   - component: {fileID: 3694233925058921418}
+  - component: {fileID: 8679160035616163260}
+  - component: {fileID: 8645800333837961097}
   - component: {fileID: 157189638260602493}
   - component: {fileID: 3587092302074767184}
-  - component: {fileID: 8679160035616163260}
-  - component: {fileID: 8766791423120740571}
   m_Layer: 8
   m_Name: Climber
   m_TagString: Untagged
@@ -262,30 +266,22 @@ MonoBehaviour:
   _findRange: 1.5
   _aggroRange: 5
   _attackRange: 5
-  _viewAngle: 55
-  _obstacleMask:
-    serializedVersion: 2
-    m_Bits: 64
-  _maxHp: 100
-  _explosionRadius: 0
-  _explodeOnHitMask:
-    serializedVersion: 2
-    m_Bits: 0
-  _chargedDeathTimeout: 4
-  pathProvider: {fileID: 0}
-  moveSpeed: 4
-  rotateDegPerSec: 180
-  pingPong: 1
-  arriveEps: 0.05
-  minStartDist: 0.08
-  minProgressAfterAdvance: 0.08
   _meleeAttackCollider: {fileID: 0}
   _windup: 0.4
   _strike: 0.2
   _cooldown: 0.5
   _knockbackStrength: 4
   _hitStun: 0.25
---- !u!114 &3694233925058921418
+  _idleState: Idle
+  _moveState: Move
+  _attackState: Attack
+  _hitState: Hit
+  _deathState: Death
+  _movingBool: 
+  _moveCrossFade: 0.1
+  _attackCrossFade: 0.1
+  _hitCrossFade: 0.05
+--- !u!114 &7429009216076922656
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -294,64 +290,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5775095506597332354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83b4a053ae93c464299969d5a89ec838, type: 3}
+  m_Script: {fileID: 11500000, guid: b0d8c5d41df9a4f4584dbfd4396f1e4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 6
-  stoppingDistance: 0.01
-  jumpApexHeight: 30
-  isReset: 0
---- !u!136 &157189638260602493
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5775095506597332354}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &3587092302074767184
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5775095506597332354}
-  serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 120
-  m_CollisionDetection: 0
---- !u!114 &8679160035616163260
+  _maxHp: 100
+--- !u!114 &-1985980189038148044
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -360,10 +303,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 5775095506597332354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53e2ccfa50c819642906a4e125d71d85, type: 3}
+  m_Script: {fileID: 11500000, guid: a084f7a2158d2d74fb804a4612ffa613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  anim: {fileID: 6140234440411692222}
+  _horizontalRange: 6
+  _viewAngle: 180
+  _respectFacing: 1
+  _obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  _playerTag: Player
+  _playerHitboxLayerName: PlayerHitBox
+  _eye: {fileID: 0}
+--- !u!114 &8424922253088662717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775095506597332354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5cb8b4362a438a49b0b36d9d2b2dee2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 0.8
+  rotateDegPerSec: 180
+  pingPong: 1
+  arriveEps: 0.05
+  minStartDist: 0.08
+  minProgressAfterAdvance: 0.08
 --- !u!114 &8766791423120740571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,6 +362,119 @@ MonoBehaviour:
     dwellTime: 0
     needJump: 0
     jumpPower: 0
+--- !u!114 &3694233925058921418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775095506597332354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83b4a053ae93c464299969d5a89ec838, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 6
+  stoppingDistance: 0.01
+  gravityAccel: 20
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckStartY: 0.1
+  groundCheckDist: 0.7
+  planeNormal: {x: 0, y: 0, z: 1}
+  forwardProbeDistance: 0.45
+  stickProbeDistance: 0.6
+  stickSnap: 0.06
+  rotateDegPerSec: 720
+  climbGravityAccel: 20
+  visualRoot: {fileID: 0}
+  rotateBodyInClimb: 1
+  jumpApexHeight: 30
+  isReset: 0
+--- !u!114 &8679160035616163260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775095506597332354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53e2ccfa50c819642906a4e125d71d85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 6140234440411692222}
+--- !u!114 &8645800333837961097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775095506597332354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2abaafa024163a6439cf96df94331548, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _explodeOnHitMask:
+    serializedVersion: 2
+    m_Bits: 0
+  _chargedDeathTimeout: 4
+  _explosionRadius: 0
+--- !u!136 &157189638260602493
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775095506597332354}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!54 &3587092302074767184
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5775095506597332354}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 120
+  m_CollisionDetection: 0
 --- !u!1 &7874811196938670506
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,7 +763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b4576a6ec76f78499e52fa4c5968bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  source: {fileID: 2618376351790307894}
+  source: {fileID: 0}
   hpText: {fileID: 2869825503643407169}
   smooth: 1
 --- !u!114 &2869825503643407169 stripped
