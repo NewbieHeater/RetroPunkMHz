@@ -52,6 +52,11 @@ public class InventoryMain : Singleton<InventoryMain>
     // 씬이 로드될 때 슬롯에 다시 정보를 넣는 용도 or UI교체
     public void LoadToSlots()
     {
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            _slots[i].ClearSlot();
+        }
+
         foreach (var data in savedItems)
         {
             if (data.slotIndex < _slots.Length)
@@ -175,4 +180,5 @@ public class InventoryMain : Singleton<InventoryMain>
             }
         }
     }
+
 }
