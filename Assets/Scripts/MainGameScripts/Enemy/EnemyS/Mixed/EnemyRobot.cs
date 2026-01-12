@@ -84,6 +84,12 @@ public class EnemyRobot : EnemyBase
             _animator.Play(hitState, 0, 0f);
         if (s == StateInfo.Death)
             _nav.SetEnabled(false);
+        if (s == StateInfo.Move)
+        {
+            _nav.isStopped = false;
+            _animator.SetBool("Moving", true);
+        }
+            
     }
 
     protected override void OnExitState(StateInfo s)
@@ -91,6 +97,8 @@ public class EnemyRobot : EnemyBase
         base.OnExitState(s);
         if (s == StateInfo.Move) _nav.isStopped = true;
         if (s == StateInfo.Attack) ToggleMelee(false);
+        if (s == StateInfo.Move)
+            _animator.SetBool("Moving", false);
     }
 
     public override void TakeDamage(in DamageInfo info)

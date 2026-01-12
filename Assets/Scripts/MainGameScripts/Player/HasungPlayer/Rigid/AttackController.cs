@@ -156,6 +156,8 @@ public class AttackController : MonoBehaviour
     {
         if (_stats == null) { ResetCharge(); return; }
 
+        
+
         if (animator) animator.Play(animClipCharged);
 
         float t = Mathf.Clamp(chargeTimer, 0f, _stats.MaxChargeTime);
@@ -232,6 +234,7 @@ public class AttackController : MonoBehaviour
             _hitOnce.Add(atk);
 
             atk.TakeDamage(info);
+            
         }
     }
 

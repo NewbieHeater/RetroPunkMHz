@@ -30,8 +30,8 @@ MonoBehaviour:
   steps:
   - {fileID: -7363024705808259700}
   - {fileID: 2741338817646961246}
-  - {fileID: 3248040454140265771}
   - {fileID: 2496216773151886961}
+  - {fileID: 8282385607832671122}
 --- !u!114 &2496216773151886961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: CameraFocusStep
   m_EditorClassIdentifier: 
   cameraSlot: 0
---- !u!114 &3248040454140265771
+--- !u!114 &8282385607832671122
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,9 +67,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52ecf39fc37b08e4d894b7df55bf10d5, type: 3}
-  m_Name: DialogueStep
+  m_Script: {fileID: 11500000, guid: 25237b62571c4d842b2e9dc3e011a5b2, type: 3}
+  m_Name: RestoreCameraStep
   m_EditorClassIdentifier: 
-  fileName: 
-  groupName: 
-  useContextOverride: 1
+  cameraSlot: 0

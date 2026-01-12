@@ -7,6 +7,6 @@ public class WaitStep : EventStep
     public float seconds;
     public override IEnumerator Execute(CinemachineEventContext ctx)
     {
-        throw new System.NotImplementedException();
+        yield return new WaitForSeconds(seconds);
     }
 }

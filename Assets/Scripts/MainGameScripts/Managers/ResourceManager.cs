@@ -45,6 +45,7 @@ public class ResourceManager
         if (go == null)
             return;
         go.SetActive(false);
+        ObjectPooler.ReturnToPool(go);
     }
     public void Destroy(GameObject go)
     {

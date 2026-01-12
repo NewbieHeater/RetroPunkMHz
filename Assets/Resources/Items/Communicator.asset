@@ -15,8 +15,8 @@ MonoBehaviour:
   mItemID: 1
   mCanOverlap: 0
   mIsInteractivity: 1
-  mIsConsumable: 1
+  mIsConsumable: 0
   mItemCooltime: -1
-  mItemType: 128
+  mItemType: 1
   mItemImage: {fileID: 21300000, guid: 54f6bc244910109478fac3623f00d67a, type: 3}
   mItemDescription: B

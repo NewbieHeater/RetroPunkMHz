@@ -41,7 +41,7 @@ public class CameraShakeNoise : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.H))
         {
-            ShakeOnChargeKill();
+            CinemachineEventReader.Instance.PlayBuiltInEvent(BuiltInEvents.ChargeKill);
         }
     }
 
@@ -57,22 +57,22 @@ public class CameraShakeNoise : MonoBehaviour
         perlin.m_AmplitudeGain = targetAmp;
         perlin.m_FrequencyGain = targetFreq;
 
-        // 강하게 유지
+        // --- 강하게 유지 (슬로모션과 무관하게 '실제 시간' 기준) ---
         float t = 0f;
         while (t < duration)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime; 
             yield return null;
         }
 
-        // 페이드 아웃
+        // --- 페이드 아웃 (역시 실시간 기준) ---
         float startAmp = perlin.m_AmplitudeGain;
         float startFreq = perlin.m_FrequencyGain;
 
         t = 0f;
         while (t < fadeOut)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime; 
             float lerp = t / fadeOut; // 0 → 1
 
             perlin.m_AmplitudeGain = Mathf.Lerp(startAmp, baseAmp, lerp);
@@ -86,9 +86,6 @@ public class CameraShakeNoise : MonoBehaviour
         shakeRoutine = null;
     }
 
-    /// <summary>
-    /// 일반 용도: 원하는 세기/시간으로 카메라를 한 번 흔들기
-    /// </summary>
     public void ShakeOnce(float duration, float amp, float freq, float fadeOut = -1f)
     {
         if (perlin == null)
@@ -103,9 +100,6 @@ public class CameraShakeNoise : MonoBehaviour
         shakeRoutine = StartCoroutine(ShakeCoroutine(duration, amp, freq, fadeOut));
     }
 
-    /// <summary>
-    /// 차지 공격으로 적 처치 시 호출할 프리셋
-    /// </summary>
     public void ShakeOnChargeKill()
     {
         ShakeOnce(chargeKillDuration, chargeKillAmp, chargeKillFreq);
