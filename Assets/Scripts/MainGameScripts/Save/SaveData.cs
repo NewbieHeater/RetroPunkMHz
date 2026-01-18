@@ -11,4 +11,7 @@ public class SaveData
 
     // Inventory
     public List<ItemData> inventoryItems;
+
+    //Scene
+    public string sceneName;
 }

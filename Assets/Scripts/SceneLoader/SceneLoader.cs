@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
@@ -8,17 +8,18 @@ public class SceneLoader : MonoBehaviour
     public static SceneLoader Instance;
 
     [Header("UI References")]
-    public CanvasGroup FadeCanvas;     // ÆäÀÌµå¿ë CanvasGroup (°ËÁ¤ Image Æ÷ÇÔ)
+    public CanvasGroup FadeCanvas;     // í˜ì´ë“œìš© CanvasGroup (ê²€ì • Image í¬í•¨)
     public Canvas canvas;
     public GameObject LoadingObjs;
-    public Image ProgressBar;         // ·Îµù ÁøÇà¹Ù
-    public GameObject PressAnyKeyText; // "Press any key" ÅØ½ºÆ®
+    public Image ProgressBar;         // ë¡œë”© ì§„í–‰ë°”
+    public GameObject PressAnyKeyText; // "Press any key" í…ìŠ¤íŠ¸
 
     [Header("Settings")]
-    public float fadeDuration = 1f;    // ÆäÀÌµå ¼Óµµ
+    public float fadeDuration = 1f;    // í˜ì´ë“œ ì†ë„
 
     private bool isLoading = false;
-
+    private string targetSceneName;
+    [SerializeField] bool debugDisableUI = true;
     void Awake()
     {
         if (Instance == null)
@@ -31,13 +32,25 @@ public class SceneLoader : MonoBehaviour
             Destroy(gameObject);
         }
 
-        FadeCanvas.alpha = 1; // Ã³À½¿£ °ËÁ¤ È­¸é
-        StartCoroutine(FadeIn()); // ½ÇÇà ½Ã ¹à°Ô ÀüÈ¯
+        //FadeCanvas.alpha = 1; // ì²˜ìŒì—” ê²€ì • í™”ë©´
+        //StartCoroutine(FadeIn()); // ì‹¤í–‰ ì‹œ ë°ê²Œ ì „í™˜
         if (PressAnyKeyText != null) PressAnyKeyText.SetActive(false);
     }
-
+    void Start()
+    {
+        if (FadeCanvas != null)
+        {
+            FadeCanvas.alpha = 1;
+            StartCoroutine(FadeIn());
+        }
+    }
     public void LoadScene(string sceneName)
     {
+        if (debugDisableUI)
+        {
+            SceneManager.LoadScene(sceneName);
+            return;
+        }
         canvas.enabled = true;
         if (!isLoading)
             StartCoroutine(LoadSceneProcess(sceneName));
@@ -48,41 +61,42 @@ public class SceneLoader : MonoBehaviour
         isLoading = true;
         LoadingObjs.SetActive(true);
 
-        // ÆäÀÌµå ¾Æ¿ô (È­¸é ¾îµÎ¿öÁü)
+        // í˜ì´ë“œ ì•„ì›ƒ (í™”ë©´ ì–´ë‘ì›Œì§)
         yield return StartCoroutine(FadeOut());
 
-        // ºñµ¿±â ·Îµå ½ÃÀÛ
+        // ë¹„ë™ê¸° ë¡œë“œ ì‹œì‘
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
         op.allowSceneActivation = false;
-
+        
         while (op.progress < 0.9f)
         {
             ProgressBar.fillAmount = Mathf.Clamp01(op.progress / 0.9f);
             yield return null;
         }
 
-        // ·Îµù ¿Ï·á
+        // ë¡œë”© ì™„ë£Œ
         ProgressBar.fillAmount = 1f;
         //if(MainLoop.Instance)
         //    MainLoop.Instance.OnLoadSceneEnd();
 
-        // "Press Any Key" ÅØ½ºÆ® Ç¥½Ã
+        // "Press Any Key" í…ìŠ¤íŠ¸ í‘œì‹œ
         if (PressAnyKeyText != null)
             PressAnyKeyText.SetActive(true);
 
-        // ¾À È°¼ºÈ­
+        // ì”¬ í™œì„±í™”
         op.allowSceneActivation = true;
 
-        // Å° ÀÔ·Â ´ë±â
+        // í‚¤ ì…ë ¥ ëŒ€ê¸°
         yield return StartCoroutine(WaitForAnyKey());
 
-        // ÆäÀÌµå ÀÎ (»õ ¾À º¸ÀÌ°Ô)
+        // í˜ì´ë“œ ì¸ (ìƒˆ ì”¬ ë³´ì´ê²Œ)
         yield return StartCoroutine(FadeIn());
 
         if (PressAnyKeyText != null)
             PressAnyKeyText.SetActive(false);
 
         isLoading = false;
+
     }
 
     private IEnumerator WaitForAnyKey()
@@ -115,4 +129,5 @@ public class SceneLoader : MonoBehaviour
         }
         FadeCanvas.alpha = 1;
     }
+    
 }
