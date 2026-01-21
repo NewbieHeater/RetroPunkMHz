@@ -4,6 +4,19 @@ using UnityEngine.SceneManagement;
 public class SceneSave : MonoBehaviour, ISaveable
 {
     SceneLoader sceneLoader;
+    public static SceneSave Instance;
+
+    void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
     public void SaveData(SaveData data)
     {
         data.sceneName = SceneManager.GetActiveScene().name;

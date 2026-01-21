@@ -4,10 +4,21 @@ using System.Collections.Generic;
 public class InventoryItemSave : MonoBehaviour, ISaveable
 {
     InventoryMain inventory;
+    public static InventoryItemSave Instance;
 
+    
     private void Awake()
     {
         inventory = InventoryMain.Instance;
+
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void SaveData(SaveData data)

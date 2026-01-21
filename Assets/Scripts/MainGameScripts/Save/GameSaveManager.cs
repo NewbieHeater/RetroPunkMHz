@@ -7,10 +7,21 @@ public class GameSaveManager : MonoBehaviour
     ISaveable[] saveables;
     SaveData pendingLoadData;
 
+    public static GameSaveManager Instance;
+
+    
     private void Awake()
     {
         CollectSaveables();
         SceneManager.sceneLoaded += OnSceneLoaded;
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void OnDestroy()
