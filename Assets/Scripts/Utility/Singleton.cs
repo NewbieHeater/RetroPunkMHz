@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -43,11 +43,11 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
         else if (_instance != this)
         {
-            Destroy(gameObject); // Áßº¹ ¹æÁö
+            Destroy(gameObject); // ì¤‘ë³µ ë°©ì§€
             return;
         }
 
-        DontDestroyOnLoad(gameObject); // ½Ì±ÛÅæ À¯Áö ÇÊ¿ä ½Ã
+        DontDestroyOnLoad(gameObject); // ì‹±ê¸€í†¤ ìœ ì§€ í•„ìš” ì‹œ
     }
 
     protected virtual void Initialize()

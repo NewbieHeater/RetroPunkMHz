@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class RigidJumpController : MonoBehaviour
@@ -24,14 +24,14 @@ public class RigidJumpController : MonoBehaviour
     private GroundDetector _ground;
     private IPlayerAnimatorView _anim;
 
-    // »óÅÂ
+    // ìƒíƒœ
     private float _coyoteTimer;
     private float _jumpBufferTimer;
     private bool _jumpHeld;
     private bool _requestCutoff;
     private int _airJumpsLeft;
 
-    private float _baseGravity; // ±âº»Áß·Â
+    private float _baseGravity; // ê¸°ë³¸ì¤‘ë ¥
     private bool _wasGrounded;
 
     public void Initialize(GroundDetector gd, IPlayerAnimatorView anim)
@@ -44,7 +44,7 @@ public class RigidJumpController : MonoBehaviour
         _baseGravity = (-2f) / (timeToJumpApex * timeToJumpApex);
     }
 
-    /// Áö¼ÓÀûÀÎ ÀÔ·ÂÀ» È®ÀÎÇÏ´Â ÇÔ¼ö
+    /// ì§€ì†ì ì¸ ì…ë ¥ì„ í™•ì¸í•˜ëŠ” í•¨ìˆ˜
     public void OnUpdate(float fdt, PlayerInputFrame input)
     {
         if (input.buttons.IsDown(InputAction.Jump))
@@ -58,11 +58,11 @@ public class RigidJumpController : MonoBehaviour
             _requestCutoff = true;
         }
     }
-    // Ãß°¡ ÇÊµå
+    // ì¶”ê°€ í•„ë“œ
     private float _fallTimer;
-    public float minFallTime = 0.1f; // ÃÖ¼Ò ³«ÇÏ ½Ã°£ (0.1~0.2f Á¤µµ ÃßÃµ)
+    public float minFallTime = 0.1f; // ìµœì†Œ ë‚™í•˜ ì‹œê°„ (0.1~0.2f ì •ë„ ì¶”ì²œ)
 
-    /// ¹°¸®Àû¿ë
+    /// ë¬¼ë¦¬ì ìš©
     public void OnFixedStep(float fdt, PlayerInputFrame input)
     {
         bool grounded = _ground.IsGrounded;
@@ -77,7 +77,7 @@ public class RigidJumpController : MonoBehaviour
 
         bool isFalling = _rb.velocity.y < -0.01f && !_ground.IsGrounded;
 
-        // Âª°Ô ¶á °ÍÀº ¹«½ÃÇÏµµ·Ï Å¸ÀÌ¸Ó »ç¿ë
+        // ì§§ê²Œ ëœ¬ ê²ƒì€ ë¬´ì‹œí•˜ë„ë¡ íƒ€ì´ë¨¸ ì‚¬ìš©
         if (isFalling)
         {
             _fallTimer += fdt;
@@ -137,13 +137,14 @@ public class RigidJumpController : MonoBehaviour
         float jumpVelocity = Mathf.Sqrt(-2f * _baseGravity * maxJumpHeight);
         _rb.velocity = new Vector3(_rb.velocity.x, jumpVelocity, 0f);
 
-        // °øÁß¿¡¼­ ´õºíÁ¡ÇÁ½Ã Ä«¿îÆ® -1
+        // ê³µì¤‘ì—ì„œ ë”ë¸”ì í”„ì‹œ ì¹´ìš´íŠ¸ -1
         if (!grounded && _coyoteTimer <= 0f && _airJumpsLeft > 0)
             _airJumpsLeft--;
     }
-
+    public bool GravityEnabled { get; set; } = true;
     private void ApplyGravity(bool grounded, float dt)
     {
+        if (!GravityEnabled) return;
         if (grounded) return;
 
         float multiplier;

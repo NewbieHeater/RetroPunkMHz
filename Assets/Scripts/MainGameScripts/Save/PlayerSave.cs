@@ -22,7 +22,7 @@ public class PlayerSave : MonoBehaviour, ISaveable
 
     public void SaveData(SaveData data)
     {
-        data.playerPosition = transform.position + Vector3.up * 100f;
+        data.playerPosition = transform.position;
         data.playerHp = hp;
     }
 
